@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Regula Document Reader</string>
+    <string name="strOK">Ok</string>
+    <string name="strError">Error</string>
+    <string name="strLicenseInvalid">License is invalid</string>
+    <string name="browse_permission_required">Permission to use storage required for this action</string>
+    <string name="camera_permission_required">Permission to use camera required for this action</string>
+    <string name="strSummary">Summary</string>
+
+    <!--CaptureAcitvityStrings-->
+    <string name="no_camera_access">Unable to access camera</string>
+
+    <!--AboutActivity strings-->
+    <string name="strSupportEmail">support@regulaforensics.com</string>
+    <string name="strWebsite">http://regulaforensics.com</string>
+    <string name="strTwitterLink"> \u0040regula_support</string>
+    <string name="strFacebookLink">facebook.com/regulaforensics</string>
+    <string name="strSupportWebsite">mobile.regulaforensics.com</string>
+    <string name="strPrivacyPolicy"><a href="https://regulaforensics.com/en/company/privacy/">Privacy Policy</a></string>
+    <string name="strAboutInfoP1">
+        Application performs on-device high speed OCR and parsing of MRZ (machine readable zone) from ICAO 9303 compliant documents (passport, visa, ID card) and ISO 18013 compliant documents (driver\'s licenses).
+    </string>
+    <string name="strAboutInfoP2">
+        No need to position the document carefully and precisely in front of the camera - just make sure, that MRZ in any way fits in frame (horizontally, vertically, diagonally) and camera is focused on the document.
+    </string>
+    <string name="strAboutInfoP3">
+        MRZ will be detected, cropped, rotated, recognized, parsed and verified automatically.
+    </string>
+    <string name="strAboutInfoP4">
+        - On-device computations only, no need for network connection
+        \n- High performance with high accuracy
+        \n- Works on the whole image frame, automatic detection of MRZ
+        \n- Works with live video stream or saved images
+        \n- Parsing MRZ lines to separate fields
+        \n- Verification of check digits
+        \n- Verification of dates for correctness (expiry date, dates existence, etc.)
+        \n- Verification of ISO codes (correctness and existence)
+        \n- Many custom / non-standard MRZ filling formats supported in parsing to fields for different countries
+        \n- SDK available for developers, easy to integrate into any application
+    </string>
+    <string name="strAboutInfoP5">
+        MRZ OCR library is available for purchase separately.
+    </string>
+    <string name="strAboutInfoP6">
+        For business related questions please contact:
+    </string>
+    <string name="strAboutInfoP7">
+        For more information, updates and useful links, please visit our website:
+    </string>
+    <string name="strAboutInfoP8">
+        Also, please, read our:
+    </string>
+    <string name="strCopyright">\u00a9 Regula Forensics, Inc. 2004-%s</string>
+
+    <!--SettingsActivity strings-->
+    <string name="camera_list">List of available back cameras:</string>
+    <string name="camera_facing">Camera facing: %1$s</string>
+    <string name="camera_max_resolution">Max preview size: %1$s</string>
+    <string name="camera_ver_angle">Camera vertical angle (degrees): %1$s</string>
+    <string name="camera_hor_angle">Camera horizontal angle (degrees): %1$s</string>
+    <string name="camera">Camera</string>
+
+</resources>
