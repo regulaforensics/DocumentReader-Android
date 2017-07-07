@@ -7,7 +7,7 @@
 3. Change bundle ID in demo application, specified during registration your license key.
 4. Put your trial license key (`regula.license` file) in DocumentReader-sample/app/src/main/res/raw folder
 5. Open DocumentReader-sample using Android Studio Open an existing Android Studio project
-6. Build and run application on device.
+6. Select appropriate build variant and run application.
 
 ## <a name="instal_reader"></a> Install DocumentReader in custom applications
 
