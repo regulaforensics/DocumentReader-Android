@@ -60,5 +60,26 @@
     <string name="camera_ver_angle">Camera vertical angle (degrees): %1$s</string>
     <string name="camera_hor_angle">Camera horizontal angle (degrees): %1$s</string>
     <string name="camera">Camera</string>
+    <string name="strMRZ">MRZ</string>
+    <string name="strBarcode">Barcode</string>
+    <string name="strVisualOCR">Visual zone OCR</string>
+    <string name="strDocumentType">Document type recognition</string>
+    <string name="strLocateDocument">Document locating </string>
+    <string name="strAuthVerification">Authenticity verification</string>
+    <string name="strImageQA">Image QA</string>
+    <string name="strCapabilities">Capabilities</string>
 
+    <!--ResultsActivity strings-->
+    <string name="strNoDataToDisplay">No data to display</string>
+    <string name="strFieldType">Field type</string>
+    <string name="strRFID">RFID-chip</string>
+    <string name="strMRZOCR">MRZ OCR</string>
+    <string name="strMRZRFID">MRZ - RFID</string>
+    <string name="strMRZBARCODE">MRZ - BARCODE</string>
+    <string name="strRFIDVisual">RFID - Visual zone</string>
+    <string name="strMRZVisual">MRZ - Visual</string>
+    <string name="strResult">Result</string>
+    <string name="strBARCODEVisual">Barcode - Visual zone</string>
+    <string name="strRFIDBARCODE">RFID - Barcode</string>
+    <string name="strCroppedImage">Cropped image(-s)</string>
 </resources>

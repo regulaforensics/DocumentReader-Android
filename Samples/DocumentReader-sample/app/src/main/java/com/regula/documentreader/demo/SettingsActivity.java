@@ -5,9 +5,13 @@ import android.content.SharedPreferences;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+
+import com.regula.documentreader.api.DocumentReader;
 
 import java.util.HashMap;
 
@@ -17,6 +21,7 @@ public class SettingsActivity extends Activity {
     private TextView horizontalAngleTv,verticalAngleTv;
     private SharedPreferences prefs;
     private HashMap<Integer,String> camerasHorAngle, camerasVerAngle;
+    private CheckBox mrzCb, ocrCb, barcodeCb, documentTypeCb, locationCb, authenticityCb, imageQaCb;
 
     View.OnClickListener rbListener = new View.OnClickListener() {
         @Override
@@ -41,6 +46,15 @@ public class SettingsActivity extends Activity {
 
         camerasHorAngle = new HashMap<>();
         camerasVerAngle = new HashMap<>();
+
+        mrzCb = (CheckBox) findViewById(R.id.mrzCb);
+        ocrCb = (CheckBox) findViewById(R.id.ocrCb);
+        barcodeCb = (CheckBox) findViewById(R.id.barcodeCb);
+        documentTypeCb = (CheckBox) findViewById(R.id.docTypeCb);
+        locationCb = (CheckBox) findViewById(R.id.locateCb);
+        authenticityCb = (CheckBox) findViewById(R.id.authenticityCb);
+        imageQaCb = (CheckBox) findViewById(R.id.imageQaCb);
+
     }
 
     @Override
@@ -48,6 +62,62 @@ public class SettingsActivity extends Activity {
         super.onResume();
 
         GetCameraList();
+
+        mrzCb.setChecked(DocumentReader.Instance().processParams.mrz);
+        mrzCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                DocumentReader.Instance().processParams.mrz = b;
+            }
+        });
+
+        ocrCb.setChecked(DocumentReader.Instance().processParams.ocr);
+        ocrCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                DocumentReader.Instance().processParams.ocr = b;
+            }
+        });
+
+        barcodeCb.setChecked(DocumentReader.Instance().processParams.barcode);
+        barcodeCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                DocumentReader.Instance().processParams.barcode = b;
+            }
+        });
+
+        documentTypeCb.setChecked(DocumentReader.Instance().processParams.doctype);
+        documentTypeCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                DocumentReader.Instance().processParams.doctype = b;
+            }
+        });
+
+        locationCb.setChecked(DocumentReader.Instance().processParams.locate);
+        locationCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                DocumentReader.Instance().processParams.locate = b;
+            }
+        });
+
+        authenticityCb.setChecked(DocumentReader.Instance().processParams.authenticity);
+        authenticityCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                DocumentReader.Instance().processParams.authenticity = b;
+            }
+        });
+
+        imageQaCb.setChecked(DocumentReader.Instance().processParams.imageQA);
+        imageQaCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                DocumentReader.Instance().processParams.imageQA = b;
+            }
+        });
     }
 
     private void GetCameraList() {

@@ -17,6 +17,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.regula.documentreader.api.DocumentReader;
+import com.regula.documentreader.api.enums.eGraphicFieldType;
+import com.regula.documentreader.api.results.DocumentReaderResults;
 import com.regula.documentreader.api.results.DocumentReaderTextField;
 import com.regula.documentreader.api.results.DocumentReaderTextResult;
 
@@ -35,7 +37,8 @@ public class ResultsActivity extends AppCompatActivity {
     float oldDist = 1f;
 
     private ListView listView;
-    private TextView noData;
+    private TextView noData, imgTitle;
+    private ImageView croppedImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,25 +47,46 @@ public class ResultsActivity extends AppCompatActivity {
 
         listView = (ListView) findViewById(R.id.resultsLv);
         noData = (TextView) findViewById(R.id.noDataTV);
+        imgTitle = (TextView) findViewById(R.id.imgTitle);
+        croppedImage = (ImageView) findViewById(R.id.croppedImg);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        DocumentReaderTextResult result = DocumentReader.Instance().getDocumentReaderTextResult();
+        DocumentReaderResults result = DocumentReader.Instance().getResults();
+        DocumentReaderTextResult textResult = result.textResult;
         List<DocumentReaderTextField> textResults = null;
-        if(result!=null){
-            textResults = result.fields;
+        if(textResult!=null){
+            textResults = textResult.fields;
         }
         if(textResults!=null && textResults.size()>0){
-            noData.setVisibility(View.GONE);
             listView.setVisibility(View.VISIBLE);
             View listViewHeader = LayoutInflater.from(ResultsActivity.this).inflate(R.layout.text_fields_header_layout, null);
-            listView.addHeaderView(listViewHeader);
+            if(listView.getHeaderViewsCount()==0) {
+                listView.addHeaderView(listViewHeader);
+            }
             listView.setAdapter(new TextDataAdapter(ResultsActivity.this, 0, textResults, listViewHeader));
         }
 
+        final Bitmap frontImg = result.getGraphicFieldImageByType(eGraphicFieldType.gt_Document_Front);
+        if(frontImg!=null){
+            imgTitle.setVisibility(View.VISIBLE);
+            croppedImage.setVisibility(View.VISIBLE);
+            croppedImage.setImageBitmap(frontImg);
+            croppedImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Dialog dialog = createEnlargedImageDialog(ResultsActivity.this,frontImg);
+                    dialog.show();
+                }
+            });
+        }
+
+        if(textResults==null || textResults.size()==0 && frontImg==null){
+            noData.setVisibility(View.VISIBLE);
+        }
     }
 
     private Dialog createEnlargedImageDialog(Context context, final Bitmap bitmap) {

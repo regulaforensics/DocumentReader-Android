@@ -15,7 +15,7 @@ android {
     buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "com.regula.documentreader.demo"
-        minSdkVersion 15
+        minSdkVersion 19
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -38,7 +38,8 @@ dependencies {
     compile 'com.android.support:design:25.3.1'
     testCompile 'junit:junit:4.12'
 
-    compile 'com.google.code.gson:gson:2.8.0'
-    compile 'com.regula.documentreader:api:+@aar'
-    compile 'com.regula.documentreader:core:+@aar'
+    compile 'com.regula.documentreader:bounds:+@aar'
+    compile ('com.regula.documentreader:api:+@aar'){
+        transitive = true;
+    }
 }

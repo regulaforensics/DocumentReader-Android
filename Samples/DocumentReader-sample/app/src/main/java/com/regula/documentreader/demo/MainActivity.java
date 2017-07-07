@@ -9,20 +9,18 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.ImageFormat;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.regula.documentreader.api.DocumentReader;
-import com.regula.documentreader.api.params.InputParams;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -175,13 +173,7 @@ public class MainActivity extends AppCompatActivity {
                 if (data.getData() != null) {
                     Uri selectedImage = data.getData();
                     Bitmap bmp = getBitmap(selectedImage);
-                    InputParams params = new InputParams();
-                    params.processParam.mrz = true;
-                    params.processParam.ocr = true;
-                    params.imageInputParam.height=bmp.getHeight();
-                    params.imageInputParam.width=bmp.getWidth();
-                    params.imageInputParam.type= ImageFormat.JPEG;
-                    DocumentReader.Instance().process(bmp,params);
+                    DocumentReader.Instance().recognizeImage(bmp);
 
                     Intent intent = new Intent(MainActivity.this,ResultsActivity.class);
                     MainActivity.this.startActivity(intent);
@@ -206,8 +198,7 @@ public class MainActivity extends AppCompatActivity {
             case PERMISSIONS_REQUEST_CAMERA:{
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
-                    MainActivity.this.startActivity(intent);
+                    mCameraBtn.performClick();
                 } else {
                     Toast.makeText(MainActivity.this, R.string.camera_permission_required,Toast.LENGTH_LONG).show();
                 }
@@ -215,8 +206,7 @@ public class MainActivity extends AppCompatActivity {
             case PERMISSIONS_REQUEST_CAMERA_SETTINGS:{
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                    MainActivity.this.startActivity(intent);
+                    mSettingBtn.performClick();
                 } else {
                     Toast.makeText(MainActivity.this, R.string.camera_permission_required,Toast.LENGTH_LONG).show();
                 }
