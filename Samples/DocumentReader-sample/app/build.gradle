@@ -21,6 +21,9 @@ android {
         core {
             versionNameSuffix "-core"
         }
+        mrz {
+            versionNameSuffix "-mrz"
+        }
         bounds{
             versionNameSuffix "-bounds"
         }
@@ -41,6 +44,8 @@ dependencies {
 
     coreCompile 'com.regula.documentreader:core:+@aar'
     boundsCompile 'com.regula.documentreader.bounds:core:+@aar'
+    mrzCompile 'com.regula.documentreader.mrz:core:+@aar'
+	
     ocrandmrzCompile 'com.regula.documentreader.ocrandmrz:core:+@aar'
 
     compile('com.regula.documentreader:api:+@aar') {
