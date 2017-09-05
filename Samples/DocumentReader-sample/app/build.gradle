@@ -24,6 +24,12 @@ android {
         bounds{
             versionNameSuffix "-bounds"
         }
+        ocrandmrz{
+            versionNameSuffix "-ocrandmrz"
+        }
+        id3Rus{
+            versionNameSuffix "-id3Rus"
+        }
     }
 }
 
@@ -37,7 +43,9 @@ dependencies {
     testCompile 'junit:junit:4.12'
 
     coreCompile 'com.regula.documentreader:core:+@aar'
-    boundsCompile 'com.regula.documentreader:bounds:+@aar'
+    boundsCompile 'com.regula.documentreader.bounds:core:+@aar'
+    ocrandmrzCompile 'com.regula.documentreader.ocrandmrz:core:+@aar'
+    id3RusCompile 'com.regula.documentreader.id3rus:core:+@aar'
 
     compile('com.regula.documentreader:api:+@aar') {
         transitive = true;
