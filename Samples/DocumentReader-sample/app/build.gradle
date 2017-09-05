@@ -27,9 +27,6 @@ android {
         ocrandmrz{
             versionNameSuffix "-ocrandmrz"
         }
-        id3Rus{
-            versionNameSuffix "-id3Rus"
-        }
     }
 }
 
@@ -45,7 +42,6 @@ dependencies {
     coreCompile 'com.regula.documentreader:core:+@aar'
     boundsCompile 'com.regula.documentreader.bounds:core:+@aar'
     ocrandmrzCompile 'com.regula.documentreader.ocrandmrz:core:+@aar'
-    id3RusCompile 'com.regula.documentreader.id3rus:core:+@aar'
 
     compile('com.regula.documentreader:api:+@aar') {
         transitive = true;
