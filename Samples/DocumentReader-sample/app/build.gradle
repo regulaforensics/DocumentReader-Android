@@ -30,6 +30,15 @@ android {
         ocrandmrz{
             versionNameSuffix "-ocrandmrz"
         }
+        barcode{
+            versionNameSuffix "-ocrandmrz"
+        }
+        barcodemrz{
+            versionNameSuffix "-ocrandmrz"
+        }
+        full{
+            versionNameSuffix "-ocrandmrz"
+        }
     }
 }
 
@@ -45,8 +54,10 @@ dependencies {
     coreCompile 'com.regula.documentreader:core:+@aar'
     boundsCompile 'com.regula.documentreader.bounds:core:+@aar'
     mrzCompile 'com.regula.documentreader.mrz:core:+@aar'
-	
+    barcodeCompile 'com.regula.documentreader.barcode:core:+@aar'
+    barcodemrzCompile 'com.regula.documentreader.barcodemrz:core:+@aar'
     ocrandmrzCompile 'com.regula.documentreader.ocrandmrz:core:+@aar'
+    fullCompile 'com.regula.documentreader.full:core:+@aar'
 
     compile('com.regula.documentreader:api:+@aar') {
         transitive = true;
