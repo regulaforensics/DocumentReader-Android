@@ -129,7 +129,7 @@ public class TextDataAdapter extends ArrayAdapter<DocumentReaderTextField> {
                 } else if(val.sourceType==eRPRM_ResultType.RPRM_ResultType_BarCodes_TextData){
                     barcode.setText(val.value.replace("^", "\n"));
                     barcode.setTextColor(val.validity == 0 ? Color.BLACK : val.validity == 1 ? Color.rgb(3, 140, 7) : Color.RED);
-                    barcodeMrz = val.comparison.get(eRPRM_ResultType.RPRM_ResultType_BarCodes_TextData);
+                    barcodeMrz = val.comparison.get(eRPRM_ResultType.RPRM_ResultType_MRZ_OCR_Extended);
                     barcodeVisual= val.comparison.get(eRPRM_ResultType.RPRM_ResultType_Visual_OCR_Extended);
                 } else if(val.sourceType==eRPRM_ResultType.RPRM_ResultType_Visual_OCR_Extended){
                     visual.setText(val.value.replace("^", "\n"));

@@ -31,13 +31,13 @@ android {
             versionNameSuffix "-ocrandmrz"
         }
         barcode{
-            versionNameSuffix "-ocrandmrz"
+            versionNameSuffix "-barcode"
         }
         barcodemrz{
-            versionNameSuffix "-ocrandmrz"
+            versionNameSuffix "-barcodemrz"
         }
         full{
-            versionNameSuffix "-ocrandmrz"
+            versionNameSuffix "-full"
         }
     }
 }
@@ -55,11 +55,11 @@ dependencies {
     boundsCompile 'com.regula.documentreader.bounds:core:+@aar'
     mrzCompile 'com.regula.documentreader.mrz:core:+@aar'
     barcodeCompile 'com.regula.documentreader.barcode:core:+@aar'
-    barcodemrzCompile 'com.regula.documentreader.barcodemrz:core:+@aar'
+    barcodemrzCompile 'com.regula.documentreader.barcodemrz:core:1.1.061@aar'
     ocrandmrzCompile 'com.regula.documentreader.ocrandmrz:core:+@aar'
     fullCompile 'com.regula.documentreader.full:core:+@aar'
 
-    compile('com.regula.documentreader:api:+@aar') {
+    compile('com.regula.documentreader:api:1.10.34@aar') {
         transitive = true;
     }
 }
