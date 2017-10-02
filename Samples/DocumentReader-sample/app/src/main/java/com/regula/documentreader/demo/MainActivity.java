@@ -10,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -21,11 +20,15 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.regula.documentreader.api.DocumentReader;
+import com.regula.documentreader.api.enums.DocReaderAction;
+import com.regula.documentreader.api.results.DocumentReaderResults;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+
+import static android.graphics.BitmapFactory.decodeStream;
 
 public class MainActivity extends AppCompatActivity {
     public static final String PREFERENCES = "preferences";
@@ -35,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 2;
     private static final int REQUEST_BROWSE_PICTURE = 3;
     private static final int PERMISSIONS_REQUEST_CAMERA_SETTINGS = 4;
+    private static final int BITMAP_WIDTH = 1920;
+    private static final int BITMAP_HEIGHT = 1080;
 
     private static boolean sIsInitialized;
     private ImageButton mCameraBtn, mFolderBtn, mAboutBtn, mSettingBtn;
@@ -72,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 byte[] license = byteArrayOutputStream.toByteArray();
-                sIsInitialized = DocumentReader.Instance().setLicense(MainActivity.this, license);
+                sIsInitialized = DocumentReader.Instance().initializeReader(MainActivity.this,license, null);
                 licInput.close();
                 byteArrayOutputStream.close();
             } catch (IOException e) {
@@ -93,14 +98,16 @@ public class MainActivity extends AppCompatActivity {
                                 PERMISSIONS_REQUEST_CAMERA);
                     } else {
                         int camId = mPreferences.getInt(SELECTED_CAMERA_ID,-1);
-                        DocumentReader.Instance().showScanner(camId, new
-                                DocumentReader.DocumentReaderCallback() {
-                                    @Override
-                                    public void onCompleted() {
-                                        Intent intent = new Intent(MainActivity.this,ResultsActivity.class);
-                                        MainActivity.this.startActivity(intent);
-                                    }
-                                });
+                        DocumentReader.Instance().showScanner(camId, new DocumentReader.DocumentReaderCompletion() {
+                            @Override
+                            public void onCompleted(int action, DocumentReaderResults results, String error) {
+                                if(action == DocReaderAction.COMPLETE){
+                                    Intent intent = new Intent(MainActivity.this,ResultsActivityTabbed.class);
+                                    ResultsActivityTabbed.documentReaderResults = results;
+                                    MainActivity.this.startActivity(intent);
+                                }
+                            }
+                        });
                     }
                 }
             });
@@ -116,19 +123,19 @@ public class MainActivity extends AppCompatActivity {
             mFolderBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        if (ContextCompat.checkSelfPermission(MainActivity.this,
-                                Manifest.permission.READ_EXTERNAL_STORAGE)
-                                != PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(MainActivity.this,
+                            Manifest.permission.READ_EXTERNAL_STORAGE)
+                            != PackageManager.PERMISSION_GRANTED) {
 
-                            ActivityCompat.requestPermissions(MainActivity.this,
-                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                    PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-                        } else {
-                            startPictureChoosing();
-                        }
+                        ActivityCompat.requestPermissions(MainActivity.this,
+                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
                     } else {
-                        startPictureChoosing();
+                        Intent intent = new Intent();
+                        intent.setType("image/*");
+                        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                        intent.setAction(Intent.ACTION_GET_CONTENT);
+                        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_BROWSE_PICTURE);
                     }
                 }
             });
@@ -173,10 +180,14 @@ public class MainActivity extends AppCompatActivity {
                 if (data.getData() != null) {
                     Uri selectedImage = data.getData();
                     Bitmap bmp = getBitmap(selectedImage);
-                    DocumentReader.Instance().recognizeImage(bmp);
-
-                    Intent intent = new Intent(MainActivity.this,ResultsActivity.class);
-                    MainActivity.this.startActivity(intent);
+                    DocumentReader.Instance().recognizeImage(bmp, new DocumentReader.DocumentReaderCompletion() {
+                        @Override
+                        public void onCompleted(int action, DocumentReaderResults results, String error) {
+                            Intent intent = new Intent(MainActivity.this,ResultsActivityTabbed.class);
+                            ResultsActivityTabbed.documentReaderResults = results;
+                            MainActivity.this.startActivity(intent);
+                        }
+                    });
                 }
             }
         }
@@ -190,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startPictureChoosing();
+                    mFolderBtn.performClick();
                 } else {
                     Toast.makeText(MainActivity.this, R.string.browse_permission_required,Toast.LENGTH_LONG).show();
                 }
@@ -214,16 +225,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void startPictureChoosing() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        if (Build.VERSION.SDK_INT >= 18) {
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        }
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_BROWSE_PICTURE);
-    }
-
     private Bitmap getBitmap(Uri selectedImage) {
         ContentResolver resolver = MainActivity.this.getContentResolver();
         InputStream is = null;
@@ -243,32 +244,33 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, 1280, 720);
+        options.inSampleSize = calculateInSampleSize(options);
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeStream(is, null, options);
+        return decodeStream(is, null, options);
     }
 
-    private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+    private int calculateInSampleSize(BitmapFactory.Options options) {
         // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;
         int inSampleSize = 1;
 
-        if (height > reqHeight || width > reqWidth) {
+        if (height > BITMAP_HEIGHT || width > BITMAP_WIDTH) {
 
             final int halfHeight = height / 2;
             final int halfWidth = width / 2;
 
             // Calculate the largest inSampleSize value that is a power of 2 and keeps both
             // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth) {
+            while ((halfHeight / inSampleSize) > BITMAP_HEIGHT
+                    && (halfWidth / inSampleSize) > BITMAP_WIDTH) {
                 inSampleSize *= 2;
             }
         }
 
         return inSampleSize;
     }
+
 }

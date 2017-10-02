@@ -21,7 +21,8 @@ public class SettingsActivity extends Activity {
     private TextView horizontalAngleTv,verticalAngleTv;
     private SharedPreferences prefs;
     private HashMap<Integer,String> camerasHorAngle, camerasVerAngle;
-    private CheckBox mrzCb, ocrCb, barcodeCb, documentTypeCb, locationCb, authenticityCb, imageQaCb;
+    private CheckBox mrzCb, ocrCb, barcodeCb, documentTypeCb, locationCb, authenticityCb, imageQaCb,
+    doLoggingCb;
 
     View.OnClickListener rbListener = new View.OnClickListener() {
         @Override
@@ -54,7 +55,7 @@ public class SettingsActivity extends Activity {
         locationCb = (CheckBox) findViewById(R.id.locateCb);
         authenticityCb = (CheckBox) findViewById(R.id.authenticityCb);
         imageQaCb = (CheckBox) findViewById(R.id.imageQaCb);
-
+        doLoggingCb = (CheckBox) findViewById(R.id.doLogCb);
     }
 
     @Override
@@ -108,6 +109,14 @@ public class SettingsActivity extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 DocumentReader.Instance().processParams.authenticity = b;
+            }
+        });
+
+        doLoggingCb.setChecked(DocumentReader.Instance().processParams.imageQA);
+        doLoggingCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                DocumentReader.Instance().processParams.logs = b;
             }
         });
 

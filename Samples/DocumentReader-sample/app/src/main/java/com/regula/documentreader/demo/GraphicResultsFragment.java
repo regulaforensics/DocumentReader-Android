@@ -2,29 +2,28 @@ package com.regula.documentreader.demo;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.ListView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.regula.documentreader.api.DocumentReader;
-import com.regula.documentreader.api.enums.eGraphicFieldType;
-import com.regula.documentreader.api.results.DocumentReaderResults;
-import com.regula.documentreader.api.results.DocumentReaderTextField;
-import com.regula.documentreader.api.results.DocumentReaderTextResult;
+import com.regula.documentreader.api.results.DocumentReaderGraphicField;
+import com.regula.documentreader.api.translation.TranslationUtil;
 
-import java.util.List;
-
-public class ResultsActivity extends AppCompatActivity {
+public class GraphicResultsFragment extends Fragment {
     // The 3 states (events) which the user is trying to perform
     static final int NONE = 0, DRAG = 1, ZOOM = 2;
     int mode = NONE;
@@ -36,56 +35,68 @@ public class ResultsActivity extends AppCompatActivity {
     PointF mid = new PointF();
     float oldDist = 1f;
 
-    private ListView listView;
-    private TextView noData, imgTitle;
-    private ImageView croppedImage;
+    View scrollView;
+    TextView noDataTv;
+    LinearLayout scrollViewContents;
 
+    int orientation;
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_results);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View fragmentView = inflater.inflate(R.layout.graphic_result_fragment,container, false);
 
-        listView = (ListView) findViewById(R.id.resultsLv);
-        noData = (TextView) findViewById(R.id.noDataTV);
-        imgTitle = (TextView) findViewById(R.id.imgTitle);
-        croppedImage = (ImageView) findViewById(R.id.croppedImg);
+        orientation = getResources().getConfiguration().orientation;
+        scrollView = fragmentView.findViewById(R.id.graphicResultScroll);
+        scrollViewContents = (LinearLayout) fragmentView.findViewById(R.id.graphicResultScrollContent);
+        noDataTv = (TextView) fragmentView.findViewById(R.id.noDataTV);
+
+        return fragmentView;
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
+        int count =0;
 
-        DocumentReaderResults result = DocumentReader.Instance().getResults();
-        DocumentReaderTextResult textResult = result.textResult;
-        List<DocumentReaderTextField> textResults = null;
-        if(textResult!=null){
-            textResults = textResult.fields;
-        }
-        if(textResults!=null && textResults.size()>0){
-            listView.setVisibility(View.VISIBLE);
-            View listViewHeader = LayoutInflater.from(ResultsActivity.this).inflate(R.layout.text_fields_header_layout, null);
-            if(listView.getHeaderViewsCount()==0) {
-                listView.addHeaderView(listViewHeader);
-            }
-            listView.setAdapter(new TextDataAdapter(ResultsActivity.this, 0, textResults, listViewHeader));
-        }
+        if(ResultsActivityTabbed.documentReaderResults!=null && ResultsActivityTabbed.documentReaderResults.graphicResult!=null) {
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            for (final DocumentReaderGraphicField field : ResultsActivityTabbed.documentReaderResults.graphicResult.fields){
+                LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.single_graphic_result,null);
+                ImageView imageView = (ImageView) layout.findViewById(R.id.graphicResultIv);
+                TextView textView = (TextView) layout.findViewById(R.id.graphicResultTv);
 
-        final Bitmap frontImg = result.getGraphicFieldImageByType(eGraphicFieldType.gt_Document_Front);
-        if(frontImg!=null){
-            imgTitle.setVisibility(View.VISIBLE);
-            croppedImage.setVisibility(View.VISIBLE);
-            croppedImage.setImageBitmap(frontImg);
-            croppedImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Dialog dialog = createEnlargedImageDialog(ResultsActivity.this,frontImg);
-                    dialog.show();
+                LinearLayout.LayoutParams layoutParams;
+                if(orientation == Configuration.ORIENTATION_PORTRAIT){
+                    layoutParams =  new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                } else {
+                    layoutParams =  new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
                 }
-            });
-        }
+                layout.setLayoutParams(layoutParams);
 
-        if(textResults==null || textResults.size()==0 && frontImg==null){
-            noData.setVisibility(View.VISIBLE);
+                imageView.setImageBitmap(field.value);
+                imageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Dialog dialog = createEnlargedImageDialog(getContext(), field.value);
+                        dialog.show();
+                    }
+                });
+                textView.setText(TranslationUtil.getGraphicFieldTranslation(getContext(), field.fieldType));
+
+                if(count%2>0){
+                    layout.setBackgroundColor(Color.LTGRAY);
+                } else{
+                    layout.setBackgroundColor(Color.WHITE);
+                }
+
+                scrollViewContents.addView(layout);
+            }
+        } else {
+            if(scrollView!=null){
+                scrollView.setVisibility(View.GONE);
+            }
+            noDataTv.setVisibility(View.VISIBLE);
         }
     }
 
@@ -98,6 +109,7 @@ public class ResultsActivity extends AppCompatActivity {
         ImageView imageView = (ImageView) layout.findViewById(R.id.enlargedImgIv);
         imageView.setImageBitmap(bitmap);
 
+        //noinspection ConstantConditions setting not null inside
         dialog.getWindow().setAttributes(new WindowManager.LayoutParams(WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG, WindowManager.LayoutParams.FLAG_FULLSCREEN));
 
         imageView.setOnTouchListener(new View.OnTouchListener() {

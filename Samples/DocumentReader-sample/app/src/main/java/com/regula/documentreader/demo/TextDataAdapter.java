@@ -2,6 +2,7 @@ package com.regula.documentreader.demo;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,12 +19,12 @@ import com.regula.documentreader.api.translation.TranslationUtil;
 
 import java.util.List;
 
-public class TextDataAdapter extends ArrayAdapter<DocumentReaderTextField> {
+class TextDataAdapter extends ArrayAdapter<DocumentReaderTextField> {
 
     private boolean hasMrz, hasRfid, hasBarcode, hasVisual;
     private Context context;
 
-    public TextDataAdapter(Context context, int resource, List<DocumentReaderTextField> objects, View listViewHeader) {
+    TextDataAdapter(Context context, int resource, List<DocumentReaderTextField> objects, View listViewHeader) {
         super(context, resource, objects);
         this.context = context.getApplicationContext();
 
@@ -86,8 +87,9 @@ public class TextDataAdapter extends ArrayAdapter<DocumentReaderTextField> {
 
     }
 
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         View v = convertView;
         if (v == null) {
             LayoutInflater vi;

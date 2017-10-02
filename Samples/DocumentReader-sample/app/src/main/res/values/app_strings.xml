@@ -82,4 +82,10 @@
     <string name="strBARCODEVisual">Barcode - Visual zone</string>
     <string name="strRFIDBARCODE">RFID - Barcode</string>
     <string name="strCroppedImage">Cropped image(-s)</string>
+    <string name="strDoLog">Write logs</string>
+    <string name="strDateFormat">Date format</string>
+    <string name="strDateDelimiter">Date format delimiter</string>
+    <string name="strTextResult">Text Data</string>
+    <string name="strGraphicResult">Images</string>
+    <string name="strUnknownDocType">UNKNOWN</string>
 </resources>
