@@ -23,7 +23,8 @@ DocumentReader libraries are available in our [Maven repository](http://maven.re
 them, simply add the following lines to your build.gradle:
 
 ```java
-compile 'com.regula.documentreader:artifact_id:+@aar'	//possible artifact_id: core, bounds, mrz, barcode, barcodemrz, ocrandmrz, full; Depends on received license
+compile 'com.regula.documentreader:artifact_id:+@aar'	
+//possible artifact_id: core, bounds, mrz, barcode, barcodemrz, ocrandmrz, full; Depends on received license
 compile ('com.regula.documentreader:api:+aar'){
 	transitive = true
 }
