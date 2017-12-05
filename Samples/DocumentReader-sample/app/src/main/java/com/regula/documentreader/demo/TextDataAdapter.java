@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.regula.documentreader.api.enums.LCID;
+import com.regula.documentreader.api.enums.eRFID_ResultType;
 import com.regula.documentreader.api.enums.eRPRM_FieldVerificationResult;
 import com.regula.documentreader.api.enums.eRPRM_ResultType;
 import com.regula.documentreader.api.results.DocumentReaderTextField;
@@ -54,6 +55,15 @@ class TextDataAdapter extends ArrayAdapter<DocumentReaderTextField> {
                     if(value.sourceType==eRPRM_ResultType.RPRM_ResultType_Visual_OCR_Extended)
                     {
                         hasVisual = true;
+                        break;
+                    }
+                }
+            }
+            if(!hasRfid){
+                for(DocumentReaderValue value : obj.values){
+                    if(value.sourceType== eRFID_ResultType.RFID_ResultType_RFID_TextData)
+                    {
+                        hasRfid = true;
                         break;
                     }
                 }
@@ -121,39 +131,50 @@ class TextDataAdapter extends ArrayAdapter<DocumentReaderTextField> {
             mrz.setText("");
             barcode.setText("");
             visual.setText("");
-            int mrzVisual = eRPRM_FieldVerificationResult.RCF_Disabled, barcodeMrz= eRPRM_FieldVerificationResult.RCF_Disabled, barcodeVisual= eRPRM_FieldVerificationResult.RCF_Disabled;
+            rfid.setText("");
+            int mrzVisual = eRPRM_FieldVerificationResult.RCF_Disabled, barcodeMrz= eRPRM_FieldVerificationResult.RCF_Disabled, barcodeVisual= eRPRM_FieldVerificationResult.RCF_Disabled,
+                    mrzRfid = eRPRM_FieldVerificationResult.RCF_Disabled, barcodeRfid = eRPRM_FieldVerificationResult.RCF_Disabled, visualRfid = eRPRM_FieldVerificationResult.RCF_Disabled;
             for(DocumentReaderValue val:p.values){
                 if(val.sourceType==eRPRM_ResultType.RPRM_ResultType_MRZ_OCR_Extended){
                     mrz.setText(val.value.replace("^", "\n"));
                     mrz.setTextColor(val.validity == 0 ? Color.BLACK : val.validity == 1 ? Color.rgb(3, 140, 7) : Color.RED);
                     mrzVisual = val.comparison.get(eRPRM_ResultType.RPRM_ResultType_Visual_OCR_Extended);
                     barcodeMrz = val.comparison.get(eRPRM_ResultType.RPRM_ResultType_BarCodes_TextData);
+                    mrzRfid = val.comparison.get(eRFID_ResultType.RFID_ResultType_RFID_TextData);
                 } else if(val.sourceType==eRPRM_ResultType.RPRM_ResultType_BarCodes_TextData){
                     barcode.setText(val.value.replace("^", "\n"));
                     barcode.setTextColor(val.validity == 0 ? Color.BLACK : val.validity == 1 ? Color.rgb(3, 140, 7) : Color.RED);
                     barcodeMrz = val.comparison.get(eRPRM_ResultType.RPRM_ResultType_MRZ_OCR_Extended);
                     barcodeVisual= val.comparison.get(eRPRM_ResultType.RPRM_ResultType_Visual_OCR_Extended);
+                    barcodeRfid = val.comparison.get(eRFID_ResultType.RFID_ResultType_RFID_TextData);
                 } else if(val.sourceType==eRPRM_ResultType.RPRM_ResultType_Visual_OCR_Extended){
                     visual.setText(val.value.replace("^", "\n"));
                     visual.setTextColor(val.validity == 0 ? Color.BLACK : val.validity == 1 ? Color.rgb(3, 140, 7) : Color.RED);
                     barcodeVisual= val.comparison.get(eRPRM_ResultType.RPRM_ResultType_BarCodes_TextData);
                     mrzVisual = val.comparison.get(eRPRM_ResultType.RPRM_ResultType_MRZ_OCR_Extended);
+                    visualRfid = val.comparison.get(eRFID_ResultType.RFID_ResultType_RFID_TextData);
+                }else if(val.sourceType==eRFID_ResultType.RFID_ResultType_RFID_TextData){
+                    rfid.setText(val.value.replace("^", "\n"));
+                    rfid.setTextColor(val.validity == 0 ? Color.BLACK : val.validity == 1 ? Color.rgb(3, 140, 7) : Color.RED);
+                    barcodeRfid= val.comparison.get(eRPRM_ResultType.RPRM_ResultType_BarCodes_TextData);
+                    mrzRfid = val.comparison.get(eRPRM_ResultType.RPRM_ResultType_MRZ_OCR_Extended);
+                    visualRfid= val.comparison.get(eRPRM_ResultType.RPRM_ResultType_Visual_OCR_Extended);
                 }
             }
 
-//            mrzrfid.setImageResource(p.matrix.get(4) == eRPRM_FieldVerificationResult.RCF_Compare_True ? R.drawable.ok :
-//                    p.matrix.get(4) == eRPRM_FieldVerificationResult.RCF_Compare_False ? R.drawable.fail : R.drawable.undefined);
+            mrzrfid.setImageResource(mrzRfid == eRPRM_FieldVerificationResult.RCF_Compare_True ? R.drawable.ok :
+                    mrzRfid == eRPRM_FieldVerificationResult.RCF_Compare_False ? R.drawable.fail : R.drawable.undefined);
             mrzBarcode.setImageResource(barcodeMrz == eRPRM_FieldVerificationResult.RCF_Compare_True ? R.drawable.ok :
                     barcodeMrz == eRPRM_FieldVerificationResult.RCF_Compare_False ? R.drawable.fail : R.drawable.undefined);
             mrzvisual.setImageResource(mrzVisual == eRPRM_FieldVerificationResult.RCF_Compare_True ? R.drawable.ok :
                     mrzVisual == eRPRM_FieldVerificationResult.RCF_Compare_False ? R.drawable.fail : R.drawable.undefined);
             visualBarcode.setImageResource(barcodeVisual == eRPRM_FieldVerificationResult.RCF_Compare_True ? R.drawable.ok :
                     barcodeVisual == eRPRM_FieldVerificationResult.RCF_Compare_False ? R.drawable.fail : R.drawable.undefined);
-//            visualrfid.setImageResource(p.matrix.get(7) == eRPRM_FieldVerificationResult.RCF_Compare_True ? R.drawable.ok :
-//                    p.matrix.get(7) == eRPRM_FieldVerificationResult.RCF_Compare_False ? R.drawable.fail : R.drawable.undefined);
-//            rfidBarcode.setImageResource(p.matrix.get(9) == eRPRM_FieldVerificationResult.RCF_Compare_True ? R.drawable.ok :
-//                    p.matrix.get(9) == eRPRM_FieldVerificationResult.RCF_Compare_False ? R.drawable.fail : R.drawable.undefined);
-//
+            visualrfid.setImageResource(visualRfid == eRPRM_FieldVerificationResult.RCF_Compare_True ? R.drawable.ok :
+                    visualRfid == eRPRM_FieldVerificationResult.RCF_Compare_False ? R.drawable.fail : R.drawable.undefined);
+            rfidBarcode.setImageResource(barcodeRfid == eRPRM_FieldVerificationResult.RCF_Compare_True ? R.drawable.ok :
+                    barcodeRfid == eRPRM_FieldVerificationResult.RCF_Compare_False ? R.drawable.fail : R.drawable.undefined);
+
             overall.setImageResource(p.status == eRPRM_FieldVerificationResult.RCF_Disabled ? R.drawable.undefined
                     : p.status == eRPRM_FieldVerificationResult.RCF_Not_Verified ? R.drawable.fail : R.drawable.ok);
 

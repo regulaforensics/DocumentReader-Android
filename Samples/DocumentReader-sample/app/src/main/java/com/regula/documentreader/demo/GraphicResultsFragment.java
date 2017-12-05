@@ -59,41 +59,43 @@ public class GraphicResultsFragment extends Fragment {
         super.onResume();
         int count =0;
 
-        if(ResultsActivityTabbed.documentReaderResults!=null && ResultsActivityTabbed.documentReaderResults.graphicResult!=null) {
-            LayoutInflater inflater = getActivity().getLayoutInflater();
-            for (final DocumentReaderGraphicField field : ResultsActivityTabbed.documentReaderResults.graphicResult.fields){
-                LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.single_graphic_result,null);
-                ImageView imageView = (ImageView) layout.findViewById(R.id.graphicResultIv);
-                TextView textView = (TextView) layout.findViewById(R.id.graphicResultTv);
+        if (ResultsActivityTabbed.documentReaderResults != null && ResultsActivityTabbed.documentReaderResults.graphicResult != null) {
+            if(scrollViewContents.getChildCount()==0) {
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+                for (final DocumentReaderGraphicField field : ResultsActivityTabbed.documentReaderResults.graphicResult.fields) {
+                    LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.single_graphic_result, null);
+                    ImageView imageView = (ImageView) layout.findViewById(R.id.graphicResultIv);
+                    TextView textView = (TextView) layout.findViewById(R.id.graphicResultTv);
 
-                LinearLayout.LayoutParams layoutParams;
-                if(orientation == Configuration.ORIENTATION_PORTRAIT){
-                    layoutParams =  new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                } else {
-                    layoutParams =  new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                }
-                layout.setLayoutParams(layoutParams);
-
-                imageView.setImageBitmap(field.value);
-                imageView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Dialog dialog = createEnlargedImageDialog(getContext(), field.value);
-                        dialog.show();
+                    LinearLayout.LayoutParams layoutParams;
+                    if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    } else {
+                        layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
                     }
-                });
-                textView.setText(TranslationUtil.getGraphicFieldTranslation(getContext(), field.fieldType));
+                    layout.setLayoutParams(layoutParams);
 
-                if(count%2>0){
-                    layout.setBackgroundColor(Color.LTGRAY);
-                } else{
-                    layout.setBackgroundColor(Color.WHITE);
+                    imageView.setImageBitmap(field.value);
+                    imageView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Dialog dialog = createEnlargedImageDialog(getContext(), field.value);
+                            dialog.show();
+                        }
+                    });
+                    textView.setText(TranslationUtil.getGraphicFieldTranslation(getContext(), field.fieldType));
+
+                    if (count % 2 > 0) {
+                        layout.setBackgroundColor(Color.LTGRAY);
+                    } else {
+                        layout.setBackgroundColor(Color.WHITE);
+                    }
+
+                    scrollViewContents.addView(layout);
                 }
-
-                scrollViewContents.addView(layout);
             }
         } else {
-            if(scrollView!=null){
+            if (scrollView != null) {
                 scrollView.setVisibility(View.GONE);
             }
             noDataTv.setVisibility(View.VISIBLE);

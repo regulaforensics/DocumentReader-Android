@@ -9,7 +9,7 @@
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <TextView
@@ -56,45 +56,100 @@
             android:textAppearance="?android:attr/textAppearanceMedium"/>
 
         <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:id="@+id/mrzCb"
-            android:text="@string/strMRZ"/>
-        <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:enabled="true"
+            android:text="@string/strMRZ" />
+
+        <CheckBox
             android:id="@+id/ocrCb"
-            android:text="@string/strVisualOCR"/>
-        <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:enabled="true"
+            android:text="@string/strVisualOCR" />
+
+        <CheckBox
             android:id="@+id/barcodeCb"
-            android:text="@string/strBarcode"/>
-        <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:enabled="true"
+            android:text="@string/strBarcode" />
+
+        <CheckBox
             android:id="@+id/docTypeCb"
-            android:text="@string/strDocumentType"/>
-        <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:enabled="true"
+            android:text="@string/strDocumentType" />
+
+        <CheckBox
             android:id="@+id/locateCb"
-            android:text="@string/strLocateDocument"/>
-        <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:enabled="true"
+            android:text="@string/strLocateDocument" />
+
+        <CheckBox
             android:id="@+id/authenticityCb"
-            android:text="@string/strAuthVerification"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="true"
+            android:text="@string/strAuthVerification" />
+
+        <CheckBox
+            android:id="@+id/imageQaCb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="true"
+            android:text="@string/strImageQA" />
+
+        <CheckBox
+            android:id="@+id/doRfidCb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="true"
+            android:text="@string/strRFID" />
+
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/imageQaCb"
-            android:text="@string/strImageQA"/>
+            android:id="@+id/doMultiPageCb"
+            android:text="@string/strMultiPageProcessing"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/strAppSettings"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/doShowCaptureBtn"
+            android:text="@string/strShowCaptureBtn"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/strDeveloperOptions"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/doLogCb"
             android:text="@string/strDoLog"/>
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/debugSaveImages"
+            android:text="@string/strDebugSaveImages"/>
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/debugSaveLogs"
+            android:text="@string/strDebugSaveLogs"/>
 
     </LinearLayout>
 </ScrollView>

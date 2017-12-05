@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_content"
@@ -13,22 +14,77 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/appbar_padding_top"
-        android:theme="@style/AppTheme.AppBarOverlay">
-        <TextView
+        android:theme="@style/AppTheme.AppBarOverlay"
+        android:background="@color/regula_purple">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/docTypeTv"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"/>
+            android:orientation="horizontal"
+            android:id="@+id/personTitle"
+            android:paddingBottom="@dimen/activity_vertical_margin">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    android:id="@+id/nameSurnameTv"
+                    android:text="@string/strUnknownDocType"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:id="@+id/sexAgeTv"
+                    android:text=""/>
+            </LinearLayout>
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:layout_centerHorizontal="true"
+                    android:id="@+id/portraitIv"
+                    android:src="@drawable/face"/>
+            </RelativeLayout>
+        </LinearLayout>
+
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="36dp" />
 
     </android.support.design.widget.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/status_bar_height"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/statusBar"
+        android:background="@color/regula_purple">
+
+        <ImageView
+            android:layout_width="@dimen/status_bar_height"
+            android:layout_height="@dimen/status_bar_height"
+            android:layout_marginRight="8dp"
+            android:id="@+id/overallResultIv"
+            android:src="@drawable/undefined"
+            android:padding="2dp"/>
+
+    </LinearLayout>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/appbar"
+        android:layout_above="@id/statusBar"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-</android.support.design.widget.CoordinatorLayout>
+
+
+</RelativeLayout>

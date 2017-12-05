@@ -23,7 +23,6 @@ import com.regula.documentreader.api.DocumentReader;
 import com.regula.documentreader.api.enums.DocReaderAction;
 import com.regula.documentreader.api.results.DocumentReaderResults;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,8 +32,8 @@ import static android.graphics.BitmapFactory.decodeStream;
 public class MainActivity extends AppCompatActivity {
     public static final String PREFERENCES = "preferences";
     public static final String SELECTED_CAMERA_ID = "cameraId";
+    public static final String DO_FACE_MATCHING = "doFaceMatching";
 
-    private static final int PERMISSIONS_REQUEST_CAMERA = 1;
     private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 2;
     private static final int REQUEST_BROWSE_PICTURE = 3;
     private static final int PERMISSIONS_REQUEST_CAMERA_SETTINGS = 4;
@@ -65,21 +64,12 @@ public class MainActivity extends AppCompatActivity {
         if (!sIsInitialized) {
             try {
                 InputStream licInput = getResources().openRawResource(R.raw.regula);
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                int i;
-                try {
-                    i = licInput.read();
-                    while (i != -1) {
-                        byteArrayOutputStream.write(i);
-                        i = licInput.read();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                byte[] license = byteArrayOutputStream.toByteArray();
-                sIsInitialized = DocumentReader.Instance().initializeReader(MainActivity.this,license, null);
+                int available = licInput.available();
+                byte[] license = new byte[available];
+                //noinspection ResultOfMethodCallIgnored
+                licInput.read(license);
+                sIsInitialized = DocumentReader.Instance().initializeReader(MainActivity.this, license, null);
                 licInput.close();
-                byteArrayOutputStream.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -89,26 +79,17 @@ public class MainActivity extends AppCompatActivity {
             mCameraBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (ContextCompat.checkSelfPermission(MainActivity.this,
-                            Manifest.permission.CAMERA)
-                            != PackageManager.PERMISSION_GRANTED) {
-
-                        ActivityCompat.requestPermissions(MainActivity.this,
-                                new String[]{Manifest.permission.CAMERA},
-                                PERMISSIONS_REQUEST_CAMERA);
-                    } else {
-                        int camId = mPreferences.getInt(SELECTED_CAMERA_ID,-1);
-                        DocumentReader.Instance().showScanner(camId, new DocumentReader.DocumentReaderCompletion() {
-                            @Override
-                            public void onCompleted(int action, DocumentReaderResults results, String error) {
-                                if(action == DocReaderAction.COMPLETE){
-                                    Intent intent = new Intent(MainActivity.this,ResultsActivityTabbed.class);
-                                    ResultsActivityTabbed.documentReaderResults = results;
-                                    MainActivity.this.startActivity(intent);
-                                }
+                    int camId = mPreferences.getInt(SELECTED_CAMERA_ID,-1);
+                    DocumentReader.Instance().showScanner(camId, new DocumentReader.DocumentReaderCompletion() {
+                        @Override
+                        public void onCompleted(int action, DocumentReaderResults results, String error) {
+                            if(action == DocReaderAction.COMPLETE){
+                                Intent intent = new Intent(MainActivity.this,ResultsActivityTabbed.class);
+                                ResultsActivityTabbed.documentReaderResults = results;
+                                MainActivity.this.startActivity(intent);
                             }
-                        });
-                    }
+                        }
+                    });
                 }
             });
 
@@ -204,14 +185,6 @@ public class MainActivity extends AppCompatActivity {
                     mFolderBtn.performClick();
                 } else {
                     Toast.makeText(MainActivity.this, R.string.browse_permission_required,Toast.LENGTH_LONG).show();
-                }
-            } break;
-            case PERMISSIONS_REQUEST_CAMERA:{
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mCameraBtn.performClick();
-                } else {
-                    Toast.makeText(MainActivity.this, R.string.camera_permission_required,Toast.LENGTH_LONG).show();
                 }
             } break;
             case PERMISSIONS_REQUEST_CAMERA_SETTINGS:{
