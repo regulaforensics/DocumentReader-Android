@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.regula.documentreader.api.enums.eGraphicFieldType;
@@ -25,20 +26,32 @@ public class ResultsActivityTabbed extends AppCompatActivity {
     private static final String DEBUG = "ResultsActivity";
     private static final String LIVENESS="Liveness";
     private static final String MATCH = "Match";
+    private static final String ZOOM_TOKEN="dbcn2uPgHvAfEp0rGU4nxQqPVNjpBwIl";
 
-    private TextView nameSurnameTv, sexAgeTv;
+    private TextView livenessTv, faceMatchTv, nameSurnameTv, sexAgeTv;
+    private LinearLayout livenessLayout, matchLayout;
     private ImageView overallStatusIv, portraitIv;
+    private boolean doZoomVerification;
+    private static boolean zoomStarted;
+    private int liveness, faceMatch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_results_tabbed);
 
+        livenessTv = (TextView) findViewById(R.id.livenessTv);
+        faceMatchTv = (TextView) findViewById(R.id.faceMatchTv);
         nameSurnameTv = (TextView) findViewById(R.id.nameSurnameTv);
         sexAgeTv = (TextView) findViewById(R.id.sexAgeTv);
 
         overallStatusIv = (ImageView) findViewById(R.id.overallResultIv);
         portraitIv = (ImageView) findViewById(R.id.portraitIv);
+
+        livenessLayout = (LinearLayout) findViewById(R.id.livenessLayout);
+        matchLayout = (LinearLayout) findViewById(R.id.faceMatchLayout);
+
+        doZoomVerification = getSharedPreferences(MainActivity.PREFERENCES, MODE_PRIVATE).getBoolean(MainActivity.DO_FACE_MATCHING, false);
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.container);
         setupViewPager(viewPager);
@@ -51,20 +64,22 @@ public class ResultsActivityTabbed extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if(documentReaderResults!=null){
+        if (documentReaderResults != null) {
             String nameSurname = ResultsActivityTabbed.documentReaderResults.getTextFieldValueByType(eVisualFieldType.ft_Surname_And_Given_Names);
-            if(nameSurname!=null) {
+            if (nameSurname != null) {
                 nameSurnameTv.setText(nameSurname);
             }
 
-            String sex= ResultsActivityTabbed.documentReaderResults.getTextFieldValueByType(eVisualFieldType.ft_Sex);
-            if(sex!=null) {
-                if (sex.equals("M"))
-                    sex = getString(R.string.strMale);
-                else if (sex.equals("F"))
-                    sex = getString(R.string.strFemale);
-                else
-                    sex = null;
+            String sex = ResultsActivityTabbed.documentReaderResults.getTextFieldValueByType(eVisualFieldType.ft_Sex);
+            if (sex != null) {
+                switch (sex) {
+                    case "M":
+                        sex = getString(R.string.strMale);
+                        break;
+                    case "F":
+                        sex = getString(R.string.strFemale);
+                        break;
+                }
             }
             String age = ResultsActivityTabbed.documentReaderResults.getTextFieldValueByType(eVisualFieldType.ft_Age);
             String sexAge = sex != null ? sex + "," + age : age;
@@ -73,20 +88,34 @@ public class ResultsActivityTabbed extends AppCompatActivity {
             }
 
             Bitmap portrait = ResultsActivityTabbed.documentReaderResults.getGraphicFieldImageByType(eGraphicFieldType.gf_Portrait);
-            if(portrait!=null){
+            if (portrait != null) {
                 portraitIv.setImageBitmap(portrait);
             }
 
-            if(documentReaderResults.textResult!=null){
-                if(documentReaderResults.textResult.status == eRPRM_FieldVerificationResult.RCF_Verified){
-                    overallStatusIv.setImageResource(R.drawable.ok) ;
-                } else if(documentReaderResults.textResult.status == eRPRM_FieldVerificationResult.RCF_Not_Verified ){
-                    overallStatusIv.setImageResource(R.drawable.fail) ;
+            if (documentReaderResults.textResult != null) {
+                if (documentReaderResults.textResult.status == eRPRM_FieldVerificationResult.RCF_Verified) {
+                    overallStatusIv.setImageResource(R.drawable.ok);
+                } else if (documentReaderResults.textResult.status == eRPRM_FieldVerificationResult.RCF_Not_Verified) {
+                    overallStatusIv.setImageResource(R.drawable.fail);
                 } else {
                     overallStatusIv.setImageResource(R.drawable.undefined);
                 }
             }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        zoomStarted = false;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putInt(LIVENESS, liveness);
+        outState.putInt(MATCH, faceMatch);
+        super.onSaveInstanceState(outState);
     }
 
     private void setupViewPager(ViewPager viewPager){

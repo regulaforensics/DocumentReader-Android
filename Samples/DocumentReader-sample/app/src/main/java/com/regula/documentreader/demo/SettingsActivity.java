@@ -69,53 +69,53 @@ public class SettingsActivity extends Activity {
 
         GetCameraList();
 
-            mrzCb.setChecked(DocumentReader.Instance().processParams.mrz);
-            mrzCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    DocumentReader.Instance().processParams.mrz = b;
-                }
-            });
+        mrzCb.setChecked(DocumentReader.Instance().processParams.mrz);
+        mrzCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                DocumentReader.Instance().processParams.mrz = b;
+            }
+        });
 
-            ocrCb.setChecked(DocumentReader.Instance().processParams.ocr);
-            ocrCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    DocumentReader.Instance().processParams.ocr = b;
-                }
-            });
+        ocrCb.setChecked(DocumentReader.Instance().processParams.ocr);
+        ocrCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                DocumentReader.Instance().processParams.ocr = b;
+            }
+        });
 
-            barcodeCb.setChecked(DocumentReader.Instance().processParams.barcode);
-            barcodeCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    DocumentReader.Instance().processParams.barcode = b;
-                }
-            });
+        barcodeCb.setChecked(DocumentReader.Instance().processParams.barcode);
+        barcodeCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                DocumentReader.Instance().processParams.barcode = b;
+            }
+        });
 
-            documentTypeCb.setChecked(DocumentReader.Instance().processParams.doctype);
-            documentTypeCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    DocumentReader.Instance().processParams.doctype = b;
-                }
-            });
+        documentTypeCb.setChecked(DocumentReader.Instance().processParams.doctype);
+        documentTypeCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                DocumentReader.Instance().processParams.doctype = b;
+            }
+        });
 
-            locationCb.setChecked(DocumentReader.Instance().processParams.locate);
-            locationCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    DocumentReader.Instance().processParams.locate = b;
-                }
-            });
+        locationCb.setChecked(DocumentReader.Instance().processParams.locate);
+        locationCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                DocumentReader.Instance().processParams.locate = b;
+            }
+        });
 
-            authenticityCb.setChecked(DocumentReader.Instance().processParams.authenticity);
-            authenticityCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    DocumentReader.Instance().processParams.authenticity = b;
-                }
-            });
+        authenticityCb.setChecked(DocumentReader.Instance().processParams.authenticity);
+        authenticityCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                DocumentReader.Instance().processParams.authenticity = b;
+            }
+        });
 
         doLoggingCb.setChecked(DocumentReader.Instance().processParams.imageQA);
         doLoggingCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -125,13 +125,13 @@ public class SettingsActivity extends Activity {
             }
         });
 
-            imageQaCb.setChecked(DocumentReader.Instance().processParams.imageQA);
-            imageQaCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    DocumentReader.Instance().processParams.imageQA = b;
-                }
-            });
+        imageQaCb.setChecked(DocumentReader.Instance().processParams.imageQA);
+        imageQaCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                DocumentReader.Instance().processParams.imageQA = b;
+            }
+        });
 
         debugImagesCb.setChecked(DocumentReader.Instance().processParams.debugSaveImages);
         debugImagesCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -149,13 +149,13 @@ public class SettingsActivity extends Activity {
             }
         });
 
-            doRfidCb.setChecked(DocumentReader.Instance().processParams.rfid);
-            doRfidCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    DocumentReader.Instance().processParams.rfid = b;
-                }
-            });
+        doRfidCb.setChecked(DocumentReader.Instance().processParams.rfid);
+        doRfidCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                DocumentReader.Instance().processParams.rfid = b;
+            }
+        });
 
         doShowCaptureBtn.setChecked(DocumentReader.Instance().cameraViewControllerShowCaptureButton);
         doShowCaptureBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

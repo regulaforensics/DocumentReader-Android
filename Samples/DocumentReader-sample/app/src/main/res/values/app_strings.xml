@@ -12,11 +12,10 @@
     <string name="no_camera_access">Unable to access camera</string>
 
     <!--AboutActivity strings-->
-    <string name="strSupportEmail">support@regulaforensics.com</string>
-    <string name="strWebsite">http://regulaforensics.com</string>
+    <string name="strSupportEmail">Email to support@regulaforensics.com</string>
+    <string name="strWebsite">Visit regulaforensics.com</string>
     <string name="strTwitterLink"> \u0040regula_support</string>
     <string name="strFacebookLink">facebook.com/regulaforensics</string>
-    <string name="strSupportWebsite">mobile.regulaforensics.com</string>
     <string name="strPrivacyPolicy"><a href="https://regulaforensics.com/en/company/privacy/">Privacy Policy</a></string>
     <string name="strAboutInfoP1">
         Application performs on-device high speed OCR and parsing of MRZ (machine readable zone) from ICAO 9303 compliant documents (passport, visa, ID card) and ISO 18013 compliant documents (driver\'s licenses).
@@ -40,10 +39,10 @@
         \n- SDK available for developers, easy to integrate into any application
     </string>
     <string name="strAboutInfoP5">
-        MRZ OCR library is available for purchase separately.
+        MRZ OCR library is available for purchase
     </string>
     <string name="strAboutInfoP6">
-        For business related questions please contact:
+        Please contact us if you have any questions, issues or suggestions.
     </string>
     <string name="strAboutInfoP7">
         For more information, updates and useful links, please visit our website:
@@ -73,6 +72,7 @@
     <string name="strDebugSaveImages">Save DEBUG images</string>
     <string name="strDebugSaveLogs">Save DEBUG logs</string>
     <string name="strDateFormat">Date format</string>
+    <string name="scenario">Scenario:</string>
 
     <!--ResultsActivity strings-->
     <string name="strNoDataToDisplay">No data to display</string>
@@ -116,4 +116,11 @@
     <string name="strOverall">Overall result</string>
     <string name="strMale">Male</string>
     <string name="strFemale">Female</string>
+    <string name="alive">Alive</string>
+    <string name="liveness_not_determined">Not determined</string>
+    <string name="match">Match</string>
+    <string name="low_confidence_match">Low confidence match</string>
+    <string name="not_match">Not match</string>
+    <string name="document_reader">Document Reader</string>
+    <string name="capture_image_on_bounds_received">Capture image on bounds received</string>
 </resources>

@@ -76,6 +76,52 @@
             android:src="@drawable/undefined"
             android:padding="2dp"/>
 
+        <LinearLayout
+            android:id="@+id/livenessLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/livenessIv"
+                android:layout_width="@dimen/status_bar_height"
+                android:layout_height="@dimen/status_bar_height"
+                android:padding="2dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/face_liveness" />
+
+            <TextView
+                android:id="@+id/livenessTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:id="@+id/faceMatchLayout"
+            android:visibility="gone">
+            <ImageView
+                android:layout_width="@dimen/status_bar_height"
+                android:layout_height="@dimen/status_bar_height"
+                android:id="@+id/faceMatchIv"
+                android:src="@drawable/face_match"
+                android:scaleType="fitCenter"
+                android:padding="2dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:id="@+id/faceMatchTv"
+                android:textColor="@android:color/white"/>
+        </LinearLayout>
+
     </LinearLayout>
 
     <android.support.v4.view.ViewPager

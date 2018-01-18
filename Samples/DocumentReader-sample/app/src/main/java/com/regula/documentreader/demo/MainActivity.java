@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (!sIsInitialized) {
             try {
+                DocumentReader.Instance().processParams.logs=true;
                 InputStream licInput = getResources().openRawResource(R.raw.regula);
                 int available = licInput.available();
                 byte[] license = new byte[available];

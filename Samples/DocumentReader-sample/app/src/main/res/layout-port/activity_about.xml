@@ -1,156 +1,150 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingBottom="@dimen/activity_vertical_margin"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingTop="@dimen/activity_vertical_margin">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
-
-        <ImageView
-            android:id="@+id/imageView1"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/logo" />
-
-        <LinearLayout
-            android:id="@+id/linearLayout2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp" >
-
-            <TextView
-                android:id="@+id/textView1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="@string/app_name"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <TextView
-                android:id="@+id/versionTv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginLeft="4dp"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:autoLink="web"
-            android:text="@string/strWebsite"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
-            android:id="@+id/copyrightTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:orientation="vertical"
+        android:id="@+id/textLayout"
+        android:layout_alignParentTop="true"
+        android:layout_above="@id/emailTv">
 
         <TextView
             android:text="@string/strAboutInfoP1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/textView"
-            android:paddingBottom="8dp"
-            android:textAppearance="@android:style/TextAppearance.Medium"/>
+            android:layout_weight="1"
+            android:textColor="@android:color/black" />
 
         <TextView
             android:text="@string/strAboutInfoP2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/textView6"
-            android:paddingBottom="8dp"
-            android:textAppearance="@android:style/TextAppearance.Medium"/>
+            android:layout_weight="1"
+            android:textColor="@android:color/black" />
 
         <TextView
             android:text="@string/strAboutInfoP3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/textView7"
-            android:paddingBottom="8dp"
-            android:textAppearance="@android:style/TextAppearance.Medium"/>
-
-        <TextView
-            android:text="@string/strAboutInfoP4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/textView8"
-            android:paddingBottom="8dp"
-            android:textAppearance="@android:style/TextAppearance.Medium"/>
+            android:layout_weight="1"
+            android:textColor="@android:color/black" />
 
         <TextView
             android:text="@string/strAboutInfoP5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/textView9"
-            android:paddingBottom="8dp"
-            android:textAppearance="@android:style/TextAppearance.Medium"/>
+            android:layout_weight="1"
+            android:textColor="@android:color/black" />
 
         <TextView
             android:text="@string/strAboutInfoP6"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/textView15"
-            android:textAppearance="@android:style/TextAppearance.Medium"
-            />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/emailTv"
-            android:text="@string/strSupportEmail"
-            android:textAppearance="@android:style/TextAppearance.Medium"
-            android:autoLink="email"
-            android:paddingBottom="8dp"/>
-
-        <TextView
-            android:text="@string/strAboutInfoP7"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/textView16"
-            android:textAppearance="@android:style/TextAppearance.Medium"
-            />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/websiteTv"
-            android:text="@string/strSupportWebsite"
-            android:textAppearance="@android:style/TextAppearance.Medium"
-            android:autoLink="web"
-            android:paddingBottom="8dp"/>
-
-        <TextView
-            android:text="@string/strAboutInfoP8"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/textView17"
-            android:textAppearance="@android:style/TextAppearance.Medium"
-            />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/privacyTv"
-            android:text="@string/strPrivacyPolicy"
-            android:textAppearance="@android:style/TextAppearance.Medium"
-            android:autoLink="web"
-            android:paddingBottom="8dp"/>
+            android:layout_weight="1"
+            android:textColor="@android:color/black" />
 
     </LinearLayout>
 
-</ScrollView>
+    <TextView
+        android:id="@+id/emailTv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autoLink="email"
+        android:paddingBottom="8dp"
+        android:text="@string/strSupportEmail"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:layout_above="@id/socialLayout"
+        android:layout_marginBottom="8dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/websiteLayout"
+        android:id="@+id/socialLayout"
+        android:layout_marginBottom="8dp">
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/fbBtn"
+            android:src="@drawable/facebook"
+            android:layout_toStartOf="@+id/lnBtn"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"/>
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/lnBtn"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/linkedin"/>
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/twBtn"
+            android:layout_toEndOf="@id/lnBtn"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:src="@drawable/twitter"/>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/copyrightTv"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal"
+        android:id="@+id/websiteLayout"
+        android:layout_marginBottom="8dp"
+        android:background="@android:color/transparent">
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_launcher"
+            android:background="@android:color/transparent"/>
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:autoLink="web"
+            android:text="@string/strWebsite"
+            android:gravity="center_vertical"
+            android:textColor="@android:color/black"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/copyrightTv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:layout_above="@id/privacyTv"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/privacyTv"
+        android:text="@string/strPrivacyPolicy"
+        android:autoLink="web"
+        android:textAlignment="center"
+        android:layout_marginBottom="8dp"
+        android:textColor="@android:color/black"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

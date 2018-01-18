@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.regula.documentreader.demo"
         minSdkVersion 19
@@ -17,6 +17,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    flavorDimensions 'regula'
     productFlavors {
         core {
             versionNameSuffix "-core"
@@ -39,6 +41,12 @@ android {
         full{
             versionNameSuffix "-full"
         }
+        mrzrfid{
+            versionNameSuffix "-mrzrfid"
+        }
+        fullrfid{
+            versionNameSuffix "-fullrfid"
+        }
     }
 }
 
@@ -51,15 +59,17 @@ dependencies {
     compile 'com.android.support:design:25.3.1'
     testCompile 'junit:junit:4.12'
 
-    coreCompile 'com.regula.documentreader:core:+@aar'
-    boundsCompile 'com.regula.documentreader.bounds:core:+@aar'
-    mrzCompile 'com.regula.documentreader.mrz:core:+@aar'
-    barcodeCompile 'com.regula.documentreader.barcode:core:+@aar'
-    barcodemrzCompile 'com.regula.documentreader.barcodemrz:core:+@aar'
-    ocrandmrzCompile 'com.regula.documentreader.ocrandmrz:core:+@aar'
-    fullCompile 'com.regula.documentreader.full:core:+@aar'
+    coreImplementation 'com.regula.documentreader:core:+@aar'
+    boundsImplementation 'com.regula.documentreader.bounds:core:+@aar'
+    mrzImplementation 'com.regula.documentreader.mrz:core:+@aar'
+    barcodeImplementation 'com.regula.documentreader.barcode:core:+@aar'
+    barcodemrzImplementation 'com.regula.documentreader.barcodemrz:core:+@aar'
+    ocrandmrzImplementation 'com.regula.documentreader.ocrandmrz:core:+@aar'
+    fullImplementation 'com.regula.documentreader.full:core:+@aar'
+    mrzrfidImplementation 'com.regula.documentreader.mrzrfid:core:+@aar'
+    fullrfidImplementation 'com.regula.documentreader.fullrfid:core:+@aar'
 
-    compile('com.regula.documentreader:api:+@aar') {
+    implementation('com.regula.documentreader:api:+@aar') {
         transitive = true;
     }
 }
