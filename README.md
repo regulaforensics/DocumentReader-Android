@@ -2,6 +2,7 @@
 If you have any questions, feel free to contact us at support@regulaforensics.com
 
 * [How to build demo application](#how_to_build_demo_application)
+* [Build variants description](#build_variants_description)
 * [How to add DocumentReader library to your project](#how_to_add_documentreader_library_to_your_project)
 * [Troubleshooting license issues](#troubleshooting_license_issues)
 * [Additional information](#additional_information)
@@ -16,6 +17,18 @@ If you have any questions, feel free to contact us at support@regulaforensics.co
 1. Download additional files proposed by Android Studio to build project (build tools, for example).
 3. Change application ID to specified during registration of your license key at [licensing.regulaforensics.com](https://licensing.regulaforensics.com) (`com.regula.documentreader` by default).
 1. Select appropriate build variant and run application.
+
+## <a name="build_variants_description"></a> Build variants description
+Depending on the selected build variant, appropriate CORE will be referenced. This causes changes in available operations and results. Please, choose carefully, as each additional functionality causes increasing size of the result application.
+
+* mrz - capable to locate and recognize Machine Readable Zone on the image 
+* bounds - capable to locate and crop document from the image
+* barcode - capable to loacte and read data from Barcodes on the image
+* barcodemrz - combines functionality of mrz and barcode
+* ocrandmrz - combines functionality of mrz, bounds and locate
+* full - combines functionality of mrz, bounds, barcode and locate (full document visual processing)
+* mrzrfid - capable to locate and recognize Machine Readable Zone and read RFID chip using NFC
+* fullrfid - capable to perform full visual processing as well as reading RFID chip
 
 ## <a name="how_to_add_documentreader_library_to_your_project"></a> How to add DocumentReader library to your project
 
