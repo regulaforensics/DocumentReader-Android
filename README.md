@@ -28,7 +28,7 @@ Depending on the selected build variant, appropriate CORE will be referenced. Th
 * ocrandmrz - combines functionality of mrz, bounds and locate
 * full - combines functionality of mrz, bounds, barcode and locate (full document visual processing)
 * mrzrfid - capable to locate and recognize Machine Readable Zone and read RFID chip using NFC
-* fullrfid - capable to perform full visual processing as well as reading RFID chip
+* fullrfid - same as "full" + capable of reading RFID chips data (ePassport / eDL)
 
 ## <a name="how_to_add_documentreader_library_to_your_project"></a> How to add DocumentReader library to your project
 
@@ -37,7 +37,7 @@ them, simply add the following lines to your build.gradle:
 
 ```java
 compile 'com.regula.documentreader:artifact_id:+@aar'	
-//possible artifact_id: core, bounds, mrz, barcode, barcodemrz, ocrandmrz, full; Depends on received license
+//possible artifact_id: core, bounds, mrz, barcode, barcodemrz, ocrandmrz, full, fullrfid; Depends on received license
 compile ('com.regula.documentreader:api:+aar'){
 	transitive = true
 }
