@@ -15,7 +15,7 @@ If you have any questions, feel free to contact us at support@regulaforensics.co
 1. Copy file `regula.license` to `DocumentReader-sample/app/src/main/res/raw` folder. 
 1. Launch Android Studio and select _Open an existing Android Studio project_ then select _DocumentReader-sample_ project in file browser.
 1. Download additional files proposed by Android Studio to build project (build tools, for example).
-3. Change application ID to specified during registration of your license key at [licensing.regulaforensics.com](https://licensing.regulaforensics.com) (`com.regula.documentreader.demo` by default).
+3. Change application ID to specified during registration of your license key at [licensing.regulaforensics.com](https://licensing.regulaforensics.com) (`com.regula.documentreader` by default).
 1. Select appropriate build variant and run application.
 
 ## <a name="build_variants_description"></a> Build variants description
