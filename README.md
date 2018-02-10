@@ -5,6 +5,7 @@ If you have any questions, feel free to contact us at support@regulaforensics.co
 * [Build variants description](#build_variants_description)
 * [How to add DocumentReader library to your project](#how_to_add_documentreader_library_to_your_project)
 * [Troubleshooting license issues](#troubleshooting_license_issues)
+* [Documentation](#docs)
 * [Additional information](#additional_information)
 
 ## <a name="how_to_build_demo_application"></a> How to build demo application
@@ -49,6 +50,9 @@ If you have issues with license verification when running the application, pleas
 1. Date and time on the device you are trying to run the application is correct and inside the license validity term.
 1. You are using the latest release of the SDK.
 1. You placed the license into the correct folder as described here [How to build demo application](#how_to_build_demo_application) (`DocumentReader-sample/app/src/main/res/raw`).
+
+## <a name="docs"></a> Documentation
+You can find documentation on API [here](https://regulaforensics.github.io/DocumentReader-Android/).
 
 ## <a name="additional_information"></a> Additional information
 If you have any questions, feel free to contact us at support@regulaforensics.com
