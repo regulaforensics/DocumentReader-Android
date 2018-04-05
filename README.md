@@ -2,7 +2,6 @@
 If you have any questions, feel free to contact us at support@regulaforensics.com
 
 * [How to build demo application](#how_to_build_demo_application)
-* [Build variants description](#build_variants_description)
 * [How to add DocumentReader library to your project](#how_to_add_documentreader_library_to_your_project)
 * [Troubleshooting license issues](#troubleshooting_license_issues)
 * [Documentation](#docs)
@@ -19,30 +18,68 @@ If you have any questions, feel free to contact us at support@regulaforensics.co
 3. Change application ID to specified during registration of your license key at [licensing.regulaforensics.com](https://licensing.regulaforensics.com) (`com.regula.documentreader` by default).
 1. Select appropriate build variant and run application.
 
-## <a name="build_variants_description"></a> Build variants description
-Depending on the selected build variant, appropriate CORE will be referenced. This causes changes in available operations and results. Please, choose carefully, as each additional functionality causes increasing size of the result application.
-
-* mrz - capable to locate and recognize Machine Readable Zone on the image 
-* bounds - capable to locate and crop document from the image
-* barcode - capable to loacte and read data from Barcodes on the image
-* barcodemrz - combines functionality of mrz and barcode
-* ocrandmrz - combines functionality of mrz, bounds and locate
-* full - combines functionality of mrz, bounds, barcode and locate (full document visual processing)
-* mrzrfid - capable to locate and recognize Machine Readable Zone and read RFID chip using NFC
-* fullrfid - same as "full" + capable of reading RFID chips data (ePassport / eDL)
-
 ## <a name="how_to_add_documentreader_library_to_your_project"></a> How to add DocumentReader library to your project
 
 DocumentReader libraries are available in our [Maven repository](http://maven.regulaforensics.com/RegulaDocumentReader/com/regula/documentreader/). To install
-them, simply add the following lines to your build.gradle:
+them, simply add the following lines to your build.gradle
 
+*Loading full library edition:
 ```java
-compile 'com.regula.documentreader:artifact_id:+@aar'	
-//possible artifact_id: core, bounds, mrz, barcode, barcodemrz, ocrandmrz, full, fullrfid; Depends on received license
-compile ('com.regula.documentreader:api:+aar'){
+implementation 'com.regula.documentreader.fullrfid:core:+@aar'	
+implementation ('com.regula.documentreader:api:+aar'){
 	transitive = true
 }
 ```
+* Install Core library edition:
+```java
+implementation 'com.regula.documentreader.core:core:+@aar'
+implementation ('com.regula.documentreader:api:+aar'){
+	transitive = true
+}
+```
+* Install Bounds library edition:
+```java
+implementation 'com.regula.documentreader.bounds:core:+@aar'
+implementation ('com.regula.documentreader:api:+aar'){
+	transitive = true
+}
+```
+* Install Barcode library edition:
+```java
+implementation 'com.regula.documentreader.barcode:core:+@aar'
+implementation ('com.regula.documentreader:api:+aar'){
+	transitive = true
+}
+```
+* Install MRZ library edition:
+```java
+implementation 'com.regula.documentreader.mrz:core:+@aar'
+implementation ('com.regula.documentreader:api:+aar'){
+	transitive = true
+}
+```
+* Install MRZ-Barcode library edition:
+```java
+implementation 'com.regula.documentreader.barcodemrz:core:+@aar'
+implementation ('com.regula.documentreader:api:+aar'){
+	transitive = true
+}
+```
+* Install OCR library edition:
+```java
+implementation 'com.regula.documentreader.ocrandmrz:core:+@aar'
+implementation ('com.regula.documentreader:api:+aar'){
+	transitive = true
+}
+```
+* Install Bank Card library edition:
+```java
+implementation 'com.regula.documentreader.creditcard:core:+@aar'
+implementation ('com.regula.documentreader:api:+aar'){
+	transitive = true
+}
+```
+
 ## <a name="troubleshooting_license_issues"></a> Troubleshooting license issues
 If you have issues with license verification when running the application, please verify that next is true:
 1. OS you are using is the same as in the license you received (Android).
