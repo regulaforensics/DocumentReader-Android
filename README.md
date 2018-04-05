@@ -23,7 +23,7 @@ If you have any questions, feel free to contact us at support@regulaforensics.co
 DocumentReader libraries are available in our [Maven repository](http://maven.regulaforensics.com/RegulaDocumentReader/com/regula/documentreader/). To install
 them, simply add the following lines to your build.gradle
 
-*Loading full library edition:
+* Loading full library edition:
 ```java
 implementation 'com.regula.documentreader.fullrfid:core:+@aar'	
 implementation ('com.regula.documentreader:api:+aar'){
