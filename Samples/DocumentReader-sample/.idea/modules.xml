@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/DocumentReader-sample.iml" filepath="$PROJECT_DIR$/DocumentReader-sample.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Android_GithubDemo.iml" filepath="$PROJECT_DIR$/Android_GithubDemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

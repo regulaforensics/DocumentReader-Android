@@ -1,12 +1,20 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '26.0.2'
+
+    allprojects{
+        repositories{
+            maven {
+                url "http://maven.regulaforensics.com/RegulaDocumentReader"
+            }
+        }
+    }
+
+    compileSdkVersion 26
     defaultConfig {
-        applicationId "com.regula.documentreader"
+        applicationId "com.regula.dr.fullrfid"
         minSdkVersion 19
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -17,58 +25,18 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-    flavorDimensions 'regula'
-    productFlavors {
-        core {
-            versionNameSuffix "-core"
-        }
-        mrz {
-            versionNameSuffix "-mrz"
-        }
-        bounds{
-            versionNameSuffix "-bounds"
-        }
-        ocrandmrz{
-            versionNameSuffix "-ocrandmrz"
-        }
-        barcode{
-            versionNameSuffix "-barcode"
-        }
-        barcodemrz{
-            versionNameSuffix "-barcodemrz"
-        }
-        full{
-            versionNameSuffix "-full"
-        }
-        mrzrfid{
-            versionNameSuffix "-mrzrfid"
-        }
-        fullrfid{
-            versionNameSuffix "-fullrfid"
-        }
-    }
 }
 
 dependencies {
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:design:25.3.1'
-    testCompile 'junit:junit:4.12'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 
-    coreImplementation 'com.regula.documentreader:core:+@aar'
-    boundsImplementation 'com.regula.documentreader.bounds:core:+@aar'
-    mrzImplementation 'com.regula.documentreader.mrz:core:+@aar'
-    barcodeImplementation 'com.regula.documentreader.barcode:core:+@aar'
-    barcodemrzImplementation 'com.regula.documentreader.barcodemrz:core:+@aar'
-    ocrandmrzImplementation 'com.regula.documentreader.ocrandmrz:core:+@aar'
-    fullImplementation 'com.regula.documentreader.full:core:+@aar'
-    mrzrfidImplementation 'com.regula.documentreader.mrzrfid:core:+@aar'
-    fullrfidImplementation 'com.regula.documentreader.fullrfid:core:+@aar'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
+    implementation 'com.regula.documentreader.fullrfid:core:+@aar'
     implementation('com.regula.documentreader:api:+@aar') {
         transitive = true;
     }
