@@ -2,19 +2,23 @@ package com.regula.documentreader;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
@@ -36,6 +40,7 @@ import com.regula.documentreader.api.results.DocumentReaderScenario;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.graphics.BitmapFactory.decodeStream;
 
@@ -60,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private boolean doRfid;
     private AlertDialog loadingDialog;
+
+    private int selectedPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +108,9 @@ public class MainActivity extends AppCompatActivity {
                     if(initDialog.isShowing()) {
                         initDialog.dismiss();
                     }
+
+                    DocumentReader.Instance().showHintMessages = true;
+                    DocumentReader.Instance().videoCaptureMotionControl = true;
 
                     //initialization successful
                     if(success){
@@ -156,23 +166,25 @@ public class MainActivity extends AppCompatActivity {
                             currentScenario = scenarios.get(0);
                         }
 
-                        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, scenarios);
-                        scenarioLv.setAdapter(adapter);
-
-                        int position = 0;
+                        final ScenarioAdapter adapter = new ScenarioAdapter(MainActivity.this, android.R.layout.simple_list_item_1, scenarios);
+                        selectedPosition = 0;
                         try{
-                            position = adapter.getPosition(currentScenario);
+                            selectedPosition = adapter.getPosition(currentScenario);
                         } catch (Exception ex){
                             ex.printStackTrace();
                         }
+                        scenarioLv.setAdapter(adapter);
 
-                        scenarioLv.setSelection(position);
+                        scenarioLv.setSelection(selectedPosition);
 
                         scenarioLv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                                 //setting selected scenario to DocumentReader params
                                 DocumentReader.Instance().processParams.scenario = adapter.getItem(i);
+                                selectedPosition = i;
+                                adapter.notifyDataSetChanged();
+
                             }
                         });
 
@@ -190,6 +202,8 @@ public class MainActivity extends AppCompatActivity {
             ex.printStackTrace();
         }
     }
+
+
 
     @Override
     protected void onPause() {
@@ -238,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
         public void onCompleted(int action, DocumentReaderResults results, String error) {
             //processing is finished, all results are ready
             if (action == DocReaderAction.COMPLETE) {
-                if(loadingDialog.isShowing()){
+                if(loadingDialog!=null && loadingDialog.isShowing()){
                     loadingDialog.dismiss();
                 }
 
@@ -376,5 +390,25 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return inSampleSize;
+    }
+
+    class ScenarioAdapter extends ArrayAdapter<String>{
+
+        public ScenarioAdapter(@NonNull Context context, int resource, @NonNull List<String> objects) {
+            super(context, resource, objects);
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            View view = super.getView(position, convertView, parent);
+
+            if(position == selectedPosition){
+                view.setBackgroundColor(Color.LTGRAY);
+            } else {
+                view.setBackgroundColor(Color.TRANSPARENT);
+            }
+            return view;
+        }
     }
 }

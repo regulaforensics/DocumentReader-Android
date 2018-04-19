@@ -12,7 +12,7 @@ android {
 
     compileSdkVersion 26
     defaultConfig {
-        applicationId "com.regula.dr.fullrfid"
+        applicationId "com.regula.documentreader"
         minSdkVersion 19
         targetSdkVersion 26
         versionCode 1
