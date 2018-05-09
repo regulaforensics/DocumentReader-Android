@@ -143,16 +143,20 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
 
-                        //reading shared preferences
-                        doRfid = sharedPreferences.getBoolean(DO_RFID, false);
-                        doRfidCb.setChecked(doRfid);
-                        doRfidCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                            @Override
-                            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                                doRfid = checked;
-                                sharedPreferences.edit().putBoolean(DO_RFID, checked).apply();
-                            }
-                        });
+                        if(DocumentReader.Instance().documentReaderCapabilities.canRfid) {
+                            //reading shared preferences
+                            doRfid = sharedPreferences.getBoolean(DO_RFID, false);
+                            doRfidCb.setChecked(doRfid);
+                            doRfidCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                                @Override
+                                public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                                    doRfid = checked;
+                                    sharedPreferences.edit().putBoolean(DO_RFID, checked).apply();
+                                }
+                            });
+                        } else {
+                            doRfidCb.setVisibility(View.GONE);
+                        }
 
                         //getting current processing scenario and loading available scenarios to ListView
                         String currentScenario = DocumentReader.Instance().processParams.scenario;
