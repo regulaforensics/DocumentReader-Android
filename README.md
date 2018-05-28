@@ -1,5 +1,12 @@
 # Regula Document Reader (Android version)
-If you have any questions, feel free to contact us at support@regulaforensics.com
+
+The DocumentReader is a SDK for identification documents reading and validation which is working fully **offline**. It contains two parts: **API** for frameworks users. And **Core** that performs all main logic. [Just take me to the notes!](https://github.com/regulaforensics/DocumentReader-Android/wiki)
+
+If you have any questions, feel free to [contact us](mailto:support@regulaforensics.com).
+
+<img src="DocumentReaderDemo_default.png" width="250"> <img src="DocumentReaderDemo_process.png" width="250"> <img src="DocumentReaderDemo_result.png" width="250">
+
+#
 
 * [How to build demo application](#how_to_build_demo_application)
 * [How to add DocumentReader library to your project](#how_to_add_documentreader_library_to_your_project)
