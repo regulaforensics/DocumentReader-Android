@@ -29,64 +29,59 @@ If you have any questions, feel free to [contact us](mailto:support@regulaforens
 
 ## <a name="how_to_add_documentreader_library_to_your_project"></a> How to add DocumentReader library to your project
 
-DocumentReader libraries are available in our [Maven repository](http://maven.regulaforensics.com/RegulaDocumentReader/com/regula/documentreader/). To install
-them, simply add the following lines to your build.gradle
+DocumentReader libraries are available in our [Maven repository](http://maven.regulaforensics.com/RegulaDocumentReader/com/regula/documentreader/). To install them, simply add the following lines to your project `build.gradle`
 
-* Loading full library edition:
-```java
-implementation 'com.regula.documentreader.fullrfid:core:+@aar'	
+```gradle
 implementation ('com.regula.documentreader:api:+aar'){
 	transitive = true
 }
 ```
-* Install Core library edition:
-```java
+
+And one of library depend on functionality which you want and license abilities:
+
+Loading **Full** library edition (for **x86** architecture):
+```gradle
+implementation 'com.regula.documentreader.fullrfid:core:+@aar'
+```
+
+Loading **Full** library edition (for **ARMv7** architecture):
+```gradle
+implementation 'com.regula.documentreader.full:core:+@aar'
+```
+
+Loading **Core** library edition:
+```gradle
 implementation 'com.regula.documentreader.core:core:+@aar'
-implementation ('com.regula.documentreader:api:+aar'){
-	transitive = true
-}
 ```
-* Install Bounds library edition:
-```java
+
+Loading **Bounds** library edition:
+```gradle
 implementation 'com.regula.documentreader.bounds:core:+@aar'
-implementation ('com.regula.documentreader:api:+aar'){
-	transitive = true
-}
 ```
-* Install Barcode library edition:
-```java
+
+Loading **Barcode** library edition:
+```gradle
 implementation 'com.regula.documentreader.barcode:core:+@aar'
-implementation ('com.regula.documentreader:api:+aar'){
-	transitive = true
-}
 ```
-* Install MRZ library edition:
-```java
+
+Loading **MRZ** library edition:
+```gradle
 implementation 'com.regula.documentreader.mrz:core:+@aar'
-implementation ('com.regula.documentreader:api:+aar'){
-	transitive = true
-}
 ```
-* Install MRZ-Barcode library edition:
-```java
+
+Loading **MRZ-Barcode** library edition:
+```gradle
 implementation 'com.regula.documentreader.barcodemrz:core:+@aar'
-implementation ('com.regula.documentreader:api:+aar'){
-	transitive = true
-}
 ```
-* Install OCR library edition:
-```java
+
+Loading **OCR** library edition:
+```gradle
 implementation 'com.regula.documentreader.ocrandmrz:core:+@aar'
-implementation ('com.regula.documentreader:api:+aar'){
-	transitive = true
-}
 ```
-* Install Bank Card library edition:
-```java
+
+Loading **Bank Card** library edition:
+```gradle
 implementation 'com.regula.documentreader.creditcard:core:+@aar'
-implementation ('com.regula.documentreader:api:+aar'){
-	transitive = true
-}
 ```
 
 ## <a name="troubleshooting_license_issues"></a> Troubleshooting license issues
