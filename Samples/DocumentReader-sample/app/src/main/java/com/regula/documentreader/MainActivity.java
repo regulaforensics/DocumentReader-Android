@@ -17,6 +17,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -36,6 +37,7 @@ import com.regula.documentreader.api.enums.eVisualFieldType;
 import com.regula.documentreader.api.params.RfidScenario;
 import com.regula.documentreader.api.results.DocumentReaderResults;
 import com.regula.documentreader.api.results.DocumentReaderScenario;
+import com.regula.documentreader.api.results.DocumentReaderTextField;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -316,6 +318,12 @@ public class MainActivity extends AppCompatActivity {
             String name = results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES);
             if (name != null){
                 nameTv.setText(name);
+            }
+
+            // through all text fields
+            for(DocumentReaderTextField textField : results.textResult.fields) {
+                String value = results.getTextFieldValueByType(textField.fieldType, textField.lcid);
+                Log.d("MainActivity", value + "\n");
             }
 
             Bitmap portrait = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT);
