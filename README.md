@@ -1,6 +1,8 @@
 # Regula Document Reader (Android version)
 
-The DocumentReader is a SDK for identification documents reading and validation which is working fully **offline**. It contains two parts: **API** for frameworks users. And **Core** that performs all main logic. [Just take me to the notes!](https://github.com/regulaforensics/DocumentReader-Android/wiki)
+The DocumentReader is a SDK to read various kinds of identification documents, passports, driving licenses, ID cards and etc. It's fully working ***offline***.
+You can use native camera to scan the documents or image from gallery for extract all data from it.
+We have provided a simple application that demonstrates the ***API*** calls you can use to interact with the DocumentReader Library. [Just take me to the notes!](https://github.com/regulaforensics/DocumentReader-Android/wiki)
 
 If you have any questions, feel free to [contact us](mailto:support@regulaforensics.com).
 
@@ -99,4 +101,4 @@ If you have issues with license verification when running the application, pleas
 You can find documentation on API [here](https://regulaforensics.github.io/DocumentReader-Android/).
 
 ## <a name="additional_information"></a> Additional information
-If you have any questions, feel free to contact us at support@regulaforensics.com
+Use [Wiki](https://github.com/regulaforensics/DocumentReader-Android/wiki) to get more details. If you have any questions, feel free to [contact us](mailto:support@regulaforensics.com).
