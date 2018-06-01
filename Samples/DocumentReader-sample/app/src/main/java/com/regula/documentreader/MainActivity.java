@@ -321,9 +321,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // through all text fields
-            for(DocumentReaderTextField textField : results.textResult.fields) {
-                String value = results.getTextFieldValueByType(textField.fieldType, textField.lcid);
-                Log.d("MainActivity", value + "\n");
+            if(results.textResult != null && results.textResult.fields != null) {
+                for (DocumentReaderTextField textField : results.textResult.fields) {
+                    String value = results.getTextFieldValueByType(textField.fieldType, textField.lcid);
+                    Log.d("MainActivity", value + "\n");
+                }
             }
 
             Bitmap portrait = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT);
