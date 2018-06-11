@@ -39,12 +39,13 @@ implementation ('com.regula.documentreader:api:+aar'){
 
 And one of library depend on functionality which you want and license abilities:
 
-Loading **Full** library edition (for **x86** architecture):
+Loading **Full** library edition:
 ```gradle
 implementation 'com.regula.documentreader.fullrfid:core:+@aar'
 ```
 
-Loading **Full** library edition (for **ARMv7** architecture):
+or
+
 ```gradle
 implementation 'com.regula.documentreader.full:core:+@aar'
 ```
