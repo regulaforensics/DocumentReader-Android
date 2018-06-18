@@ -32,7 +32,7 @@ If you have any questions, feel free to [contact us](mailto:support@regulaforens
 DocumentReader libraries are available in our [Maven repository](http://maven.regulaforensics.com/RegulaDocumentReader/com/regula/documentreader/). To install them, simply add the following lines to your project `build.gradle`
 
 ```gradle
-implementation ('com.regula.documentreader:api:+aar'){
+implementation ('com.regula.documentreader:api:+@aar'){
 	transitive = true
 }
 ```
