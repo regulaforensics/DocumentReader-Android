@@ -6,8 +6,6 @@ You can use native camera to scan the documents or image from gallery for extrac
 
 We have provided a simple application that demonstrates the ***API*** calls you can use to interact with the DocumentReader Library. [Just take me to the notes!](https://github.com/regulaforensics/DocumentReader-Android/wiki)
 
-If you have any questions, feel free to [contact us](mailto:support@regulaforensics.com).
-
 <img src="DocumentReaderDemo_default.png" width="250"> <img src="DocumentReaderDemo_process.png" width="250"> <img src="DocumentReaderDemo_result.png" width="250">
 
 #
