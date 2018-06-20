@@ -1,5 +1,14 @@
 # Regula Document Reader (Android version)
-If you have any questions, feel free to contact us at support@regulaforensics.com
+
+The DocumentReader is a SDK to read various kinds of identification documents, passports, driving licenses, ID cards and etc. It's fully working ***offline***.
+You can use native camera to scan the documents or image from gallery for extract all data from it.
+We have provided a simple application that demonstrates the ***API*** calls you can use to interact with the DocumentReader Library. [Just take me to the notes!](https://github.com/regulaforensics/DocumentReader-Android/wiki)
+
+If you have any questions, feel free to [contact us](mailto:support@regulaforensics.com).
+
+<img src="DocumentReaderDemo_default.png" width="250"> <img src="DocumentReaderDemo_process.png" width="250"> <img src="DocumentReaderDemo_result.png" width="250">
+
+#
 
 * [How to build demo application](#how_to_build_demo_application)
 * [How to add DocumentReader library to your project](#how_to_add_documentreader_library_to_your_project)
@@ -20,64 +29,60 @@ If you have any questions, feel free to contact us at support@regulaforensics.co
 
 ## <a name="how_to_add_documentreader_library_to_your_project"></a> How to add DocumentReader library to your project
 
-DocumentReader libraries are available in our [Maven repository](http://maven.regulaforensics.com/RegulaDocumentReader/com/regula/documentreader/). To install
-them, simply add the following lines to your build.gradle
+DocumentReader libraries are available in our [Maven repository](http://maven.regulaforensics.com/RegulaDocumentReader/com/regula/documentreader/). To install them, simply add the following lines to your project `build.gradle`
 
-* Loading full library edition:
-```java
-implementation 'com.regula.documentreader.fullrfid:core:+@aar'	
-implementation ('com.regula.documentreader:api:+aar'){
+```gradle
+implementation ('com.regula.documentreader:api:+@aar'){
 	transitive = true
 }
 ```
-* Install Core library edition:
-```java
+
+And one of library depend on functionality which you want and license abilities:
+
+Loading **Full** library edition:
+```gradle
+implementation 'com.regula.documentreader.fullrfid:core:+@aar'
+```
+
+or
+
+```gradle
+implementation 'com.regula.documentreader.full:core:+@aar'
+```
+
+Loading **Core** library edition:
+```gradle
 implementation 'com.regula.documentreader.core:core:+@aar'
-implementation ('com.regula.documentreader:api:+aar'){
-	transitive = true
-}
 ```
-* Install Bounds library edition:
-```java
+
+Loading **Bounds** library edition:
+```gradle
 implementation 'com.regula.documentreader.bounds:core:+@aar'
-implementation ('com.regula.documentreader:api:+aar'){
-	transitive = true
-}
 ```
-* Install Barcode library edition:
-```java
+
+Loading **Barcode** library edition:
+```gradle
 implementation 'com.regula.documentreader.barcode:core:+@aar'
-implementation ('com.regula.documentreader:api:+aar'){
-	transitive = true
-}
 ```
-* Install MRZ library edition:
-```java
+
+Loading **MRZ** library edition:
+```gradle
 implementation 'com.regula.documentreader.mrz:core:+@aar'
-implementation ('com.regula.documentreader:api:+aar'){
-	transitive = true
-}
 ```
-* Install MRZ-Barcode library edition:
-```java
+
+Loading **MRZ-Barcode** library edition:
+```gradle
 implementation 'com.regula.documentreader.barcodemrz:core:+@aar'
-implementation ('com.regula.documentreader:api:+aar'){
-	transitive = true
-}
 ```
-* Install OCR library edition:
-```java
+
+Loading **OCR** library edition:
+```gradle
 implementation 'com.regula.documentreader.ocrandmrz:core:+@aar'
-implementation ('com.regula.documentreader:api:+aar'){
-	transitive = true
-}
 ```
-* Install Bank Card library edition:
-```java
+
+Loading **Bank Card** library edition:
+```gradle
 implementation 'com.regula.documentreader.creditcard:core:+@aar'
-implementation ('com.regula.documentreader:api:+aar'){
-	transitive = true
-}
 ```
 
 ## <a name="troubleshooting_license_issues"></a> Troubleshooting license issues
@@ -92,4 +97,4 @@ If you have issues with license verification when running the application, pleas
 You can find documentation on API [here](https://regulaforensics.github.io/DocumentReader-Android/).
 
 ## <a name="additional_information"></a> Additional information
-If you have any questions, feel free to contact us at support@regulaforensics.com
+Use [Wiki](https://github.com/regulaforensics/DocumentReader-Android/wiki) to get more details. If you have any questions, feel free to [contact us](mailto:support@regulaforensics.com).
