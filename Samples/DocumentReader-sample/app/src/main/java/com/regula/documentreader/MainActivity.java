@@ -212,6 +212,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+
+        if(loadingDialog!=null){
+            loadingDialog.dismiss();
+            loadingDialog = null;
+        }
     }
 
     @Override
