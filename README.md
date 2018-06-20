@@ -1,7 +1,9 @@
 # Regula Document Reader (Android version)
 
-The DocumentReader is a SDK to read various kinds of identification documents, passports, driving licenses, ID cards and etc. It's fully working ***offline***.
+Regula Document Reader SDK allows you to read various kinds of identification documents, passports, driving licenses, ID cards, etc. All processing is performed completely ***offline*** on your device. No any data leaving your device.
+
 You can use native camera to scan the documents or image from gallery for extract all data from it.
+
 We have provided a simple application that demonstrates the ***API*** calls you can use to interact with the DocumentReader Library. [Just take me to the notes!](https://github.com/regulaforensics/DocumentReader-Android/wiki)
 
 If you have any questions, feel free to [contact us](mailto:support@regulaforensics.com).
@@ -89,7 +91,7 @@ implementation 'com.regula.documentreader.creditcard:core:+@aar'
 If you have issues with license verification when running the application, please verify that next is true:
 1. OS you are using is the same as in the license you received (Android).
 1. Application ID is the same that you specified for license.
-1. Date and time on the device you are trying to run the application is correct and inside the license validity term.
+1. Date and time on the device you are trying to run the application is correct and inside the license validity period.
 1. You are using the latest release of the SDK.
 1. You placed the license into the correct folder as described here [How to build demo application](#how_to_build_demo_application) (`DocumentReader-sample/app/src/main/res/raw`).
 
@@ -97,4 +99,7 @@ If you have issues with license verification when running the application, pleas
 You can find documentation on API [here](https://regulaforensics.github.io/DocumentReader-Android/).
 
 ## <a name="additional_information"></a> Additional information
-Use [Wiki](https://github.com/regulaforensics/DocumentReader-Android/wiki) to get more details. If you have any questions, feel free to [contact us](mailto:support@regulaforensics.com).
+Use [Wiki](https://github.com/regulaforensics/DocumentReader-Android/wiki) to get more details. If you have any technical questions, feel free to [contact us](mailto:support@regulaforensics.com) or creaite issue here.
+
+To use our SDK in your own app you will need to [purchase](https://pipedrivewebforms.com/form/5f1d771cbe4f844a1f78f8a06fbf94361841159) commercial license.
+
