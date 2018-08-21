@@ -277,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
                     String accessKey = null;
                     if ((accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_MRZ_STRINGS)) != null && !accessKey.isEmpty()) {
                         accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_MRZ_STRINGS)
-                                .replace("^", "");
+                                .replace("^", "").replace("\n","");
                         DocumentReader.Instance().processParams.rfidScenario.mrz = accessKey;
                         DocumentReader.Instance().processParams.rfidScenario.pacePasswordType = eRFID_Password_Type.PPT_MRZ;
                     } else if ((accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_CARD_ACCESS_NUMBER)) != null && !accessKey.isEmpty()) {
