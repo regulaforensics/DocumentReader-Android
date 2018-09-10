@@ -170,6 +170,7 @@ public class MainActivity extends AppCompatActivity {
                         //setting default scenario
                         if(currentScenario==null || currentScenario.isEmpty()){
                             currentScenario = scenarios.get(0);
+                            DocumentReader.Instance().processParams.scenario = currentScenario;
                         }
 
                         final ScenarioAdapter adapter = new ScenarioAdapter(MainActivity.this, android.R.layout.simple_list_item_1, scenarios);
