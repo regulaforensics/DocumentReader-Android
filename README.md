@@ -21,7 +21,7 @@ We have provided a simple application that demonstrates the ***API*** calls you 
 1. Clone current repository using command `git clone https://github.com/regulaforensics/DocumentReader-Android.git`.
 1. Download and install latest [JDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html).
 1. Download and install latest [Android Studio](https://developer.android.com/studio/index.html).
-1. Copy file `regula.license` to `DocumentReader-sample/app/src/main/res/raw` folder. 
+1. Copy file `regula.license` to `DocumentReader-sample/app/src/main/res/raw` folder.
 1. Launch Android Studio and select _Open an existing Android Studio project_ then select _DocumentReader-sample_ project in file browser.
 1. Download additional files proposed by Android Studio to build project (build tools, for example).
 3. Change application ID to specified during registration of your license key at [licensing.regulaforensics.com](https://licensing.regulaforensics.com) (`com.regula.documentreader` by default).
@@ -73,6 +73,11 @@ implementation 'com.regula.documentreader.mrz:core:+@aar'
 Loading **MRZ-Barcode** library edition:
 ```gradle
 implementation 'com.regula.documentreader.barcodemrz:core:+@aar'
+```
+
+Loading **MRZ-RFID** library edition:
+```gradle
+implementation 'com.regula.documentreader.mrzrfid:core:+@aar'
 ```
 
 Loading **OCR** library edition:
