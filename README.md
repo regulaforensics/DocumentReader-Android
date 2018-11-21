@@ -17,15 +17,15 @@ We have provided a simple application that demonstrates the ***API*** calls you 
 * [Additional information](#additional_information)
 
 ## <a name="how_to_build_demo_application"></a> How to build demo application
-1. Get trial license for demo application at [licensing.regulaforensics.com](https://licensing.regulaforensics.com) (`regula.license` file).
-1. Clone current repository using command `git clone https://github.com/regulaforensics/DocumentReader-Android.git`.
-1. Download and install latest [JDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html).
 1. Download and install latest [Android Studio](https://developer.android.com/studio/index.html).
-1. Copy file `regula.license` to `DocumentReader-sample/app/src/main/res/raw` folder.
-1. Launch Android Studio and select _Open an existing Android Studio project_ then select _DocumentReader-sample_ project in file browser.
-1. Download additional files proposed by Android Studio to build project (build tools, for example).
-3. Change application ID to specified during registration of your license key at [licensing.regulaforensics.com](https://licensing.regulaforensics.com) (`com.regula.documentreader` by default).
-1. Select appropriate build variant and run application.
+2. Clone current repository using command `git clone https://github.com/regulaforensics/DocumentReader-Android.git`.
+3. Launch Android Studio and select _Open an existing Android Studio project_ then select _DocumentReader-sample_ project in file browser.
+4. Download additional files proposed by Android Studio to build project (build tools, for example).
+5. Visit [licensing.regulaforensics.com](https://licensing.regulaforensics.com) to get your trial license(`regula.license`) and documents database(`db.dat`). Download both files to your computer. You can create license by clicking "Generate demo license". License creation wizard will guide you through necessary steps. You can select and download appropriate database version on "Databases" page.
+6. Change application ID in the `DocumentReader-sample/app/build.gradle`  file to the one you have specified during registration at [licensing.regulaforensics.com](https://licensing.regulaforensics.com) (`com.regula.documentreader` by default).
+7. Copy file `regula.license` to `DocumentReader-sample/app/src/main/res/raw` folder.
+8. Copy downloaded database file  `db.dat` to `DocumentReader-sample/app/src/main/assets/Regula` folder.
+9. Build and run application.
 
 ## <a name="how_to_add_documentreader_library_to_your_project"></a> How to add DocumentReader library to your project
 
