@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import com.regula.documentreader.api.DocumentReader;
 import com.regula.documentreader.api.enums.DocReaderAction;
+import com.regula.documentreader.api.enums.DocReaderFrame;
 import com.regula.documentreader.api.enums.eGraphicFieldType;
 import com.regula.documentreader.api.enums.eRFID_Password_Type;
 import com.regula.documentreader.api.enums.eVisualFieldType;
@@ -114,6 +115,8 @@ public class MainActivity extends AppCompatActivity {
                     DocumentReader.Instance().customization.showHintMessages = true;
                     DocumentReader.Instance().customization.videoCaptureMotionControl = true;
 
+                    DocumentReader.Instance().customization.cameraFrame = DocReaderFrame.ID1;
+
                     //initialization successful
                     if(success){
                         showScanner.setOnClickListener(new View.OnClickListener() {
@@ -145,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
 
-                        if(DocumentReader.Instance().documentReaderCapabilities.canRfid) {
+                        if(DocumentReader.Instance().getCanRFID()) {
                             //reading shared preferences
                             doRfid = sharedPreferences.getBoolean(DO_RFID, false);
                             doRfidCb.setChecked(doRfid);
