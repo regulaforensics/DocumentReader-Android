@@ -124,7 +124,8 @@ public class MainActivity extends AppCompatActivity {
                                         initDialog.dismiss();
                                     }
 
-                                    DocumentReader.Instance().customization.showHintMessages = true;
+                                    DocumentReader.Instance().customization.showResultStatusMessages = true;
+                                    DocumentReader.Instance().customization.showStatusMessages = true;
                                     DocumentReader.Instance().functionality.videoCaptureMotionControl = true;
 
                                     //initialization successful
