@@ -25,7 +25,6 @@ import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.eGraphicFieldType
 import com.regula.documentreader.api.enums.eRFID_Password_Type
 import com.regula.documentreader.api.enums.eVisualFieldType
-import com.regula.documentreader.api.params.RfidScenario
 import com.regula.documentreader.api.results.DocumentReaderResults
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.FileNotFoundException
@@ -62,30 +61,24 @@ class MainActivity : AppCompatActivity() {
 
                 //Checking, if nfc chip reading should be performed
                 if (doRfid && results != null && results.chipPage != 0) {
-                    if (DocumentReader.Instance().processParams.rfidScenario == null) {
-                        DocumentReader.Instance().processParams.rfidScenario = RfidScenario()
-                    }
-
                     //setting the chip's access key - mrz on car access number
                     var accessKey: String?
                     accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_MRZ_STRINGS)
                     if (accessKey != null && !accessKey.isEmpty()) {
                         accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_MRZ_STRINGS)
                             .replace("^", "").replace("\n", "")
-                        DocumentReader.Instance().processParams.rfidScenario.mrz = accessKey
-                        DocumentReader.Instance().processParams.rfidScenario.pacePasswordType =
-                            eRFID_Password_Type.PPT_MRZ
+                        DocumentReader.Instance().rfidScenario().setMrz(accessKey)
+                        DocumentReader.Instance().rfidScenario().setPacePasswordType(eRFID_Password_Type.PPT_MRZ)
                     } else {
                         accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_CARD_ACCESS_NUMBER)
                         if (accessKey != null && !accessKey.isEmpty()) {
-                            DocumentReader.Instance().processParams.rfidScenario.password = accessKey
-                            DocumentReader.Instance().processParams.rfidScenario.pacePasswordType =
-                                eRFID_Password_Type.PPT_CAN
+                            DocumentReader.Instance().rfidScenario().setPassword(accessKey)
+                            DocumentReader.Instance().rfidScenario().setPacePasswordType(eRFID_Password_Type.PPT_CAN)
                         }
                     }
                     //starting chip reading
                     DocumentReader.Instance().startRFIDReader { rfidAction, results_RFIDReader, _ ->
-                        if (rfidAction == DocReaderAction.COMPLETE) {
+                        if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
                             displayResults(results_RFIDReader)
                         }
                     }
@@ -153,9 +146,10 @@ class MainActivity : AppCompatActivity() {
                                     initDialog.dismiss()
                                 }
 
-                                DocumentReader.Instance().customization.showResultStatusMessages = true
-                                DocumentReader.Instance().customization.showStatusMessages = true
-                                DocumentReader.Instance().functionality.videoCaptureMotionControl = true
+                                DocumentReader.Instance().customization().isShowResultStatusMessages = true
+                                DocumentReader.Instance().customization().isShowStatusMessages = true
+                                DocumentReader.Instance().functionality().isVideoCaptureMotionControl = false
+                                DocumentReader.Instance().customization().isShowHelpAnimation = false
 
                                 //initialization successful
                                 if (success) {
@@ -199,7 +193,7 @@ class MainActivity : AppCompatActivity() {
                                     }
 
                                     //getting current processing scenario and loading available scenarios to ListView
-                                    var currentScenario: String? = DocumentReader.Instance().processParams.scenario
+                                    var currentScenario: String? = DocumentReader.Instance().processParams().scenario
                                     val scenarios = ArrayList<String>()
                                     for (scenario in DocumentReader.Instance().availableScenarios) {
                                         scenarios.add(scenario.name)
@@ -208,7 +202,7 @@ class MainActivity : AppCompatActivity() {
                                     //setting default scenario
                                     if (currentScenario == null || currentScenario.isEmpty()) {
                                         currentScenario = scenarios[0]
-                                        DocumentReader.Instance().processParams.scenario = currentScenario
+                                        DocumentReader.Instance().processParams().scenario = currentScenario
                                     }
 
                                     val adapter = ScenarioAdapter(
@@ -230,7 +224,7 @@ class MainActivity : AppCompatActivity() {
                                     scenarioLv!!.onItemClickListener =
                                         AdapterView.OnItemClickListener { _, _, i, _ ->
                                             //setting selected scenario to DocumentReader params
-                                            DocumentReader.Instance().processParams.scenario = adapter.getItem(i)
+                                            DocumentReader.Instance().processParams().scenario = adapter.getItem(i)
                                             selectedPosition = i
                                             adapter.notifyDataSetChanged()
                                         }
