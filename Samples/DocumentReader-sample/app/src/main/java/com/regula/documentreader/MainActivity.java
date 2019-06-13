@@ -123,9 +123,10 @@ public class MainActivity extends AppCompatActivity {
                                             initDialog.dismiss();
                                         }
 
-                                        DocumentReader.Instance().customization.showResultStatusMessages = true;
-                                        DocumentReader.Instance().customization.showStatusMessages = true;
-                                        DocumentReader.Instance().functionality.videoCaptureMotionControl = true;
+                                        DocumentReader.Instance().customization().setShowResultStatusMessages(true);
+                                        DocumentReader.Instance().customization().setShowStatusMessages(true);
+                                        DocumentReader.Instance().functionality().setVideoCaptureMotionControl(false);
+                                        DocumentReader.Instance().customization().setShowHelpAnimation(false);
 
                                         //initialization successful
                                         if (success) {
@@ -174,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
 
                                             //getting current processing scenario and loading available scenarios to ListView
-                                            String currentScenario = DocumentReader.Instance().processParams.scenario;
+                                            String currentScenario = DocumentReader.Instance().processParams().scenario;
                                             ArrayList<String> scenarios = new ArrayList<>();
                                             for (DocumentReaderScenario scenario : DocumentReader.Instance().availableScenarios) {
                                                 scenarios.add(scenario.name);
@@ -183,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
                                             //setting default scenario
                                             if (currentScenario == null || currentScenario.isEmpty()) {
                                                 currentScenario = scenarios.get(0);
-                                                DocumentReader.Instance().processParams.scenario = currentScenario;
+                                                DocumentReader.Instance().processParams().scenario = currentScenario;
                                             }
 
                                             final ScenarioAdapter adapter = new ScenarioAdapter(MainActivity.this, android.R.layout.simple_list_item_1, scenarios);
@@ -201,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
                                                 @Override
                                                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                                                     //setting selected scenario to DocumentReader params
-                                                    DocumentReader.Instance().processParams.scenario = adapter.getItem(i);
+                                                    DocumentReader.Instance().processParams().scenario = adapter.getItem(i);
                                                     selectedPosition = i;
                                                     adapter.notifyDataSetChanged();
 
@@ -286,27 +287,23 @@ public class MainActivity extends AppCompatActivity {
 
                 //Checking, if nfc chip reading should be performed
                 if (doRfid && results!=null && results.chipPage != 0) {
-                    if (DocumentReader.Instance().processParams.rfidScenario == null) {
-                        DocumentReader.Instance().processParams.rfidScenario = new RfidScenario();
-                    }
-
                     //setting the chip's access key - mrz on car access number
                     String accessKey = null;
                     if ((accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_MRZ_STRINGS)) != null && !accessKey.isEmpty()) {
                         accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_MRZ_STRINGS)
                                 .replace("^", "").replace("\n","");
-                        DocumentReader.Instance().processParams.rfidScenario.mrz = accessKey;
-                        DocumentReader.Instance().processParams.rfidScenario.pacePasswordType = eRFID_Password_Type.PPT_MRZ;
+                        DocumentReader.Instance().rfidScenario().setMrz(accessKey);
+                        DocumentReader.Instance().rfidScenario().setPacePasswordType(eRFID_Password_Type.PPT_MRZ);
                     } else if ((accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_CARD_ACCESS_NUMBER)) != null && !accessKey.isEmpty()) {
-                        DocumentReader.Instance().processParams.rfidScenario.password = accessKey;
-                        DocumentReader.Instance().processParams.rfidScenario.pacePasswordType = eRFID_Password_Type.PPT_CAN;
+                        DocumentReader.Instance().rfidScenario().setPassword(accessKey);
+                        DocumentReader.Instance().rfidScenario().setPacePasswordType(eRFID_Password_Type.PPT_CAN);
                     }
 
                     //starting chip reading
                     DocumentReader.Instance().startRFIDReader(new DocumentReader.DocumentReaderCompletion() {
                         @Override
                         public void onCompleted(int rfidAction, DocumentReaderResults results, String error) {
-                            if (rfidAction == DocReaderAction.COMPLETE) {
+                            if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
                                 displayResults(results);
                             }
                         }
