@@ -34,7 +34,6 @@ import com.regula.documentreader.api.enums.DocReaderAction;
 import com.regula.documentreader.api.enums.eGraphicFieldType;
 import com.regula.documentreader.api.enums.eRFID_Password_Type;
 import com.regula.documentreader.api.enums.eVisualFieldType;
-import com.regula.documentreader.api.params.RfidScenario;
 import com.regula.documentreader.api.results.DocumentReaderResults;
 import com.regula.documentreader.api.results.DocumentReaderScenario;
 import com.regula.documentreader.api.results.DocumentReaderTextField;
@@ -352,7 +351,7 @@ public class MainActivity extends AppCompatActivity {
                 portraitIv.setImageBitmap(portrait);
             }
 
-            Bitmap documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GT_DOCUMENT_FRONT);
+            Bitmap documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GT_DOCUMENT_IMAGE);
             if(documentImage!=null){
                 double aspectRatio = (double) documentImage.getWidth() / (double) documentImage.getHeight();
                 documentImage = Bitmap.createScaledBitmap(documentImage, (int)(480 * aspectRatio), 480, false);
