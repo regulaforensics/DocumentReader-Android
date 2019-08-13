@@ -322,7 +322,7 @@ class MainActivity : AppCompatActivity() {
                 portraitIv!!.setImageBitmap(portrait)
             }
 
-            var documentImage: Bitmap? = results.getGraphicFieldImageByType(eGraphicFieldType.GT_DOCUMENT_FRONT)
+            var documentImage: Bitmap? = results.getGraphicFieldImageByType(eGraphicFieldType.GT_DOCUMENT_IMAGE)
             if (documentImage != null) {
                 val aspectRatio = documentImage.width.toDouble() / documentImage.height.toDouble()
                 documentImage = Bitmap.createScaledBitmap(documentImage, (480 * aspectRatio).toInt(), 480, false)
