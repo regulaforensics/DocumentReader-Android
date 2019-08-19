@@ -90,7 +90,7 @@ Loading **Bank Card** library edition:
 implementation 'com.regula.documentreader.creditcard:core:+@aar'
 ```
 
-## <a name="troubleshooting_license_issues"></a> Troubleshooting license issues
+## Troubleshooting license issues
 If you have issues with license verification when running the application, please verify that next is true:
 1. OS you are using is the same as in the license you received (Android).
 1. Application ID is the same that you specified for license.
@@ -98,10 +98,10 @@ If you have issues with license verification when running the application, pleas
 1. You are using the latest release of the SDK.
 1. You placed the license into the correct folder as described here [How to build demo application](#how-to-build-demo-application) (`DocumentReader-sample/app/src/main/res/raw`).
 
-## <a name="docs"></a> Documentation
+## Documentation
 You can find documentation on API [here](https://regulaforensics.github.io/DocumentReader-Android/).
 
-## <a name="additional_information"></a> Additional information
+## Additional information
 Use [Wiki](https://github.com/regulaforensics/DocumentReader-Android/wiki) to get more details. If you have any technical questions, feel free to [contact us](mailto:support@regulaforensics.com) or create issue here.
 
 To use our SDK in your own app you will need to [purchase](https://pipedrivewebforms.com/form/5f1d771cbe4f844a1f78f8a06fbf94361841159) commercial license.
