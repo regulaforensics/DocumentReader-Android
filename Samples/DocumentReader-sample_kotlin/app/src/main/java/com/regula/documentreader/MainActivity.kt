@@ -146,9 +146,6 @@ class MainActivity : AppCompatActivity() {
                                     initDialog.dismiss()
                                 }
 
-                                DocumentReader.Instance().customization().isShowResultStatusMessages = true
-                                DocumentReader.Instance().customization().isShowStatusMessages = true
-                                DocumentReader.Instance().functionality().isVideoCaptureMotionControl = false
                                 DocumentReader.Instance().customization().isShowHelpAnimation = false
 
                                 //initialization successful
