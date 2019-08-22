@@ -348,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
                 portraitIv.setImageBitmap(portrait);
             }
 
-            Bitmap documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GT_DOCUMENT_IMAGE);
+            Bitmap documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE);
             if(documentImage!=null){
                 double aspectRatio = (double) documentImage.getWidth() / (double) documentImage.getHeight();
                 documentImage = Bitmap.createScaledBitmap(documentImage, (int)(480 * aspectRatio), 480, false);
