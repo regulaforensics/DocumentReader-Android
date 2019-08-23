@@ -91,7 +91,7 @@ If you have issues with license verification when running the application, pleas
 6. You placed the license into the correct folder (`DocumentReader-sample/app/src/main/res/raw`) as described in [How to build demo application](#how-to-build-demo-application).
 
 ## Documentation
-You can find documentation on API [here](https://regulaforensics.github.io/DocumentReader-Android/).
+You can find documentation on API [here](https://docs.regulaforensics.com/android).
 
 ## Additional information
 If you have any technical questions, feel free to [contact](mailto:support@regulaforensics.com) us or create an issue [here](https://github.com/regulaforensics/DocumentReader-Android/issues).
