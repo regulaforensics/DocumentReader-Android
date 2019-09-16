@@ -5,7 +5,7 @@ You can use native camera to scan the documents or image from gallery for extrac
 
 We have provided a simple application that demonstrates the ***API*** calls you can use to interact with the DocumentReader Library.
 
-<img src="https://img.regulaforensics.com/Screenshots/SDK-5.0/LG_Nexus_5X_1.png" width="250"> <img src="https://img.regulaforensics.com/Screenshots/SDK-5.0/LG_Nexus_5X_2.png" width="250"> <img src="https://img.regulaforensics.com/Screenshots/SDK-5.0/LG_Nexus_5X_3.png" width="250">
+<img src="https://img.regulaforensics.com/Screenshots/SDK-5.0/LG_Nexus_5X_1.jpg" width="250"> <img src="https://img.regulaforensics.com/Screenshots/SDK-5.0/LG_Nexus_5X_2.jpg" width="250"> <img src="https://img.regulaforensics.com/Screenshots/SDK-5.0/LG_Nexus_5X_3.jpg" width="250">
 
 # Content
 * [How to build demo application](#how-to-build-demo-application)
