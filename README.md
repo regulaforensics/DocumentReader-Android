@@ -94,6 +94,6 @@ If you have issues with license verification when running the application, pleas
 You can find documentation on API [here](https://docs.regulaforensics.com/android).
 
 ## Additional information
-If you have any technical questions, feel free to [contact](mailto:support@regulaforensics.com) us or create an issue [here](https://github.com/regulaforensics/DocumentReader-Android/issues).
+If you have any technical questions, feel free to [contact](mailto:android.support@regulaforensics.com) us or create an issue [here](https://github.com/regulaforensics/DocumentReader-Android/issues).
 
 To use our SDK in your own app you need to [purchase](https://pipedrivewebforms.com/form/5f1d771cbe4f844a1f78f8a06fbf94361841159) a commercial license.
