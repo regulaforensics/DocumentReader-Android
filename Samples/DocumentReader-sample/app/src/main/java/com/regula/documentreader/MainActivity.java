@@ -41,6 +41,7 @@ import com.regula.documentreader.api.results.DocumentReaderScenario;
 import com.regula.documentreader.api.results.DocumentReaderTextField;
 import com.regula.documentreader.api.results.authenticity.DocumentReaderAuthenticityCheck;
 import com.regula.documentreader.api.results.authenticity.DocumentReaderAuthenticityElement;
+import com.regula.documentreader.api.results.authenticity.DocumentReaderIdentResult;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -118,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 licInput.read(license);
 
                 //preparing database files, it will be downloaded from network only one time and stored on user device
-                DocumentReader.Instance().prepareDatabase(MainActivity.this, "Full", new
+                DocumentReader.Instance().prepareDatabase(MainActivity.this, "FullAuth", new
                         DocumentReader.DocumentReaderPrepareCompletion() {
                             @Override
                             public void onPrepareProgressChanged(int progress) {
@@ -392,9 +393,13 @@ public class MainActivity extends AppCompatActivity {
                 authenticityResultImg.setImageResource(results.authenticityResult.getStatus() == eCheckResult.CH_CHECK_OK ? R.drawable.correct : R.drawable.incorrect);
 
                 for (DocumentReaderAuthenticityCheck check : results.authenticityResult.checks) {
-                    Log.d("MainActivity", "check type: " + check.getTypeName() + ", status: " + check.status);
+                    Log.d("MainActivity", "check type: " + check.getTypeName() + ", status: " + (check.status == eCheckResult.CH_CHECK_OK ? "Ok" : "Error"));
                     for (DocumentReaderAuthenticityElement element : check.elements) {
-                        Log.d("MainActivity", "Element type: " + element.elementType + ", status: " + element.status);
+                        if (element instanceof DocumentReaderIdentResult)  {
+                            Log.d("MainActivity", "Element status: " + (element.status == eCheckResult.CH_CHECK_OK ? "Ok" : "Error") + ", percent: " + ((DocumentReaderIdentResult)element).percentValue);
+                        } else {
+                            Log.d("MainActivity", "Element type: " + element.elementType + ", status: " + (element.status == eCheckResult.CH_CHECK_OK ? "Ok" : "Error"));
+                        }
                     }
                 }
             } else {
