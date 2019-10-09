@@ -26,17 +26,21 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.regula.documentreader.api.DocumentReader;
 import com.regula.documentreader.api.enums.DocReaderAction;
+import com.regula.documentreader.api.enums.eCheckResult;
 import com.regula.documentreader.api.enums.eGraphicFieldType;
 import com.regula.documentreader.api.enums.eRFID_Password_Type;
 import com.regula.documentreader.api.enums.eVisualFieldType;
 import com.regula.documentreader.api.results.DocumentReaderResults;
 import com.regula.documentreader.api.results.DocumentReaderScenario;
 import com.regula.documentreader.api.results.DocumentReaderTextField;
+import com.regula.documentreader.api.results.authenticity.DocumentReaderAuthenticityCheck;
+import com.regula.documentreader.api.results.authenticity.DocumentReaderAuthenticityElement;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -51,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 22;
     private static final String MY_SHARED_PREFS = "MySharedPrefs";
     private static final String DO_RFID = "doRfid";
+    private static final String USE_AUTHENTICATOR = "useAuthenticator";
 
     private TextView nameTv;
     private TextView showScanner;
@@ -59,11 +64,16 @@ public class MainActivity extends AppCompatActivity {
     private ImageView portraitIv;
     private ImageView docImageIv;
 
+    private CheckBox authenticatorCb;
     private CheckBox doRfidCb;
+
+    private RelativeLayout authenticityLayout;
+    private ImageView authenticityResultImg;
 
     private ListView scenarioLv;
 
     private SharedPreferences sharedPreferences;
+    private boolean useAuthenticator;
     private boolean doRfid;
     private AlertDialog loadingDialog;
 
@@ -83,7 +93,11 @@ public class MainActivity extends AppCompatActivity {
 
         scenarioLv = findViewById(R.id.scenariosList);
 
+        authenticatorCb = findViewById(R.id.authenticatorCb);
         doRfidCb = findViewById(R.id.doRfidCb);
+
+        authenticityLayout = findViewById(R.id.authenticityLayout);
+        authenticityResultImg = findViewById(R.id.authenticityResultImg);
 
         sharedPreferences = getSharedPreferences(MY_SHARED_PREFS, MODE_PRIVATE);
     }
@@ -154,6 +168,24 @@ public class MainActivity extends AppCompatActivity {
                                                     }
                                                 }
                                             });
+
+                                            DocumentReader.Instance().functionality().setBtDeviceName("Regula 0000"); // set up name of the 1120 device
+
+                                            if (DocumentReader.Instance().getCanUseAuthenticator()) {
+                                                useAuthenticator = sharedPreferences.getBoolean(USE_AUTHENTICATOR, false);
+                                                authenticatorCb.setChecked(useAuthenticator);
+                                                DocumentReader.Instance().functionality().setUseAuthenticator(useAuthenticator);
+                                                authenticatorCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                                                    @Override
+                                                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                                        DocumentReader.Instance().functionality().setUseAuthenticator(isChecked);
+                                                        useAuthenticator = isChecked;
+                                                        sharedPreferences.edit().putBoolean(USE_AUTHENTICATOR, useAuthenticator).apply();
+                                                    }
+                                                });
+                                            } else {
+                                                authenticatorCb.setVisibility(View.GONE);
+                                            }
 
                                             if (DocumentReader.Instance().getCanRFID()) {
                                                 //reading shared preferences
@@ -354,6 +386,20 @@ public class MainActivity extends AppCompatActivity {
                 documentImage = Bitmap.createScaledBitmap(documentImage, (int)(480 * aspectRatio), 480, false);
                 docImageIv.setImageBitmap(documentImage);
             }
+
+            if (results.authenticityResult != null) {
+                authenticityLayout.setVisibility(View.VISIBLE);
+                authenticityResultImg.setImageResource(results.authenticityResult.getStatus() == eCheckResult.CH_CHECK_OK ? R.drawable.correct : R.drawable.incorrect);
+
+                for (DocumentReaderAuthenticityCheck check : results.authenticityResult.checks) {
+                    Log.d("MainActivity", "check type: " + check.getTypeName() + ", status: " + check.status);
+                    for (DocumentReaderAuthenticityElement element : check.elements) {
+                        Log.d("MainActivity", "Element type: " + element.elementType + ", status: " + element.status);
+                    }
+                }
+            } else {
+                authenticityLayout.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -361,6 +407,7 @@ public class MainActivity extends AppCompatActivity {
         nameTv.setText("");
         portraitIv.setImageResource(R.drawable.portrait);
         docImageIv.setImageResource(R.drawable.id);
+        authenticityLayout.setVisibility(View.GONE);
     }
 
     // creates and starts image browsing intent
