@@ -3,30 +3,32 @@ Regula Document Reader SDK allows you to read various kinds of identification do
 
 You can use native camera to scan the documents or image from gallery for extract all data from it.
 
-We have provided a simple application that demonstrates the ***API*** calls you can use to interact with the DocumentReader Library.
+We have provided a simple application that demonstrates the ***API*** calls you can use to interact with the Document Reader Library.
 
 <img src="https://img.regulaforensics.com/Screenshots/SDK-5.0/LG_Nexus_5X_1.jpg" width="250"> <img src="https://img.regulaforensics.com/Screenshots/SDK-5.0/LG_Nexus_5X_2.jpg" width="250"> <img src="https://img.regulaforensics.com/Screenshots/SDK-5.0/LG_Nexus_5X_3.jpg" width="250">
 
 # Content
-* [How to build demo application](#how-to-build-demo-application)
-* [How to add DocumentReader library to your project](#how-to-add-documentreader-library-to-your-project)
+* [How to build the demo application](#how-to-build-the-demo-application)
+* [How to add the SDK to the project](#how-to-add-the-sdk-to-the-project)
 * [Troubleshooting license issues](#troubleshooting-license-issues)
 * [Documentation](#documentation)
 * [Additional information](#additional-information)
 
-## How to build demo application
-1. Download and install latest [Android Studio](https://developer.android.com/studio/index.html).
+## How to build the demo application
+1. Download and install the latest [Android Studio](https://developer.android.com/studio/index.html).
 2. Download or clone current repository using the command `git clone https://github.com/regulaforensics/DocumentReader-Android.git`.
-3. Launch Android Studio and select _Open an existing Android Studio project_ then select _DocumentReader-sample_ project in file browser.
-4. Download additional files proposed by Android Studio to build project (e.g., build tools).
-5. Visit [licensing.regulaforensics.com](https://licensing.regulaforensics.com) to get your trial license(`regula.license`) and documents database(`db.dat`). Download both files to your computer. You can create license by clicking "Generate demo license". License creation wizard will guide you through necessary steps. You can select and download appropriate database version on "Databases" page.
-6. Change the application ID in the `DocumentReader-sample/app/build.gradle`  file to the one you have specified during registration at [licensing.regulaforensics.com](https://licensing.regulaforensics.com) (`com.regula.documentreader` by default).
-7. Copy `regula.license` file to `DocumentReader-sample/app/src/main/res/raw` folder.
-8. Copy downloaded database (`db.dat` file) to `DocumentReader-sample/app/src/main/assets/Regula` folder.
-9. Build and run the application.
+3. Launch Android Studio and select _Open an existing Android Studio project_, then select _DocumentReader-sample_ or _DocumentReader-sample_kotlin_ project in the file browser.
+4. Download additional files proposed by Android Studio to build the project (e.g., build tools).
+5. Visit [licensing.regulaforensics.com](https://licensing.regulaforensics.com) to get a trial license (`regula.license` file). The license creation wizard will guide you through the necessary steps.
 
-## How to add DocumentReader library to your project
-Document Reader libraries are available in our [Maven repository](http://maven.regulaforensics.com/RegulaDocumentReader/com/regula/documentreader).
+**Note**: optionally, you can also download the documents database (`db.dat` file) to add it to the project manually and use the app without the Internet. Otherwise, it'll be downloaded from the Internet while the app is running.
+
+6. Change the application ID in the `/app/build.gradle` file to the one you have specified during the registration at [licensing.regulaforensics.com](https://licensing.regulaforensics.com) (`com.regula.documentreader` is set by default).
+7. Copy the `regula.license` file to the `/app/src/main/res/raw` folder. If the database has been downloaded manually, place it to the `/app/src/main/assets/Regula` folder.
+8. Build and run the application.
+
+## How to add the SDK to the project
+Document Reader libraries are available in our [Maven](http://maven.regulaforensics.com/RegulaDocumentReader/com/regula/documentreader) repository.
 
 First of all, install **API** library, simply adding the following lines of code to the `build.gradle` file of your project:
 ```
@@ -35,7 +37,7 @@ implementation ('com.regula.documentreader:api:+aar'){
 }
 ```
 
-And then add one of the Core libraries depend on the functionality that you wish and the license capabilities:
+And then add one of the [`Core`](https://docs.regulaforensics.com/android/core) libraries depend on the functionality that you wish and the license capabilities:
 * Install **barcode** library edition:
 ```
 implementation 'com.regula.documentreader.barcode:core:+@aar'
@@ -91,9 +93,9 @@ If you have issues with license verification when running the application, pleas
 6. You placed the license into the correct folder (`DocumentReader-sample/app/src/main/res/raw`) as described in [How to build demo application](#how-to-build-demo-application).
 
 ## Documentation
-You can find documentation on API [here](https://docs.regulaforensics.com/android).
+The documentation on the SDK can be found [here](https://docs.regulaforensics.com/android).
 
 ## Additional information
-If you have any technical questions, feel free to [contact](mailto:android.support@regulaforensics.com) us or create an issue [here](https://github.com/regulaforensics/DocumentReader-Android/issues).
+If you have any technical questions or suggestions, feel free to [contact](mailto:android.support@regulaforensics.com) us or create an issue [here](https://github.com/regulaforensics/DocumentReader-Android/issues).
 
-To use our SDK in your own app you need to [purchase](https://pipedrivewebforms.com/form/5f1d771cbe4f844a1f78f8a06fbf94361841159) a commercial license.
+To use our SDK in your own app you have to [purchase](https://pipedrivewebforms.com/form/5f1d771cbe4f844a1f78f8a06fbf94361841159) a commercial license.
