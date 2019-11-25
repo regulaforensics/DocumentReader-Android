@@ -21,10 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.regula.documentreader.api.DocumentReader
-import com.regula.documentreader.api.enums.DocReaderAction
-import com.regula.documentreader.api.enums.eGraphicFieldType
-import com.regula.documentreader.api.enums.eRFID_Password_Type
-import com.regula.documentreader.api.enums.eVisualFieldType
+import com.regula.documentreader.api.enums.*
 import com.regula.documentreader.api.results.DocumentReaderResults
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.FileNotFoundException
@@ -41,14 +38,19 @@ class MainActivity : AppCompatActivity() {
     private var docImageIv: ImageView? = null
 
     private var doRfidCb: CheckBox? = null
+    private var authenticatorCb: CheckBox? = null
 
     private var scenarioLv: ListView? = null
 
     private var sharedPreferences: SharedPreferences? = null
     private var doRfid: Boolean = false
+    private var useAuthenticator: Boolean = false
     private var loadingDialog: AlertDialog? = null
 
     private var selectedPosition: Int = 0
+
+    private var authenticityLayout: RelativeLayout? = null
+    private var authenticityResultImg: ImageView? = null
 
     //DocumentReader processing callback
     private val completion =
@@ -108,7 +110,11 @@ class MainActivity : AppCompatActivity() {
 
         scenarioLv = findViewById(R.id.scenariosList)
 
+        authenticatorCb = findViewById(R.id.authenticatorCb);
         doRfidCb = findViewById(R.id.doRfidCb)
+
+        authenticityLayout = findViewById(R.id.authenticityLayout);
+        authenticityResultImg = findViewById(R.id.authenticityResultImg);
 
         sharedPreferences = getSharedPreferences(MY_SHARED_PREFS, Context.MODE_PRIVATE)
     }
@@ -130,7 +136,7 @@ class MainActivity : AppCompatActivity() {
                 //preparing database files, it will be downloaded from network only one time and stored on user device
                 DocumentReader.Instance().prepareDatabase(
                     this@MainActivity,
-                    "Full",
+                    "FullAuth",
                     object : DocumentReader.DocumentReaderPrepareCompletion {
                         override fun onPrepareProgressChanged(progress: Int) {
                             initDialog.setTitle("Downloading database: $progress%")
@@ -175,6 +181,21 @@ class MainActivity : AppCompatActivity() {
                                             //start image browsing
                                             createImageBrowsingRequest()
                                         }
+                                    }
+
+                                    DocumentReader.Instance().functionality().setBtDeviceName("Regula 0000") // set up name of the 1120 device
+
+                                    if (DocumentReader.Instance().getCanUseAuthenticator()) {
+                                        useAuthenticator = sharedPreferences!!.getBoolean(USE_AUTHENTICATOR, false)
+                                        authenticatorCb!!.setChecked(useAuthenticator)
+                                        DocumentReader.Instance().functionality().isUseAuthenticator = useAuthenticator
+                                        authenticatorCb!!.setOnCheckedChangeListener { _, checked ->
+                                            DocumentReader.Instance().functionality().isUseAuthenticator = checked
+                                            useAuthenticator = checked
+                                            sharedPreferences!!.edit().putBoolean(USE_AUTHENTICATOR, useAuthenticator).apply()
+                                        }
+                                    } else {
+                                        authenticatorCb!!.visibility = View.GONE
                                     }
 
                                     if (DocumentReader.Instance().canRFID) {
@@ -325,6 +346,24 @@ class MainActivity : AppCompatActivity() {
                 documentImage = Bitmap.createScaledBitmap(documentImage, (480 * aspectRatio).toInt(), 480, false)
                 docImageIv!!.setImageBitmap(documentImage)
             }
+
+            if (results.authenticityResult != null) {
+                authenticityLayout!!.visibility = View.VISIBLE
+                if (results.authenticityResult.status == eCheckResult.CH_CHECK_OK) {
+                    authenticityResultImg!!.setImageResource(R.drawable.correct)
+                } else {
+                    authenticityResultImg!!.setImageResource(R.drawable.incorrect)
+                }
+
+                for (check in results.authenticityResult.checks) {
+                    Log.d("MainActivity", "check type: " + check.typeName + ", status: " + check.status)
+                    for (element in check.elements) {
+                        Log.d("MainActivity", "Element type: " + element.elementType + ", status: " + element.status);
+                    }
+                }
+            } else {
+                authenticityLayout!!.visibility = View.GONE
+            }
         }
     }
 
@@ -332,6 +371,7 @@ class MainActivity : AppCompatActivity() {
         nameTv!!.text = ""
         portraitIv!!.setImageResource(R.drawable.portrait)
         docImageIv!!.setImageResource(R.drawable.id)
+        authenticityLayout!!.visibility = View.GONE
     }
 
     // creates and starts image browsing intent
@@ -416,5 +456,6 @@ class MainActivity : AppCompatActivity() {
         private const val PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 22
         private const val MY_SHARED_PREFS = "MySharedPrefs"
         private const val DO_RFID = "doRfid"
+        private const val USE_AUTHENTICATOR = "useAuthenticator"
     }
 }

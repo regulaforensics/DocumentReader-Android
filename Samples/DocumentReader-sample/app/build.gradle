@@ -12,7 +12,7 @@ android {
 
     compileSdkVersion 27
     defaultConfig {
-        applicationId "com.regula.dr.fullauthrfid"
+        applicationId "com.regula.dr.fullauth"
         minSdkVersion 19
         targetSdkVersion 27
         versionCode 1
