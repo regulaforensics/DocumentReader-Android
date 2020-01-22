@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -31,17 +32,24 @@ import android.widget.Toast;
 
 import com.regula.documentreader.api.DocumentReader;
 import com.regula.documentreader.api.enums.DocReaderAction;
+import com.regula.documentreader.api.enums.PKDResourceType;
 import com.regula.documentreader.api.enums.eGraphicFieldType;
 import com.regula.documentreader.api.enums.eRFID_Password_Type;
 import com.regula.documentreader.api.enums.eVisualFieldType;
+import com.regula.documentreader.api.params.rfid.PKDCertificate;
+import com.regula.documentreader.api.params.rfid.authorization.PAResourcesIssuer;
+import com.regula.documentreader.api.params.rfid.authorization.TAChallenge;
 import com.regula.documentreader.api.results.DocumentReaderResults;
 import com.regula.documentreader.api.results.DocumentReaderScenario;
 import com.regula.documentreader.api.results.DocumentReaderTextField;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.graphics.BitmapFactory.decodeStream;
 
@@ -166,6 +174,9 @@ public class MainActivity extends AppCompatActivity {
                                                         sharedPreferences.edit().putBoolean(DO_RFID, checked).apply();
                                                     }
                                                 });
+
+                                                //add existing certificates
+                                                addRfidCertificates();
                                             } else {
                                                 doRfidCb.setVisibility(View.GONE);
                                             }
@@ -204,7 +215,6 @@ public class MainActivity extends AppCompatActivity {
 
                                                 }
                                             });
-
                                         }
                                         //Initialization was not successful
                                         else {
@@ -296,14 +306,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     //starting chip reading
-                    DocumentReader.Instance().startRFIDReader(new DocumentReader.DocumentReaderCompletion() {
-                        @Override
-                        public void onCompleted(int rfidAction, DocumentReaderResults results, String error) {
-                            if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
-                                displayResults(results);
-                            }
-                        }
-                    });
+                    startChipReading(false); // use true to get request for certificates in runtime
                 } else {
                     displayResults(results);
                 }
@@ -442,4 +445,124 @@ public class MainActivity extends AppCompatActivity {
             return view;
         }
     }
+
+    private void startChipReading(boolean requestCertificates) {
+        if (requestCertificates) {
+            DocumentReader.Instance().startRFIDReader(new DocumentReader.DocumentReaderCompletion() {
+                @Override
+                public void onCompleted(int rfidAction, DocumentReaderResults results, String error) {
+                    if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
+                        displayResults(results);
+                    }
+                }
+            }, new DocumentReader.RfidReaderRequest() {
+                @Override
+                public void onRequestPACertificates(byte[] bytes, PAResourcesIssuer paResourcesIssuer, DocumentReader.RfidPKDCertificateCompletion completion) {
+                    completion.onCertificatesReceived(getRfidCertificates("Regula/certificates").toArray(new PKDCertificate[0]));
+                }
+
+                @Override
+                public void onRequestTACertificates(String s, DocumentReader.RfidPKDCertificateCompletion completion) {
+                    completion.onCertificatesReceived(getRfidTACertificates().toArray(new PKDCertificate[0]));
+                }
+
+                @Override
+                public void onRequestTASignature(TAChallenge taChallenge, DocumentReader.RfidTASignatureCompletion completion) {
+                    completion.onSignatureReceived(null);
+                }
+            });
+        } else {
+            DocumentReader.Instance().startRFIDReader(new DocumentReader.DocumentReaderCompletion() {
+                @Override
+                public void onCompleted(int rfidAction, DocumentReaderResults results, String error) {
+                    if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
+                        displayResults(results);
+                    }
+                }
+            });
+        }
+    }
+
+    private void addRfidCertificates() {
+        List<PKDCertificate> certificates = new ArrayList<>();
+        certificates.addAll(getRfidCertificates("Regula/certificates"));
+        if (certificates.size() > 0) {
+            DocumentReader.Instance().addPKDCertificates(certificates);
+        }
+    }
+
+    private List<PKDCertificate> getRfidCertificates(String certificatesDir) {
+        List<PKDCertificate> pkdCertificatesList = new ArrayList<>();
+        AssetManager am = getAssets();
+        try {
+            String list[] = am.list(certificatesDir);
+            if (list != null && list.length > 0) {
+                for (String file : list) {
+                    String[] findExtension = file.split("\\.");
+                    int pkdResourceType = 0;
+                    if (findExtension.length > 0) {
+                        pkdResourceType = PKDResourceType.getType(findExtension[findExtension.length - 1].toLowerCase());
+                    }
+
+                    InputStream licInput = am.open(certificatesDir+"/"+file);
+                    int available = licInput.available();
+                    byte[] binaryData = new byte[available];
+                    licInput.read(binaryData);
+
+                    PKDCertificate certificate = new PKDCertificate(binaryData, pkdResourceType);
+                    pkdCertificatesList.add(certificate);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return pkdCertificatesList;
+    }
+
+    private List<PKDCertificate> getRfidTACertificates() {
+        List<PKDCertificate> pkdCertificatesList = new ArrayList<>();
+        AssetManager am = getAssets();
+        String certificatesDir = "Regula/certificates_ta";
+        try {
+            Map<String, List<String>> filesCertMap = new HashMap<>();
+            String list[] = am.list(certificatesDir);
+            if (list != null && list.length > 0) {
+                for (String file : list) {
+                    String[] findExtension = file.split("\\.");
+                    if (!filesCertMap.containsKey(findExtension[0])) {
+                        List<String> certList = new ArrayList<>();
+                        certList.add(file);
+                        filesCertMap.put(findExtension[0], certList);
+                    } else {
+                        filesCertMap.get(findExtension[0]).add(file);
+                    }
+                }
+            }
+
+            for (Map.Entry me : filesCertMap.entrySet()) {
+                List<String> files = (List<String>) me.getValue();
+                PKDCertificate certificate = new PKDCertificate();
+                for(String file : files) {
+                    String[] findExtension = file.split("\\.");
+                    certificate.resourceType = PKDResourceType.CERTIFICATE_TA;
+                    InputStream licInput = am.open(certificatesDir+"/"+file);
+                    int available = licInput.available();
+                    byte[] binaryData = new byte[available];
+                    licInput.read(binaryData);
+                    if (findExtension[1].equals("cvCert")) {
+                        certificate.binaryData = binaryData;
+                    } else {
+                        certificate.privateKey = binaryData;
+                    }
+                }
+                pkdCertificatesList.add(certificate);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return pkdCertificatesList;
+    }
+
+
 }
