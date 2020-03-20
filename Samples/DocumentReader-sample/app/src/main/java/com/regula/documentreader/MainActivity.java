@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_BROWSE_PICTURE = 11;
     private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 22;
+    private static final int PERMISSIONS_REQUEST_READ_PHONE_STATE = 33;
     private static final String MY_SHARED_PREFS = "MySharedPrefs";
     private static final String DO_RFID = "doRfid";
 
@@ -86,144 +87,26 @@ public class MainActivity extends AppCompatActivity {
         doRfidCb = findViewById(R.id.doRfidCb);
 
         sharedPreferences = getSharedPreferences(MY_SHARED_PREFS, MODE_PRIVATE);
+
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            initDocumentReader();
+        } else {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.READ_PHONE_STATE},
+                    PERMISSIONS_REQUEST_READ_PHONE_STATE);
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        if(!DocumentReader.Instance().getDocumentReaderIsReady()) {
-            final AlertDialog initDialog = showDialog("Initializing");
-
-            //Reading the license from raw resource file
-            try {
-                InputStream licInput = getResources().openRawResource(R.raw.regula);
-                int available = licInput.available();
-                final byte[] license = new byte[available];
-                //noinspection ResultOfMethodCallIgnored
-                licInput.read(license);
-
-                //preparing database files, it will be downloaded from network only one time and stored on user device
-                DocumentReader.Instance().prepareDatabase(MainActivity.this, "Full", new
-                        DocumentReader.DocumentReaderPrepareCompletion() {
-                            @Override
-                            public void onPrepareProgressChanged(int progress) {
-                                initDialog.setTitle("Downloading database: " + progress + "%");
-                            }
-
-                            @Override
-                            public void onPrepareCompleted(boolean status, String error) {
-
-                                //Initializing the reader
-                                DocumentReader.Instance().initializeReader(MainActivity.this, license, new DocumentReader.DocumentReaderInitCompletion() {
-                                    @Override
-                                    public void onInitCompleted(boolean success, String error) {
-                                        if (initDialog.isShowing()) {
-                                            initDialog.dismiss();
-                                        }
-
-                                        DocumentReader.Instance().customization().setShowHelpAnimation(false);
-
-                                        //initialization successful
-                                        if (success) {
-                                            showScanner.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View view) {
-                                                    clearResults();
-
-                                                    //starting video processing
-                                                    DocumentReader.Instance().showScanner(completion);
-                                                }
-                                            });
-
-                                            recognizeImage.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View view) {
-                                                    clearResults();
-                                                    //checking for image browsing permissions
-                                                    if (ContextCompat.checkSelfPermission(MainActivity.this,
-                                                            Manifest.permission.READ_EXTERNAL_STORAGE)
-                                                            != PackageManager.PERMISSION_GRANTED) {
-
-                                                        ActivityCompat.requestPermissions(MainActivity.this,
-                                                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                                                PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-                                                    } else {
-                                                        //start image browsing
-                                                        createImageBrowsingRequest();
-                                                    }
-                                                }
-                                            });
-
-                                            if (DocumentReader.Instance().getCanRFID()) {
-                                                //reading shared preferences
-                                                doRfid = sharedPreferences.getBoolean(DO_RFID, false);
-                                                doRfidCb.setChecked(doRfid);
-                                                doRfidCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                                                    @Override
-                                                    public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                                                        doRfid = checked;
-                                                        sharedPreferences.edit().putBoolean(DO_RFID, checked).apply();
-                                                    }
-                                                });
-                                            } else {
-                                                doRfidCb.setVisibility(View.GONE);
-                                            }
-
-                                            //getting current processing scenario and loading available scenarios to ListView
-                                            String currentScenario = DocumentReader.Instance().processParams().scenario;
-                                            ArrayList<String> scenarios = new ArrayList<>();
-                                            for (DocumentReaderScenario scenario : DocumentReader.Instance().availableScenarios) {
-                                                scenarios.add(scenario.name);
-                                            }
-
-                                            //setting default scenario
-                                            if (currentScenario == null || currentScenario.isEmpty()) {
-                                                currentScenario = scenarios.get(0);
-                                                DocumentReader.Instance().processParams().scenario = currentScenario;
-                                            }
-
-                                            final ScenarioAdapter adapter = new ScenarioAdapter(MainActivity.this, android.R.layout.simple_list_item_1, scenarios);
-                                            selectedPosition = 0;
-                                            try {
-                                                selectedPosition = adapter.getPosition(currentScenario);
-                                            } catch (Exception ex) {
-                                                ex.printStackTrace();
-                                            }
-                                            scenarioLv.setAdapter(adapter);
-
-                                            scenarioLv.setSelection(selectedPosition);
-
-                                            scenarioLv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                                @Override
-                                                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                                                    //setting selected scenario to DocumentReader params
-                                                    DocumentReader.Instance().processParams().scenario = adapter.getItem(i);
-                                                    selectedPosition = i;
-                                                    adapter.notifyDataSetChanged();
-
-                                                }
-                                            });
-
-                                        }
-                                        //Initialization was not successful
-                                        else {
-                                            Toast.makeText(MainActivity.this, "Init failed:" + error, Toast.LENGTH_LONG).show();
-                                        }
-                                    }
-                                });
-                            }
-                        });
-
-                licInput.close();
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.READ_PHONE_STATE},
+                    PERMISSIONS_REQUEST_READ_PHONE_STATE);
         }
     }
-
-
 
     @Override
     protected void onPause() {
@@ -268,6 +151,148 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Permission required, to browse images",Toast.LENGTH_LONG).show();
                 }
             } break;
+            case  PERMISSIONS_REQUEST_READ_PHONE_STATE: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    initDocumentReader();
+                } else {
+                    Toast.makeText(MainActivity.this, "Permission is required to init Document Reader",Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
+
+    private void initDocumentReader() {
+        if (DocumentReader.Instance().getDocumentReaderIsReady()) {
+            return;
+        }
+
+        final AlertDialog initDialog = showDialog("Initializing");
+
+        //Reading the license from raw resource file
+        try {
+            InputStream licInput = getResources().openRawResource(R.raw.regula);
+            int available = licInput.available();
+            final byte[] license = new byte[available];
+            //noinspection ResultOfMethodCallIgnored
+            licInput.read(license);
+
+            //preparing database files, it will be downloaded from network only one time and stored on user device
+            DocumentReader.Instance().prepareDatabase(MainActivity.this, "Full", new
+                    DocumentReader.DocumentReaderPrepareCompletion() {
+                        @Override
+                        public void onPrepareProgressChanged(int progress) {
+                            initDialog.setTitle("Downloading database: " + progress + "%");
+                        }
+
+                        @Override
+                        public void onPrepareCompleted(boolean status, String error) {
+
+                            //Initializing the reader
+                            DocumentReader.Instance().initializeReader(MainActivity.this, license, new DocumentReader.DocumentReaderInitCompletion() {
+                                @Override
+                                public void onInitCompleted(boolean success, String error) {
+                                    if (initDialog.isShowing()) {
+                                        initDialog.dismiss();
+                                    }
+
+                                    DocumentReader.Instance().customization().setShowHelpAnimation(false);
+
+                                    //initialization successful
+                                    if (success) {
+                                        showScanner.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+                                                clearResults();
+
+                                                //starting video processing
+                                                DocumentReader.Instance().showScanner(completion);
+                                            }
+                                        });
+
+                                        recognizeImage.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+                                                clearResults();
+                                                //checking for image browsing permissions
+                                                if (ContextCompat.checkSelfPermission(MainActivity.this,
+                                                        Manifest.permission.READ_EXTERNAL_STORAGE)
+                                                        != PackageManager.PERMISSION_GRANTED) {
+
+                                                    ActivityCompat.requestPermissions(MainActivity.this,
+                                                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                                            PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                                                } else {
+                                                    //start image browsing
+                                                    createImageBrowsingRequest();
+                                                }
+                                            }
+                                        });
+
+                                        if (DocumentReader.Instance().getCanRFID()) {
+                                            //reading shared preferences
+                                            doRfid = sharedPreferences.getBoolean(DO_RFID, false);
+                                            doRfidCb.setChecked(doRfid);
+                                            doRfidCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                                                @Override
+                                                public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                                                    doRfid = checked;
+                                                    sharedPreferences.edit().putBoolean(DO_RFID, checked).apply();
+                                                }
+                                            });
+                                        } else {
+                                            doRfidCb.setVisibility(View.GONE);
+                                        }
+
+                                        //getting current processing scenario and loading available scenarios to ListView
+                                        String currentScenario = DocumentReader.Instance().processParams().scenario;
+                                        ArrayList<String> scenarios = new ArrayList<>();
+                                        for (DocumentReaderScenario scenario : DocumentReader.Instance().availableScenarios) {
+                                            scenarios.add(scenario.name);
+                                        }
+
+                                        //setting default scenario
+                                        if (currentScenario == null || currentScenario.isEmpty()) {
+                                            currentScenario = scenarios.get(0);
+                                            DocumentReader.Instance().processParams().scenario = currentScenario;
+                                        }
+
+                                        final ScenarioAdapter adapter = new ScenarioAdapter(MainActivity.this, android.R.layout.simple_list_item_1, scenarios);
+                                        selectedPosition = 0;
+                                        try {
+                                            selectedPosition = adapter.getPosition(currentScenario);
+                                        } catch (Exception ex) {
+                                            ex.printStackTrace();
+                                        }
+                                        scenarioLv.setAdapter(adapter);
+
+                                        scenarioLv.setSelection(selectedPosition);
+
+                                        scenarioLv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                            @Override
+                                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                                //setting selected scenario to DocumentReader params
+                                                DocumentReader.Instance().processParams().scenario = adapter.getItem(i);
+                                                selectedPosition = i;
+                                                adapter.notifyDataSetChanged();
+
+                                            }
+                                        });
+
+                                    }
+                                    //Initialization was not successful
+                                    else {
+                                        Toast.makeText(MainActivity.this, "Init failed:" + error, Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            });
+                        }
+                    });
+
+            licInput.close();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
