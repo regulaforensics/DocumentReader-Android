@@ -30,6 +30,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.regula.documentreader.api.DocumentReader;
+import com.regula.documentreader.api.completions.IDocumentReaderCompletion;
+import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion;
+import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion;
 import com.regula.documentreader.api.enums.DocReaderAction;
 import com.regula.documentreader.api.enums.eGraphicFieldType;
 import com.regula.documentreader.api.enums.eRFID_Password_Type;
@@ -104,8 +107,7 @@ public class MainActivity extends AppCompatActivity {
                 licInput.read(license);
 
                 //preparing database files, it will be downloaded from network only one time and stored on user device
-                DocumentReader.Instance().prepareDatabase(MainActivity.this, "Full", new
-                        DocumentReader.DocumentReaderPrepareCompletion() {
+                DocumentReader.Instance().prepareDatabase(MainActivity.this, "Full", new IDocumentReaderPrepareCompletion() {
                             @Override
                             public void onPrepareProgressChanged(int progress) {
                                 initDialog.setTitle("Downloading database: " + progress + "%");
@@ -115,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onPrepareCompleted(boolean status, String error) {
 
                                 //Initializing the reader
-                                DocumentReader.Instance().initializeReader(MainActivity.this, license, new DocumentReader.DocumentReaderInitCompletion() {
+                                DocumentReader.Instance().initializeReader(MainActivity.this, license, new IDocumentReaderInitCompletion() {
                                     @Override
                                     public void onInitCompleted(boolean success, String error) {
                                         if (initDialog.isShowing()) {
@@ -272,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //DocumentReader processing callback
-    private DocumentReader.DocumentReaderCompletion completion = new DocumentReader.DocumentReaderCompletion() {
+    private IDocumentReaderCompletion completion = new IDocumentReaderCompletion() {
         @Override
         public void onCompleted(int action, DocumentReaderResults results, String error) {
             //processing is finished, all results are ready
@@ -296,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     //starting chip reading
-                    DocumentReader.Instance().startRFIDReader(new DocumentReader.DocumentReaderCompletion() {
+                    DocumentReader.Instance().startRFIDReader(new IDocumentReaderCompletion() {
                         @Override
                         public void onCompleted(int rfidAction, DocumentReaderResults results, String error) {
                             if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
