@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     //starting chip reading
-                    DocumentReader.Instance().startRFIDReader { rfidAction, results_RFIDReader, _ ->
+                    DocumentReader.Instance().startRFIDReader(applicationContext) { rfidAction, results_RFIDReader, _ ->
                         if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
                             displayResults(results_RFIDReader)
                         }
@@ -148,7 +148,7 @@ class MainActivity : AppCompatActivity() {
                                     initDialog.dismiss()
                                 }
 
-                                DocumentReader.Instance().customization().isShowHelpAnimation = false
+                                DocumentReader.Instance().customization().edit().setShowHelpAnimation(false).apply()
 
                                 //initialization successful
                                 if (success) {
@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity() {
                                         clearResults()
 
                                         //starting video processing
-                                        DocumentReader.Instance().showScanner(completion)
+                                        DocumentReader.Instance().showScanner(applicationContext, completion)
                                     }
 
                                     recognizeImage!!.setOnClickListener {
