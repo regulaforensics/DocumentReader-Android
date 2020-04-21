@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                                                     clearResults();
 
                                                     //starting video processing
-                                                    DocumentReader.Instance().showScanner(getApplicationContext(), completion);
+                                                    DocumentReader.Instance().showScanner(MainActivity.this, completion);
                                                 }
                                             });
 
@@ -298,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     //starting chip reading
-                    DocumentReader.Instance().startRFIDReader(getApplicationContext(), new IDocumentReaderCompletion() {
+                    DocumentReader.Instance().startRFIDReader(MainActivity.this, new IDocumentReaderCompletion() {
                         @Override
                         public void onCompleted(int rfidAction, DocumentReaderResults results, String error) {
                             if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
