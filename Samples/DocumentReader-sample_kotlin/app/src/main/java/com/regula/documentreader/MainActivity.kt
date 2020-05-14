@@ -21,8 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.regula.documentreader.api.DocumentReader
-import com.regula.documentreader.api.completions.IDocumentReaderCompletion
-import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.eGraphicFieldType
 import com.regula.documentreader.api.enums.eRFID_Password_Type
@@ -54,7 +52,7 @@ class MainActivity : AppCompatActivity() {
 
     //DocumentReader processing callback
     private val completion =
-        IDocumentReaderCompletion { action, results, error ->
+        DocumentReader.DocumentReaderCompletion { action, results, error ->
             //processing is finished, all results are ready
             if (action == DocReaderAction.COMPLETE) {
                 if (loadingDialog != null && loadingDialog!!.isShowing) {
@@ -79,11 +77,11 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     //starting chip reading
-                    DocumentReader.Instance().startRFIDReader(this@MainActivity, { rfidAction, results_RFIDReader, _ ->
+                    DocumentReader.Instance().startRFIDReader { rfidAction, results_RFIDReader, _ ->
                         if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
                             displayResults(results_RFIDReader)
                         }
-                    })
+                    }
                 } else {
                     displayResults(results)
                 }
@@ -133,7 +131,7 @@ class MainActivity : AppCompatActivity() {
                 DocumentReader.Instance().prepareDatabase(
                     this@MainActivity,
                     "Full",
-                    object : IDocumentReaderPrepareCompletion {
+                    object : DocumentReader.DocumentReaderPrepareCompletion {
                         override fun onPrepareProgressChanged(progress: Int) {
                             initDialog.setTitle("Downloading database: $progress%")
                         }
@@ -148,7 +146,7 @@ class MainActivity : AppCompatActivity() {
                                     initDialog.dismiss()
                                 }
 
-                                DocumentReader.Instance().customization().edit().setShowHelpAnimation(false).apply()
+                                DocumentReader.Instance().customization().isShowHelpAnimation = false
 
                                 //initialization successful
                                 if (success) {
@@ -156,7 +154,7 @@ class MainActivity : AppCompatActivity() {
                                         clearResults()
 
                                         //starting video processing
-                                        DocumentReader.Instance().showScanner(this@MainActivity, completion)
+                                        DocumentReader.Instance().showScanner(completion)
                                     }
 
                                     recognizeImage!!.setOnClickListener {
@@ -270,9 +268,7 @@ class MainActivity : AppCompatActivity() {
 
                     loadingDialog = showDialog("Processing image")
 
-                    if (bmp != null) {
-                        DocumentReader.Instance().recognizeImage(bmp, completion)
-                    }
+                    DocumentReader.Instance().recognizeImage(bmp, completion)
                 }
             }
         }
@@ -311,9 +307,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             // through all text fields
-            val txtResult = results.textResult;
-            if (txtResult != null && txtResult.fields != null) {
-                for (textField in results.textResult!!.fields) {
+            if (results.textResult != null && results.textResult.fields != null) {
+                for (textField in results.textResult.fields) {
                     val value = results.getTextFieldValueByType(textField.fieldType, textField.lcid)
                     Log.d("MainActivity", value + "\n")
                 }
