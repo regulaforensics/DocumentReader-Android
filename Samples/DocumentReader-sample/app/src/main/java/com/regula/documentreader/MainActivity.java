@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
                                                 }
                                             });
 
-                                            if (DocumentReader.Instance().getCanRFID()) {
+                                            if (DocumentReader.Instance().isRFIDAvailableForUse()) {
                                                 //reading shared preferences
                                                 doRfid = sharedPreferences.getBoolean(DO_RFID, false);
                                                 doRfidCb.setChecked(doRfid);

@@ -179,7 +179,7 @@ class MainActivity : AppCompatActivity() {
                                         }
                                     }
 
-                                    if (DocumentReader.Instance().canRFID) {
+                                    if (DocumentReader.Instance().isRFIDAvailableForUse) {
                                         //reading shared preferences
                                         doRfid = sharedPreferences!!.getBoolean(DO_RFID, false)
                                         doRfidCb!!.isChecked = doRfid

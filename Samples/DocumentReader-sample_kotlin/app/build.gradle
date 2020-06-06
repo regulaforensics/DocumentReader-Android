@@ -10,10 +10,6 @@ android {
             maven {
                 url "http://maven.regulaforensics.com/RegulaDocumentReader"
             }
-
-            maven {
-                url "http://maven.regulaforensics.com/RegulaDocumentReader/Beta"
-            }
         }
     }
     compileSdkVersion 28
@@ -43,8 +39,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    implementation 'com.regula.documentreader.fullrfid:core:5.1.2510@aar'
-    implementation('com.regula.documentreader:api:5.1.2099@aar') {
+    implementation 'com.regula.documentreader.fullrfid:core:+@aar'
+    implementation('com.regula.documentreader:api:+@aar') {
         transitive = true;
     }
 }
