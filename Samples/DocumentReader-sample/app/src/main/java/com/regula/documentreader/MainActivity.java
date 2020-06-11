@@ -125,6 +125,8 @@ public class MainActivity extends AppCompatActivity {
                                         }
 
                                         DocumentReader.Instance().customization().edit().setShowHelpAnimation(false).apply();
+                                        // turn on to use Regula Device instead of standard camera. Set up to false if you want to use native camera
+                                        DocumentReader.Instance().functionality().edit().setUseRegulaDevice(true).apply();
 
                                         //initialization successful
                                         if (success) {
