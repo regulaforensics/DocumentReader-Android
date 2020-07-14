@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 22;
     private static final String MY_SHARED_PREFS = "MySharedPrefs";
     private static final String DO_RFID = "doRfid";
+    private static final String CONTINUOUS_MODE = "continuousMode";
 
     private TextView nameTv;
     private TextView showScanner;
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView docImageIv;
 
     private CheckBox doRfidCb;
+    private CheckBox continuousModeCb;
 
     private ListView scenarioLv;
 
@@ -87,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
         scenarioLv = findViewById(R.id.scenariosList);
 
         doRfidCb = findViewById(R.id.doRfidCb);
+        continuousModeCb = findViewById(R.id.continuousModeCb);
 
         sharedPreferences = getSharedPreferences(MY_SHARED_PREFS, MODE_PRIVATE);
     }
@@ -114,12 +117,12 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             @Override
-                            public void onPrepareCompleted(boolean status, String error) {
+                            public void onPrepareCompleted(boolean status, Throwable error) {
 
                                 //Initializing the reader
                                 DocumentReader.Instance().initializeReader(MainActivity.this, license, new IDocumentReaderInitCompletion() {
                                     @Override
-                                    public void onInitCompleted(boolean success, String error) {
+                                    public void onInitCompleted(boolean success, Throwable error) {
                                         if (initDialog.isShowing()) {
                                             initDialog.dismiss();
                                         }
@@ -127,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
                                         DocumentReader.Instance().customization().edit().setShowHelpAnimation(false).apply();
                                         // turn on to use Regula Device instead of standard camera. Set up to false if you want to use native camera
                                         DocumentReader.Instance().functionality().edit().setUseRegulaDevice(true).apply();
+                                        DocumentReader.Instance().functionality().edit().setRegDeviceContinuesMode(sharedPreferences.getBoolean(CONTINUOUS_MODE, true)).apply();
 
                                         //initialization successful
                                         if (success) {
@@ -156,6 +160,15 @@ public class MainActivity extends AppCompatActivity {
                                                         //start image browsing
                                                         createImageBrowsingRequest();
                                                     }
+                                                }
+                                            });
+
+                                            continuousModeCb.setChecked(sharedPreferences.getBoolean(CONTINUOUS_MODE, true));
+                                            continuousModeCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                                                @Override
+                                                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                                    DocumentReader.Instance().functionality().edit().setRegDeviceContinuesMode(isChecked).apply();
+                                                    sharedPreferences.edit().putBoolean(CONTINUOUS_MODE, isChecked).apply();
                                                 }
                                             });
 
@@ -278,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
     //DocumentReader processing callback
     private IDocumentReaderCompletion completion = new IDocumentReaderCompletion() {
         @Override
-        public void onCompleted(int action, DocumentReaderResults results, String error) {
+        public void onCompleted(int action, DocumentReaderResults results, Throwable error) {
             //processing is finished, all results are ready
             if (action == DocReaderAction.COMPLETE) {
                 if(loadingDialog!=null && loadingDialog.isShowing()){
@@ -302,7 +315,7 @@ public class MainActivity extends AppCompatActivity {
                     //starting chip reading
                     DocumentReader.Instance().startRFIDReader(MainActivity.this, new IDocumentReaderCompletion() {
                         @Override
-                        public void onCompleted(int rfidAction, DocumentReaderResults results, String error) {
+                        public void onCompleted(int rfidAction, DocumentReaderResults results, Throwable error) {
                             if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
                                 displayResults(results);
                             }
