@@ -9,7 +9,6 @@ We have provided a simple application that demonstrates the ***API*** calls you 
 
 # Content
 * [How to build the demo application](#how-to-build-the-demo-application)
-* [How to add the SDK to the project](#how-to-add-the-sdk-to-the-project)
 * [Troubleshooting license issues](#troubleshooting-license-issues)
 * [Documentation](#documentation)
 * [Additional information](#additional-information)
@@ -26,62 +25,6 @@ We have provided a simple application that demonstrates the ***API*** calls you 
 6. Change the application ID in the `/app/build.gradle` file to the one you have specified during the registration at [licensing.regulaforensics.com](https://licensing.regulaforensics.com) (`com.regula.documentreader` is set by default).
 7. Copy the `regula.license` file to the `/app/src/main/res/raw` folder. If the database has been downloaded manually, place it to the `/app/src/main/assets/Regula` folder.
 8. Build and run the application.
-
-## How to add the SDK to the project
-Document Reader libraries are available in our [Maven](http://maven.regulaforensics.com/RegulaDocumentReader/com/regula/documentreader) repository.
-
-First of all, install **API** library, simply adding the following lines of code to the `build.gradle` file of your project:
-```
-implementation ('com.regula.documentreader:api:+aar'){
-    transitive = true
-}
-```
-
-And then add one of the [Core](https://docs.regulaforensics.com/android/core) libraries depend on the functionality that you wish and the license capabilities:
-* Install **barcode** library edition:
-```
-implementation 'com.regula.documentreader.barcode:core:+@aar'
-```
-
-* Install **barcodemrz** library edition:
-```
-implementation 'com.regula.documentreader.barcodemrz:core:+@aar'
-```
-
-* Install **bounds** library edition:
-```
-implementation 'com.regula.documentreader.bounds:core:+@aar'
-```
-
-* Install **doctype** library edition:
-```
-implementation 'com.regula.documentreader.doctype:core:+@aar'
-```
-
-* Install **full** library edition:
-```
-implementation 'com.regula.documentreader.full:core:+@aar'
-```
-
-* Install **fullrfid** library edition:
-```
-implementation 'com.regula.documentreader.fullrfid:core:+@aar'
-```
-
-* Install **mrz** library edition:
-```
-implementation 'com.regula.documentreader.mrz:core:+@aar'
-```
-
-* Install **mrzrfid** library edition:
-```
-implementation 'com.regula.documentreader.mrzrfid:core:+@aar'
-```
-
-* Install **ocrandmrz** library edition:
-```
-implementation 'com.regula.documentreader.ocrandmrz:core:+@aar'
-```
 
 ## Troubleshooting license issues
 If you have issues with license verification when running the application, please verify that next is true:
