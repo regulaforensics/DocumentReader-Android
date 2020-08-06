@@ -114,12 +114,12 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             @Override
-                            public void onPrepareCompleted(boolean status, String error) {
+                            public void onPrepareCompleted(boolean status, Throwable error) {
 
                                 //Initializing the reader
                                 DocumentReader.Instance().initializeReader(MainActivity.this, license, new IDocumentReaderInitCompletion() {
                                     @Override
-                                    public void onInitCompleted(boolean success, String error) {
+                                    public void onInitCompleted(boolean success, Throwable error) {
                                         if (initDialog.isShowing()) {
                                             initDialog.dismiss();
                                         }
@@ -276,7 +276,7 @@ public class MainActivity extends AppCompatActivity {
     //DocumentReader processing callback
     private IDocumentReaderCompletion completion = new IDocumentReaderCompletion() {
         @Override
-        public void onCompleted(int action, DocumentReaderResults results, String error) {
+        public void onCompleted(int action, DocumentReaderResults results, Throwable error) {
             //processing is finished, all results are ready
             if (action == DocReaderAction.COMPLETE) {
                 if(loadingDialog!=null && loadingDialog.isShowing()){
@@ -300,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
                     //starting chip reading
                     DocumentReader.Instance().startRFIDReader(MainActivity.this, new IDocumentReaderCompletion() {
                         @Override
-                        public void onCompleted(int rfidAction, DocumentReaderResults results, String error) {
+                        public void onCompleted(int rfidAction, DocumentReaderResults results, Throwable error) {
                             if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
                                 displayResults(results);
                             }

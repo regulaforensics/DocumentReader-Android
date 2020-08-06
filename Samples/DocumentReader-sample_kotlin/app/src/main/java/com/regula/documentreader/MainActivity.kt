@@ -138,7 +138,7 @@ class MainActivity : AppCompatActivity() {
                             initDialog.setTitle("Downloading database: $progress%")
                         }
 
-                        override fun onPrepareCompleted(status: Boolean, error: String) {
+                        override fun onPrepareCompleted(status: Boolean, error: Throwable?) {
 
                             //Initializing the reader
                             DocumentReader.Instance().initializeReader(
