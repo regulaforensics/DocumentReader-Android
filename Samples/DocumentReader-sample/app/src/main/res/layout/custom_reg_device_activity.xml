@@ -1,0 +1,87 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cameraPreviewHolder"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:keepScreenOn="true"
+    android:background="@android:color/black">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="8dp"
+        android:layout_alignParentTop="true"
+        android:layout_above="@id/buttonsLayout"/>
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:id="@+id/loadingPb"/>
+
+    <TextView
+        android:id="@+id/statusTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_margin="8dp"
+        android:layout_centerHorizontal="true"
+        android:textColor="@android:color/white" />
+
+    <!--Buttons layout-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/buttonsLayout">
+
+        <View
+            android:id="@+id/anchorLeft"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true" />
+
+        <ImageButton
+            android:id="@+id/lightBtn"
+            android:layout_width="@dimen/reg_img_button_size"
+            android:layout_height="@dimen/reg_img_button_size"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            android:src="@drawable/reg_flash_off"
+            android:visibility="visible"
+            android:layout_centerHorizontal="true"
+            android:padding="@dimen/reg_small_img_button_padding"
+            android:layout_toEndOf="@id/anchorLeft"
+            android:contentDescription="@string/strAccessibilityTorchButton"
+            android:layout_toRightOf="@id/anchorLeft"
+            android:onClick="onLedButtonClick" />
+
+        <View
+            android:id="@+id/anchorRight"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true" />
+
+        <ImageButton
+            android:id="@+id/exitBtn"
+            android:layout_width="@dimen/reg_img_button_size"
+            android:layout_height="@dimen/reg_img_button_size"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            android:src="@drawable/reg_close"
+            android:visibility="visible"
+            android:padding="@dimen/reg_small_img_button_padding"
+            android:contentDescription="@string/strAccessibilityCloseButton"
+            android:layout_toStartOf="@id/anchorRight"
+            android:layout_toLeftOf="@id/anchorRight"
+            android:onClick="onCloseClick"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

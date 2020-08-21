@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:keepScreenOn="true"
     android:padding="4dp">
 
     <LinearLayout
@@ -101,6 +102,16 @@
             android:text="Use showScanner() method"
             android:textColor="@android:color/holo_blue_dark"
             android:id="@+id/showScannerLink"
+            android:layout_margin="4dp"
+            android:clickable="true"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:text="Use custom activity"
+            android:textColor="@android:color/holo_blue_dark"
+            android:id="@+id/customActivityLink"
             android:layout_margin="4dp"
             android:clickable="true"/>
 
