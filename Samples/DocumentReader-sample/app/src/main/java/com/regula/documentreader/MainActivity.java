@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String DO_RFID = "doRfid";
     private static final String CONTINUOUS_MODE = "continuousMode";
     private static final int CUSTOM_DEVICE_REQUEST_CODE = 125;
+    private static final int CUSTOM_RFID_REQUEST_CODE = 126;
 
     private TextView nameTv;
     private TextView showScanner;
@@ -315,6 +316,9 @@ public class MainActivity extends AppCompatActivity {
             } else if (requestCode == CUSTOM_DEVICE_REQUEST_CODE) {
                 completeRecognition(documentReaderResults);
                 documentReaderResults = null;
+            } else if (requestCode == CUSTOM_RFID_REQUEST_CODE) {
+                displayResults(documentReaderResults);
+                documentReaderResults = null;
             }
         }
     }
@@ -375,14 +379,19 @@ public class MainActivity extends AppCompatActivity {
             }
 
             //starting chip reading
-            DocumentReader.Instance().startRFIDReader(MainActivity.this, new IDocumentReaderCompletion() {
-                @Override
-                public void onCompleted(int rfidAction, DocumentReaderResults results, Throwable error) {
-                    if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
-                        displayResults(results);
+            if (DocumentReader.Instance().functionality().isUseRegulaDevice()) {
+                Intent intent = new Intent(MainActivity.this, CustomRfidActivity.class);
+                startActivityForResult(intent, CUSTOM_RFID_REQUEST_CODE);
+            } else {
+                DocumentReader.Instance().startRFIDReader(MainActivity.this, new IDocumentReaderCompletion() {
+                    @Override
+                    public void onCompleted(int rfidAction, DocumentReaderResults results, Throwable error) {
+                        if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
+                            displayResults(results);
+                        }
                     }
-                }
-            });
+                });
+            }
         } else {
             displayResults(results);
         }
