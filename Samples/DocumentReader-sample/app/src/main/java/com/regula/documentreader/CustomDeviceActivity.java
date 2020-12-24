@@ -24,6 +24,7 @@ import com.regula.documentreader.api.DocumentReader;
 import com.regula.documentreader.api.RegDeviceService;
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion;
 import com.regula.documentreader.api.enums.DocReaderAction;
+import com.regula.documentreader.api.errors.DocumentReaderException;
 import com.regula.documentreader.api.results.DocumentReaderResults;
 
 public class CustomDeviceActivity extends AppCompatActivity {
@@ -158,7 +159,7 @@ public class CustomDeviceActivity extends AppCompatActivity {
         });
         DocumentReader.Instance().recognizeImage(bitmap, new IDocumentReaderCompletion() {
             @Override
-            public void onCompleted(int action, DocumentReaderResults results, Throwable error) {
+            public void onCompleted(int action, DocumentReaderResults results, DocumentReaderException error) {
                 if (action != DocReaderAction.COMPLETE) {
                     Log.d(TAG, "Completed recognize");
                     return;

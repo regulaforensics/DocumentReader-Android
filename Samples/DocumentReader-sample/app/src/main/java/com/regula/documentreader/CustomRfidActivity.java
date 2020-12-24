@@ -15,6 +15,7 @@ import com.regula.documentreader.api.completions.IDocumentReaderCompletion;
 import com.regula.documentreader.api.enums.DocReaderAction;
 import com.regula.documentreader.api.enums.eRFID_DataFile_Type;
 import com.regula.documentreader.api.enums.eRFID_NotificationAndErrorCodes;
+import com.regula.documentreader.api.errors.DocumentReaderException;
 import com.regula.documentreader.api.nfc.PCSCTag;
 import com.regula.documentreader.api.pcsc.PCSCWrapper;
 import com.regula.documentreader.api.pcsc.callback.PCSCCallback;
@@ -75,7 +76,7 @@ public class CustomRfidActivity extends AppCompatActivity {
         rfidStatus.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
         DocumentReader.Instance().readRFID(new PCSCTag(pcscReader), new IDocumentReaderCompletion() {
             @Override
-            public void onCompleted(int rfidAction, DocumentReaderResults documentReaderResults, Throwable error) {
+            public void onCompleted(int rfidAction, DocumentReaderResults documentReaderResults, DocumentReaderException error) {
                 if(rfidAction == DocReaderAction.COMPLETE) {
                     // Completed rfid reading
                     MainActivity.documentReaderResults = documentReaderResults;
