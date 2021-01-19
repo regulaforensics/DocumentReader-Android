@@ -27,6 +27,7 @@ import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.eGraphicFieldType
 import com.regula.documentreader.api.enums.eRFID_Password_Type
 import com.regula.documentreader.api.enums.eVisualFieldType
+import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.results.DocumentReaderResults
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.FileNotFoundException
@@ -138,7 +139,7 @@ class MainActivity : AppCompatActivity() {
                             initDialog.setTitle("Downloading database: $progress%")
                         }
 
-                        override fun onPrepareCompleted(status: Boolean, error: Throwable?) {
+                        override fun onPrepareCompleted(status: Boolean, error: DocumentReaderException?) {
 
                             //Initializing the reader
                             DocumentReader.Instance().initializeReader(

@@ -37,6 +37,7 @@ import com.regula.documentreader.api.enums.DocReaderAction;
 import com.regula.documentreader.api.enums.eGraphicFieldType;
 import com.regula.documentreader.api.enums.eRFID_Password_Type;
 import com.regula.documentreader.api.enums.eVisualFieldType;
+import com.regula.documentreader.api.errors.DocumentReaderException;
 import com.regula.documentreader.api.results.DocumentReaderResults;
 import com.regula.documentreader.api.results.DocumentReaderScenario;
 import com.regula.documentreader.api.results.DocumentReaderTextField;
@@ -114,12 +115,12 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             @Override
-                            public void onPrepareCompleted(boolean status, Throwable error) {
+                            public void onPrepareCompleted(boolean status, DocumentReaderException error) {
 
                                 //Initializing the reader
                                 DocumentReader.Instance().initializeReader(MainActivity.this, license, new IDocumentReaderInitCompletion() {
                                     @Override
-                                    public void onInitCompleted(boolean success, Throwable error) {
+                                    public void onInitCompleted(boolean success, DocumentReaderException error) {
                                         if (initDialog.isShowing()) {
                                             initDialog.dismiss();
                                         }
@@ -276,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
     //DocumentReader processing callback
     private IDocumentReaderCompletion completion = new IDocumentReaderCompletion() {
         @Override
-        public void onCompleted(int action, DocumentReaderResults results, Throwable error) {
+        public void onCompleted(int action, DocumentReaderResults results, DocumentReaderException error) {
             //processing is finished, all results are ready
             if (action == DocReaderAction.COMPLETE) {
                 if(loadingDialog!=null && loadingDialog.isShowing()){
@@ -300,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
                     //starting chip reading
                     DocumentReader.Instance().startRFIDReader(MainActivity.this, new IDocumentReaderCompletion() {
                         @Override
-                        public void onCompleted(int rfidAction, DocumentReaderResults results, Throwable error) {
+                        public void onCompleted(int rfidAction, DocumentReaderResults results, DocumentReaderException error) {
                             if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
                                 displayResults(results);
                             }
