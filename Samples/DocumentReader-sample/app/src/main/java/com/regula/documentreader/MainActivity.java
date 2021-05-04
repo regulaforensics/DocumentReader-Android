@@ -286,18 +286,6 @@ public class MainActivity extends AppCompatActivity {
 
                 //Checking, if nfc chip reading should be performed
                 if (doRfid && results!=null && results.chipPage != 0) {
-                    //setting the chip's access key - mrz on car access number
-                    String accessKey = null;
-                    if ((accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_MRZ_STRINGS)) != null && !accessKey.isEmpty()) {
-                        accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_MRZ_STRINGS)
-                                .replace("^", "").replace("\n","");
-                        DocumentReader.Instance().rfidScenario().setMrz(accessKey);
-                        DocumentReader.Instance().rfidScenario().setPacePasswordType(eRFID_Password_Type.PPT_MRZ);
-                    } else if ((accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_CARD_ACCESS_NUMBER)) != null && !accessKey.isEmpty()) {
-                        DocumentReader.Instance().rfidScenario().setPassword(accessKey);
-                        DocumentReader.Instance().rfidScenario().setPacePasswordType(eRFID_Password_Type.PPT_CAN);
-                    }
-
                     //starting chip reading
                     DocumentReader.Instance().startRFIDReader(MainActivity.this, new IDocumentReaderCompletion() {
                         @Override
