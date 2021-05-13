@@ -15,16 +15,21 @@ We have provided a simple application that demonstrates the ***API*** calls you 
 
 ## How to build the demo application
 1. Visit [licensing.regulaforensics.com](https://licensing.regulaforensics.com) to get a trial license (`regula.license` file). The license creation wizard will guide you through the necessary steps.
-
-**Note**: optionally, you can also download the documents database (`db.dat` file) to add it to the project manually and use the app without the Internet. Otherwise, it'll be downloaded from the Internet while the app is running.
-
-2. Download and install the latest [Android Studio](https://developer.android.com/studio/index.html).
-3. Download or clone current repository using the command `git clone https://github.com/regulaforensics/DocumentReader-Android.git`.
-4. Launch Android Studio and select _Open an existing Android Studio project_, then select _DocumentReader-sample_ or _DocumentReader-sample_kotlin_ project in the file browser.
-5. Download additional files proposed by Android Studio to build the project (e.g., build tools).
-6. Change the application ID in the `/app/build.gradle` file to the one you have specified during the registration at [licensing.regulaforensics.com](https://licensing.regulaforensics.com) (`com.regula.documentreader` is set by default).
-7. Copy the `regula.license` file to the `/app/src/main/res/raw` folder. If the database has been downloaded manually, place it to the `/app/src/main/assets/Regula` folder.
-8. Build and run the application.
+1. Download or clone the current repository using the command `git clone https://github.com/regulaforensics/DocumentReader-Android.git`.
+1. Repository structure and steps to build the projects:
+    1. `Advanced` folder contains the advanced sample project with almost all available features. To build it, do the following steps:
+        1. Go to the `Advanced` folder. There you will find the project written in Kotlin.
+        1. Copy the license file to the project: `Advanced/DocumentReader-Kotlin/app/src/main/res/raw/`.
+        1. Open the project in an IDE.
+        1. Change the application ID to the one you have specified during the registration at [licensing.regulaforensics.com](https://licensing.regulaforensics.com).
+        1. Run the project.
+    
+    1. `Basic` folder contains the basic sample project with only main features. To build it, do the following steps:
+        1. Go to the `Basic` folder. There you will two projects: one is written in Kotlin, another in Java.
+        1. Copy the license file to the project: `Basic/DocumentReader-sample/app/src/main/res/raw/` or `Basic/DocumentReader-sample_kotlin/app/src/main/res/raw/`.
+        1. Open the project in an IDE.
+        1. Change the application ID to the one you have specified during the registration at [licensing.regulaforensics.com](https://licensing.regulaforensics.com).
+        1. Run the project.
 
 ## Troubleshooting license issues
 If you have issues with license verification when running the application, please verify that next is true:

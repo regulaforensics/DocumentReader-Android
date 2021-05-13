@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/alphaChanger"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/padding_horizontal"
+            android:paddingTop="@dimen/rv_padding_vertical"
+            android:paddingEnd="@dimen/padding_gap"
+            android:paddingBottom="@dimen/rv_padding_vertical"
+            android:textColor="?colorOnSecondary"
+            app:layout_constraintEnd_toStartOf="@id/units"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/units"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/padding_gap"
+            android:paddingTop="@dimen/rv_padding_vertical"
+            android:paddingEnd="@dimen/padding_gap_big"
+            android:paddingBottom="@dimen/rv_padding_vertical"
+            android:textColor="?colorOnSecondary"
+            app:layout_constraintEnd_toStartOf="@id/buttons"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/buttons"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/stepper_height"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/rounded"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <Button
+                android:id="@+id/minus"
+                android:layout_width="@dimen/stepper_width"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:text="@string/minus"
+                android:textColor="?colorOnSecondary"
+                android:textSize="@dimen/stepper_sign"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="20dp"
+                android:background="?colorSecondaryVariant"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/plus"
+                app:layout_constraintStart_toEndOf="@id/minus"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/plus"
+                android:layout_width="@dimen/stepper_width"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:text="@string/plus"
+                android:textColor="?colorOnSecondary"
+                android:textSize="@dimen/stepper_sign"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
