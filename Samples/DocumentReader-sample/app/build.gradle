@@ -3,18 +3,22 @@ apply plugin: 'com.android.application'
 android {
 
     allprojects{
-        repositories{
+        repositories {
+            maven {
+                url "http://maven.regulaforensics.com/RegulaDocumentReader"
+            }
+
             maven {
                 url "http://maven.regulaforensics.com/RegulaDocumentReader/Beta"
             }
         }
     }
 
-    compileSdkVersion 27
+    compileSdkVersion 30
     defaultConfig {
         applicationId "com.regula.documentreader"
         minSdkVersion 19
-        targetSdkVersion 27
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -36,8 +40,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    implementation 'com.regula.documentreader.mrz:core:5.1.2650@aar'
-    implementation('com.regula.documentreader:api:5.1.2099@aar') {
+    implementation 'com.regula.documentreader.core:mrz:5.5.5051@aar'
+    implementation('com.regula.documentreader:api:5.5.4648@aar') {
         transitive = true;
     }
 }
