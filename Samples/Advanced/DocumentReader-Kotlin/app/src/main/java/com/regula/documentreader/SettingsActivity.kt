@@ -20,6 +20,7 @@ import com.regula.documentreader.Helpers.Companion.setProcessParams
 import com.regula.documentreader.Helpers.Companion.toIntArray
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_CUSTOM
 import com.regula.documentreader.SettingsActivity.Companion.functionality
+import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnabled
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.enums.DocReaderFrame.*
 import com.regula.documentreader.api.params.Functionality
@@ -98,6 +99,7 @@ class SettingsActivity : FragmentActivity() {
         var isRfidEnabled = false
         var useCustomRfidActivity = false
         var functionality = Functionality()
+        var isDataEncryptionEnabled = false
     }
 }
 
@@ -120,6 +122,13 @@ class ApplicationSettingsFragment : Fragment() {
                 "Use custom RFID activity",
                 { SettingsActivity.useCustomRfidActivity },
                 { SettingsActivity.useCustomRfidActivity = it })
+        )
+        sectionsData.add(Section("Security"))
+        sectionsData.add(
+            Switch(
+                "Data encryption",
+                { isDataEncryptionEnabled },
+                { isDataEncryptionEnabled = it })
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         binding.recyclerView.adapter = CommonRecyclerAdapter(sectionsData)

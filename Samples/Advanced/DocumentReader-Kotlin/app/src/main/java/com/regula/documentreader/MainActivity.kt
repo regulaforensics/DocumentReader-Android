@@ -19,6 +19,8 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.github.kittinunf.fuel.httpPost
+import com.github.kittinunf.result.Result
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.regula.documentreader.Helpers.Companion.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
 import com.regula.documentreader.Helpers.Companion.REQUEST_BROWSE_PICTURE
@@ -31,6 +33,7 @@ import com.regula.documentreader.Scan.Companion.ACTION_TYPE_GALLERY
 import com.regula.documentreader.SettingsActivity.Companion.functionality
 import com.regula.documentreader.SettingsActivity.Companion.isRfidEnabled
 import com.regula.documentreader.SettingsActivity.Companion.useCustomRfidActivity
+import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnabled
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
@@ -39,8 +42,10 @@ import com.regula.documentreader.api.enums.FrameShapeType
 import com.regula.documentreader.api.enums.eRFID_Password_Type
 import com.regula.documentreader.api.enums.eVisualFieldType
 import com.regula.documentreader.api.errors.DocumentReaderException
+import com.regula.documentreader.api.parser.DocReaderResultsJsonParser
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.databinding.ActivityMainBinding
+import org.json.JSONObject
 import java.io.Serializable
 import java.util.*
 
@@ -144,27 +149,27 @@ class MainActivity : FragmentActivity(), Serializable {
 
     override fun onPause() {
         super.onPause()
-        loadingDialog?.dismiss()
-        loadingDialog = null
+        hideDialog()
     }
 
     private fun showDialog(msg: String): AlertDialog {
         val dialog = MaterialAlertDialogBuilder(this)
-        val dialogView =
-            layoutInflater.inflate(R.layout.simple_dialog, binding.root, false)
-        dialog.setTitle(msg)
         dialog.background = ResourcesCompat.getDrawable(resources, R.drawable.rounded, theme)
-        dialog.setView(dialogView)
+        dialog.setTitle(msg)
+        dialog.setView(layoutInflater.inflate(R.layout.simple_dialog, binding.root, false))
         dialog.setCancelable(false)
         return dialog.show()
+    }
+
+    private fun hideDialog() {
+        loadingDialog?.dismiss()
+        loadingDialog = null
     }
 
     @Transient
     private val completion = IDocumentReaderCompletion { action, results, error ->
         if (action == DocReaderAction.COMPLETE) {
-            if (loadingDialog != null && loadingDialog!!.isShowing)
-                loadingDialog!!.dismiss()
-
+            hideDialog()
             if (isRfidEnabled && results != null && results.chipPage != 0) {
                 var accessKey: String?
                 accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_MRZ_STRINGS)
@@ -202,7 +207,49 @@ class MainActivity : FragmentActivity(), Serializable {
 
     private fun displayResults(documentReaderResults: DocumentReaderResults) {
         ResultsActivity.results = documentReaderResults
-        startActivity(Intent(this, ResultsActivity::class.java))
+        if (isDataEncryptionEnabled) {
+            val input = JSONObject(ResultsActivity.results.rawResult)
+            val processParam = JSONObject()
+                .put("alreadyCropped", true)
+                .put("scenario", "FullProcess")
+            val output = JSONObject()
+                .put("List", input.getJSONObject("ContainerList").getJSONArray("List"))
+                .put("processParam", processParam)
+            postRequest(output.toString())
+        } else
+            startActivity(Intent(this, ResultsActivity::class.java))
+    }
+
+    private fun postRequest(jsonInputString: String) {
+        loadingDialog = showDialog("Getting results from server")
+        ENCRYPTED_RESULT_SERVICE
+            .httpPost()
+            .header(mapOf("Content-Type" to "application/json; utf-8"))
+            .body(jsonInputString)
+            .responseString { _, _, result ->
+                hideDialog()
+                when (result) {
+                    is Result.Success -> {
+                        val map = DocReaderResultsJsonParser.parseCoreResults(result.component1())
+                        val results = map["docReaderResults"] as DocumentReaderResults
+                        ResultsActivity.results = results
+                        startActivity(Intent(this, ResultsActivity::class.java))
+                    }
+                    is Result.Failure -> {
+                        println(result.getException())
+                        runOnUiThread {
+                            MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
+                                .setTitle("Something went wrong")
+                                .setMessage("Check your internet connection and try again")
+                                .setPositiveButton("Retry") { _, _ ->
+                                    postRequest(jsonInputString)
+                                }
+                                .setNegativeButton("Cancel", null)
+                                .show()
+                        }
+                    }
+                }
+            }
     }
 
     fun showScanner() = Instance().showScanner(this, completion)
@@ -412,11 +459,13 @@ class MainActivity : FragmentActivity(), Serializable {
             Instance().customization().edit()
                 .setBorderBackgroundImage(drawable(R.drawable.viewfinder, this)).apply()
         })
+        // whitespace at the bottom of the list for better look and convenience
         rvData.add(Scan("", Scan.ACTION_TYPE_CUSTOM))
         return rvData
     }
 
     companion object {
         var results: DocumentReaderResults? = null
+        const val ENCRYPTED_RESULT_SERVICE = "https://api.regulaforensics.com/api/process"
     }
 }

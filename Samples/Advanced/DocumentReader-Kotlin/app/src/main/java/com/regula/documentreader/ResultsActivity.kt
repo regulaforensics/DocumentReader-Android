@@ -141,19 +141,19 @@ class ResultsActivity : AppCompatActivity() {
         val pickerData = mutableListOf<GroupedAttributes>()
         val attributes = mutableListOf<Attribute>()
 
-        for (field in results.textResult!!.fields) {
-            val name = field.getFieldName(this)
-            for (value in field.values) {
+        results.textResult?.fields?.forEach {
+            val name = it.getFieldName(this)
+            for (value in it.values) {
                 val valid = value.validity
-                val item = Attribute(name!!, value.value, field.lcid, valid, value.sourceType)
+                val item = Attribute(name!!, value.value, it.lcid, valid, value.sourceType)
                 attributes.add(item)
             }
         }
 
-        for (field in results.graphicResult!!.fields) {
-            val name = field.getFieldName(this) + " [${field.pageIndex}]"
-            val image = field.bitmap
-            val item = Attribute(name, "", source = field.sourceType, image = image)
+        results.graphicResult?.fields?.forEach {
+            val name = it.getFieldName(this) + " [${it.pageIndex}]"
+            val image = it.bitmap
+            val item = Attribute(name, "", source = it.sourceType, image = image)
             attributes.add(item)
         }
 
@@ -338,6 +338,8 @@ class ResultsTabFragment : Fragment(), Serializable {
             ResultsActivity.COMPARE -> ResultsActivity.compareGroupedAttributes
             else -> ResultsActivity.rfidGroupedAttributes
         }
+        if (pickerData.isEmpty())
+            return binding.root
 
         val fragments = mutableListOf<GroupFragment>()
         for (groupedAttribute in pickerData)
@@ -396,7 +398,7 @@ class GroupFragment : Fragment() {
         val sectionsData = mutableListOf<Base>()
 
         var tag = 0
-        val type = groupedAttributes.type.toLowerCase(Locale.ROOT)
+        val type = groupedAttributes.type.lowercase(Locale.ROOT)
         if (type.contains("mrz"))
             tag = 10
         else if (type.contains("visual"))

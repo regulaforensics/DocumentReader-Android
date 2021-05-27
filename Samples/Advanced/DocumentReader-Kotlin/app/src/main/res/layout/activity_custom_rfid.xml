@@ -59,7 +59,7 @@
         android:padding="@dimen/reg_small_img_button_padding"
         android:scaleType="centerInside"
         android:src="@drawable/reg_close"
-        android:tint="?colorOnSecondary"
+        app:tint="?colorOnSecondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

@@ -107,6 +107,8 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
                 scan = base as Scan
                 binding.title.text = base.title
                 binding.root.setOnClickListener {
+                    if (scan.actionType == ACTION_TYPE_CUSTOM) return@setOnClickListener
+
                     Helpers.setCustomization(ParamsCustomization())
                     if (scan.resetFunctionality)
                         Helpers.setFunctionality(Functionality())
@@ -287,7 +289,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
         class TextResultVH(private val binding: RvTextResultBinding) : VH(binding.root) {
             override fun bind(base: Base) {
                 val textResult = base as TextResult
-                binding.title.text = textResult.title.toUpperCase(Locale.ROOT)
+                binding.title.text = textResult.title.uppercase(Locale.ROOT)
                 binding.value.text = textResult.value
                 binding.value.setTextColor(textResult.color)
                 binding.lcid.text = textResult.lcid
@@ -297,7 +299,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
         class ImageVH(private val binding: RvImageBinding) : VH(binding.root) {
             override fun bind(base: Base) {
                 val image = base as Image
-                binding.title.text = image.title.toUpperCase(Locale.ROOT)
+                binding.title.text = image.title.uppercase(Locale.ROOT)
                 binding.image.setImageBitmap(image.value)
             }
         }
@@ -305,7 +307,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
         class StatusVH(private val binding: RvStatusBinding) : VH(binding.root) {
             override fun bind(base: Base) {
                 val status = base as Status
-                binding.title.text = status.title.toUpperCase(Locale.ROOT)
+                binding.title.text = status.title.uppercase(Locale.ROOT)
                 when (status.value) {
                     0 -> binding.value.setImageResource(R.drawable.reg_ok)
                     1 -> binding.value.setImageResource(R.drawable.reg_fail)
