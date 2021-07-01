@@ -18,8 +18,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.regula.common.http.RequestResponseData;
-import com.regula.documentreader.api.BaseActivity;
 import com.regula.documentreader.api.DocumentReader;
 import com.regula.documentreader.api.RegDeviceService;
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion;
