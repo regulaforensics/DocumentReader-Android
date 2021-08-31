@@ -3,18 +3,21 @@
 buildscript {
     
     repositories {
+        mavenCentral()
         google()
-        jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:4.2.2'
     }
 }
 
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        maven {
+            url "http://maven.regulaforensics.com/RegulaDocumentReader"
+        }
     }
 }
 
