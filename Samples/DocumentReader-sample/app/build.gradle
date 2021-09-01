@@ -1,18 +1,6 @@
 apply plugin: 'com.android.application'
 
 android {
-
-    allprojects{
-        repositories{
-            maven {
-                url "http://maven.regulaforensics.com/RegulaDocumentReader"
-            }
-            maven {
-                url "http://maven.regulaforensics.com/RegulaDocumentReader/Beta"
-            }
-        }
-    }
-
     compileSdkVersion 29
     defaultConfig {
         applicationId "com.regula.dr.fullrfid"
@@ -40,7 +28,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     implementation 'com.regula.documentreader.core:fullrfid:5.6.5219@aar'
-    implementation('com.regula.documentreader:api:5.6.4900@aar') {
+    implementation('com.regula.documentreader:api:5.7.5057@aar') {
         transitive = true;
     }
     implementation 'com.regula.documentreader:regdevice:5.4.102@aar'

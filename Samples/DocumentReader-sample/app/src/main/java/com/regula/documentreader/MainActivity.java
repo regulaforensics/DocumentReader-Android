@@ -573,15 +573,5 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-
-        @Override
-        public void onDeviceConnected() {
-
-        }
-
-        @Override
-        public void onDeviceDisconnected() {
-
-        }
     };
 }
