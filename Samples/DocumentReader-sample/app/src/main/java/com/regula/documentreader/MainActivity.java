@@ -573,5 +573,29 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+
+        @Override
+        public void onDeviceConnected() {
+            super.onDeviceConnected();
+            Log.d("MainActivity", "Device connected");
+        }
+
+        @Override
+        public void onDeviceDisconnected() {
+            super.onDeviceDisconnected();
+            Log.d("MainActivity", "Device disconnected");
+        }
+
+        @Override
+        public void onDocumentInserted() {
+            super.onDocumentInserted();
+            Log.d("MainActivity", "Document inserted");
+        }
+
+        @Override
+        public void onDocumentRemoved() {
+            super.onDocumentRemoved();
+            Log.d("MainActivity", "Document removed");
+        }
     };
 }
