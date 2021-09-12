@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView nameTv;
     private TextView showScanner;
     private TextView recognizeImage;
+    private TextView showCameraActivity;
 
     private ImageView portraitIv;
     private ImageView docImageIv;
@@ -70,8 +71,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean doRfid;
     private AlertDialog loadingDialog;
 
-    private int selectedPosition;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
         nameTv = findViewById(R.id.nameTv);
         showScanner = findViewById(R.id.showScannerLink);
         recognizeImage = findViewById(R.id.recognizeImageLink);
+        showCameraActivity = findViewById(R.id.showCameraActivity);
 
         portraitIv = findViewById(R.id.portraitIv);
         docImageIv = findViewById(R.id.documentImageIv);
@@ -89,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
         doRfidCb = findViewById(R.id.doRfidCb);
 
         sharedPreferences = getSharedPreferences(MY_SHARED_PREFS, MODE_PRIVATE);
+
+        initView();
     }
 
     @Override
@@ -98,133 +100,26 @@ public class MainActivity extends AppCompatActivity {
         if(!DocumentReader.Instance().getDocumentReaderIsReady()) {
             final AlertDialog initDialog = showDialog("Initializing");
 
-            //Reading the license from raw resource file
-            try {
-                InputStream licInput = getResources().openRawResource(R.raw.regula);
-                int available = licInput.available();
-                final byte[] license = new byte[available];
-                //noinspection ResultOfMethodCallIgnored
-                licInput.read(license);
+            //preparing database files, it will be downloaded from network only one time and stored on user device
+            DocumentReader.Instance().prepareDatabase(MainActivity.this, "Full", new IDocumentReaderPrepareCompletion() {
+                @Override
+                public void onPrepareProgressChanged(int progress) {
+                    initDialog.setTitle("Downloading database: " + progress + "%");
+                }
 
-                //preparing database files, it will be downloaded from network only one time and stored on user device
-                DocumentReader.Instance().prepareDatabase(MainActivity.this, "Full", new IDocumentReaderPrepareCompletion() {
-                            @Override
-                            public void onPrepareProgressChanged(int progress) {
-                                initDialog.setTitle("Downloading database: " + progress + "%");
-                            }
-
-                            @Override
-                            public void onPrepareCompleted(boolean status, DocumentReaderException error) {
-
-                                //Initializing the reader
-                                DocumentReader.Instance().initializeReader(MainActivity.this, license, new IDocumentReaderInitCompletion() {
-                                    @Override
-                                    public void onInitCompleted(boolean success, DocumentReaderException error) {
-                                        if (initDialog.isShowing()) {
-                                            initDialog.dismiss();
-                                        }
-
-                                        DocumentReader.Instance().customization().edit().setShowHelpAnimation(false).apply();
-
-                                        //initialization successful
-                                        if (success) {
-                                            showScanner.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View view) {
-                                                    clearResults();
-
-                                                    //starting video processing
-                                                    DocumentReader.Instance().showScanner(MainActivity.this, completion);
-                                                }
-                                            });
-
-                                            recognizeImage.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View view) {
-                                                    clearResults();
-                                                    //checking for image browsing permissions
-                                                    if (ContextCompat.checkSelfPermission(MainActivity.this,
-                                                            Manifest.permission.READ_EXTERNAL_STORAGE)
-                                                            != PackageManager.PERMISSION_GRANTED) {
-
-                                                        ActivityCompat.requestPermissions(MainActivity.this,
-                                                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                                                PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-                                                    } else {
-                                                        //start image browsing
-                                                        createImageBrowsingRequest();
-                                                    }
-                                                }
-                                            });
-
-                                            if (DocumentReader.Instance().isRFIDAvailableForUse()) {
-                                                //reading shared preferences
-                                                doRfid = sharedPreferences.getBoolean(DO_RFID, false);
-                                                doRfidCb.setChecked(doRfid);
-                                                doRfidCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                                                    @Override
-                                                    public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                                                        doRfid = checked;
-                                                        sharedPreferences.edit().putBoolean(DO_RFID, checked).apply();
-                                                    }
-                                                });
-                                            } else {
-                                                doRfidCb.setVisibility(View.GONE);
-                                            }
-
-                                            //getting current processing scenario and loading available scenarios to ListView
-                                            String currentScenario = DocumentReader.Instance().processParams().scenario;
-                                            ArrayList<String> scenarios = new ArrayList<>();
-                                            for (DocumentReaderScenario scenario : DocumentReader.Instance().availableScenarios) {
-                                                scenarios.add(scenario.name);
-                                            }
-
-                                            //setting default scenario
-                                            if (currentScenario == null || currentScenario.isEmpty()) {
-                                                currentScenario = scenarios.get(0);
-                                                DocumentReader.Instance().processParams().scenario = currentScenario;
-                                            }
-
-                                            final ScenarioAdapter adapter = new ScenarioAdapter(MainActivity.this, android.R.layout.simple_list_item_1, scenarios);
-                                            selectedPosition = 0;
-                                            try {
-                                                selectedPosition = adapter.getPosition(currentScenario);
-                                            } catch (Exception ex) {
-                                                ex.printStackTrace();
-                                            }
-                                            scenarioLv.setAdapter(adapter);
-
-                                            scenarioLv.setSelection(selectedPosition);
-
-                                            scenarioLv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                                @Override
-                                                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                                                    //setting selected scenario to DocumentReader params
-                                                    DocumentReader.Instance().processParams().scenario = adapter.getItem(i);
-                                                    selectedPosition = i;
-                                                    adapter.notifyDataSetChanged();
-
-                                                }
-                                            });
-
-                                        }
-                                        //Initialization was not successful
-                                        else {
-                                            Toast.makeText(MainActivity.this, "Init failed:" + error, Toast.LENGTH_LONG).show();
-                                        }
-                                    }
-                                });
-                            }
-                        });
-
-                licInput.close();
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+                @Override
+                public void onPrepareCompleted(boolean status, DocumentReaderException error) {
+                    if (status) {
+                        initDialog.setTitle("Initializing");
+                        initializeReader(initDialog);
+                    } else {
+                        initDialog.dismiss();
+                        Toast.makeText(MainActivity.this, "Prepare DB failed:" + error, Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
         }
     }
-
 
 
     @Override
@@ -273,8 +168,115 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void initView() {
+        recognizeImage.setOnClickListener(view -> {
+            if (!DocumentReader.Instance().getDocumentReaderIsReady())
+                return;
+
+            clearResults();
+            //checking for image browsing permissions
+            if (ContextCompat.checkSelfPermission(MainActivity.this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+            } else {
+                //start image browsing
+                createImageBrowsingRequest();
+            }
+        });
+
+        showScanner.setOnClickListener(view -> {
+            if (!DocumentReader.Instance().getDocumentReaderIsReady())
+                return;
+
+            clearResults();
+
+            //starting video processing
+            DocumentReader.Instance().showScanner(MainActivity.this, completion);
+        });
+
+        scenarioLv.setOnItemClickListener((adapterView, view, i, l) -> {
+            if (!DocumentReader.Instance().getDocumentReaderIsReady())
+                return;
+
+            ScenarioAdapter adapter = (ScenarioAdapter) adapterView.getAdapter();
+
+            //setting selected scenario to DocumentReader params
+            DocumentReader.Instance().processParams().scenario = adapter.getItem(i);
+            adapter.setSelectedPosition(i);
+            adapter.notifyDataSetChanged();
+
+        });
+
+        showCameraActivity.setOnClickListener(view -> {
+            if (!DocumentReader.Instance().getDocumentReaderIsReady())
+                return;
+
+            Intent cameraIntent = new Intent();
+            cameraIntent.setClass(MainActivity.this, CameraActivity.class);
+            startActivity(cameraIntent);
+        });
+    }
+
+    private void initializeReader(AlertDialog initDialog) {
+        //Initializing the reader
+        DocumentReader.Instance().initializeReader(MainActivity.this, LicenseUtil.getLicense(this), (success, error) -> {
+            if (initDialog.isShowing()) {
+                initDialog.dismiss();
+            }
+
+            if (!success) { //Initialization was not successful
+                Toast.makeText(MainActivity.this, "Init failed:" + error, Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            setupCustomization();
+            setupFunctionality();
+
+            //initialization successful
+            if (DocumentReader.Instance().isRFIDAvailableForUse()) {
+                //reading shared preferences
+                doRfid = sharedPreferences.getBoolean(DO_RFID, false);
+                doRfidCb.setChecked(doRfid);
+                doRfidCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                        doRfid = checked;
+                        sharedPreferences.edit().putBoolean(DO_RFID, checked).apply();
+                    }
+                });
+            } else {
+                doRfidCb.setVisibility(View.GONE);
+            }
+
+            //getting current processing scenario and loading available scenarios to ListView
+            ArrayList<String> scenarios = new ArrayList<>();
+            for (DocumentReaderScenario scenario : DocumentReader.Instance().availableScenarios) {
+                scenarios.add(scenario.name);
+            }
+
+            //setting default scenario
+            DocumentReader.Instance().processParams().scenario = scenarios.get(0);
+
+            final ScenarioAdapter adapter = new ScenarioAdapter(MainActivity.this, android.R.layout.simple_list_item_1, scenarios);
+            scenarioLv.setAdapter(adapter);
+
+        });
+    }
+
+    private void setupCustomization() {
+        DocumentReader.Instance().customization().edit().setShowHelpAnimation(false).apply();
+    }
+
+    private void setupFunctionality() {
+        DocumentReader.Instance().functionality().edit().setShowCameraSwitchButton(true).apply();
+    }
+
     //DocumentReader processing callback
-    private IDocumentReaderCompletion completion = new IDocumentReaderCompletion() {
+    private final IDocumentReaderCompletion completion = new IDocumentReaderCompletion() {
         @Override
         public void onCompleted(int action, DocumentReaderResults results, DocumentReaderException error) {
             //processing is finished, all results are ready
@@ -326,7 +328,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // through all text fields
-            if(results.textResult != null && results.textResult.fields != null) {
+            if(results.textResult != null) {
                 for (DocumentReaderTextField textField : results.textResult.fields) {
                     String value = results.getTextFieldValueByType(textField.fieldType, textField.lcid);
                     Log.d("MainActivity", value + "\n");
@@ -413,23 +415,5 @@ public class MainActivity extends AppCompatActivity {
         return inSampleSize;
     }
 
-    class ScenarioAdapter extends ArrayAdapter<String>{
 
-        public ScenarioAdapter(@NonNull Context context, int resource, @NonNull List<String> objects) {
-            super(context, resource, objects);
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            View view = super.getView(position, convertView, parent);
-
-            if(position == selectedPosition){
-                view.setBackgroundColor(Color.LTGRAY);
-            } else {
-                view.setBackgroundColor(Color.TRANSPARENT);
-            }
-            return view;
-        }
-    }
 }
