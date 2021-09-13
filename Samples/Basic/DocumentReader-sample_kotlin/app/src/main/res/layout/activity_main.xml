@@ -1,118 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:padding="4dp">
+<LinearLayout
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="4dp">
 
     <LinearLayout
-            android:id="@+id/topInfoLayout"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/topInfoLayout"
+        android:orientation="vertical">
 
         <LinearLayout
-                android:layout_width="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_weight="1"
+                android:text="@string/strSurnameAndGivenNames"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
 
             <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/strSurnameAndGivenNames"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
-
-            <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/strPortrait"
-                    android:textAlignment="center"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/strPortrait"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
 
         </LinearLayout>
 
         <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
             <TextView
-                    android:id="@+id/nameTv"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:id="@+id/nameTv"/>
 
             <ImageView
-                    android:id="@+id/portraitIv"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:src="@drawable/portrait"
-                    android:contentDescription="@string/portraitIv"/>
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/portrait"
+                android:id="@+id/portraitIv"/>
 
         </LinearLayout>
 
     </LinearLayout>
 
     <TextView
-            android:id="@+id/docImageLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/docImageLabel"
-            android:textAlignment="center" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="Document image:"
+        android:id="@+id/docImageLabel" />
 
     <ImageView
-            android:id="@+id/documentImageIv"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:scaleType="centerInside"
-            android:src="@drawable/id"
-            android:contentDescription="@string/documentImageIv"/>
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/documentImageIv"
+        android:src="@drawable/id"
+        android:scaleType="centerInside"/>
 
     <ListView
-            android:id="@+id/scenariosList"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:choiceMode="singleChoice" />
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/scenariosList"
+        android:choiceMode="singleChoice"/>
 
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:text="Use recognizeImage() method"
+            android:textColor="@android:color/holo_blue_dark"
+            android:id="@+id/recognizeImageLink"
+            android:layout_margin="4dp"
+            android:clickable="true"/>
 
         <TextView
-                android:id="@+id/recognizeImageLink"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:text="@string/recognizeImageLink"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@android:color/holo_blue_dark" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:text="Use showScanner() method"
+            android:textColor="@android:color/holo_blue_dark"
+            android:id="@+id/showScannerLink"
+            android:layout_margin="4dp"
+            android:clickable="true"/>
 
         <TextView
-                android:id="@+id/showScannerLink"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:text="@string/showScannerLink"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@android:color/holo_blue_dark"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:text="Show CameraActivity"
+            android:textColor="@android:color/holo_blue_dark"
+            android:id="@+id/showCameraActivity"
+            android:layout_margin="4dp"
+            android:clickable="true"/>
 
         <CheckBox
-                android:id="@+id/doRfidCb"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/doRfidCb"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:text="Perform NFC chip reading"
+            android:id="@+id/doRfidCb"/>
 
     </LinearLayout>
 
