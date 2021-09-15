@@ -1,1 +1,3 @@
-include ':app'
+include ':app', ':acssmcio', ':smartcardio'
+project(':acssmcio').projectDir=new File('../acs/acssmcio')
+project(':smartcardio').projectDir=new File('../acs/smartcardio')

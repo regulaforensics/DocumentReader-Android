@@ -1,4 +1,4 @@
-package com.regula.documentreader;
+package com.regula.documentreader.custom;
 
 import android.Manifest;
 import android.app.Activity;
@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.regula.documentreader.R;
 import com.regula.documentreader.api.DocumentReader;
 import com.regula.documentreader.api.enums.DocReaderAction;
 import com.regula.documentreader.api.enums.eVisualFieldType;
@@ -34,7 +35,7 @@ import java.util.List;
 
 import static android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK;
 
-public class CameraActivity extends AppCompatActivity implements Camera.PreviewCallback {
+public class CustomCameraActivity extends AppCompatActivity implements Camera.PreviewCallback {
 
     private static final String DEBUG = "DEBUG";
     private static final Object lock = new Object();
@@ -61,10 +62,10 @@ public class CameraActivity extends AppCompatActivity implements Camera.PreviewC
         //let API know, that all previous results should be disposed
         DocumentReader.Instance().startNewSession();
 
-        if (ContextCompat.checkSelfPermission(CameraActivity.this, Manifest.permission.CAMERA)
+        if (ContextCompat.checkSelfPermission(CustomCameraActivity.this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
             Log.d(DEBUG, "OnResume: Asking permissions");
-            ActivityCompat.requestPermissions(CameraActivity.this,
+            ActivityCompat.requestPermissions(CustomCameraActivity.this,
                     new String[]{Manifest.permission.CAMERA}, PERMISSIONS_CAMERA);
         } else {
             Log.d(DEBUG, "OnResume: Permissions granted");
@@ -87,7 +88,7 @@ public class CameraActivity extends AppCompatActivity implements Camera.PreviewC
             case PERMISSIONS_CAMERA:
                 if (grantResults.length == 0
                         || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    CameraActivity.this.finish();
+                    CustomCameraActivity.this.finish();
                 } else {
                     safeCameraOpenInView();
                 }
@@ -112,13 +113,13 @@ public class CameraActivity extends AppCompatActivity implements Camera.PreviewC
                         isPauseRecognize = true;
                     }
                     if (documentReaderResults.morePagesAvailable == 1) { //more pages are available for this document
-                        Toast.makeText(CameraActivity.this, "Page ready, flip", Toast.LENGTH_LONG).show();
+                        Toast.makeText(CustomCameraActivity.this, "Page ready, flip", Toast.LENGTH_LONG).show();
 
                         //letting API know, that all frames will be from different page of the same document, merge same field types
                         DocumentReader.Instance().startNewPage();
 //                            mPreview.startCameraPreview();
                     } else { //no more pages available
-                        AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(CustomCameraActivity.this);
                         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
@@ -137,7 +138,7 @@ public class CameraActivity extends AppCompatActivity implements Camera.PreviewC
                     break;
                 case DocReaderAction.ERROR: //something went wrong
                     isPauseRecognize = true;
-                    Toast.makeText(CameraActivity.this, "Error: " + (throwable != null ? throwable.getMessage() : ""), Toast.LENGTH_LONG).show();
+                    Toast.makeText(CustomCameraActivity.this, "Error: " + (throwable != null ? throwable.getMessage() : ""), Toast.LENGTH_LONG).show();
                     break;
             }
 
@@ -184,7 +185,7 @@ public class CameraActivity extends AppCompatActivity implements Camera.PreviewC
             mParams = mCamera.getParameters();
 
             previewParent = findViewById(R.id.camera_preview);
-            mPreview = new CameraPreview(CameraActivity.this, mCamera, this, previewParent);
+            mPreview = new CameraPreview(CustomCameraActivity.this, mCamera, this, previewParent);
             previewParent.addView(mPreview, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             mPreview.startCameraPreview();
         }

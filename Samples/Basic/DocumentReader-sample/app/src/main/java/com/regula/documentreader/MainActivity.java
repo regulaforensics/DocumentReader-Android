@@ -2,36 +2,30 @@ package com.regula.documentreader;
 
 import android.Manifest;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.regula.documentreader.api.DocumentReader;
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion;
-import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion;
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion;
 import com.regula.documentreader.api.enums.DocReaderAction;
 import com.regula.documentreader.api.enums.eGraphicFieldType;
@@ -40,11 +34,13 @@ import com.regula.documentreader.api.errors.DocumentReaderException;
 import com.regula.documentreader.api.results.DocumentReaderResults;
 import com.regula.documentreader.api.results.DocumentReaderScenario;
 import com.regula.documentreader.api.results.DocumentReaderTextField;
+import com.regula.documentreader.custom.rfid.AcsDeviceCustomRfidActivity;
+import com.regula.documentreader.custom.CustomCameraActivity;
+import com.regula.documentreader.custom.rfid.CustomRfidActivity;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 import static android.graphics.BitmapFactory.decodeStream;
 
@@ -54,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 22;
     private static final String MY_SHARED_PREFS = "MySharedPrefs";
     private static final String DO_RFID = "doRfid";
+    private static int RFID_RESULT = 100;
 
     private TextView nameTv;
     private TextView showScanner;
@@ -67,9 +64,13 @@ public class MainActivity extends AppCompatActivity {
 
     private ListView scenarioLv;
 
+    private LinearLayout rfidLayout;
+    private RadioGroup nfcRadioGroup;
+
     private SharedPreferences sharedPreferences;
-    private boolean doRfid;
     private AlertDialog loadingDialog;
+
+    private DocumentReaderResults lastReaderResults;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
         scenarioLv = findViewById(R.id.scenariosList);
 
         doRfidCb = findViewById(R.id.doRfidCb);
+
+        rfidLayout = findViewById(R.id.rfidLayout);
+        nfcRadioGroup = findViewById(R.id.nfcRadioGroup);
 
         sharedPreferences = getSharedPreferences(MY_SHARED_PREFS, MODE_PRIVATE);
 
@@ -136,16 +140,26 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK) {
-            //Image browsing intent processed successfully
-            if (requestCode == REQUEST_BROWSE_PICTURE){
-                if (data.getData() != null) {
-                    Uri selectedImage = data.getData();
-                    Bitmap bmp = getBitmap(selectedImage, 1920, 1080);
+        if (requestCode == RFID_RESULT) {
+            if (SharedDocReaderResults.documentReaderResults != null) {
+                lastReaderResults = SharedDocReaderResults.documentReaderResults;
+                SharedDocReaderResults.documentReaderResults = null;
+            }
 
-                    loadingDialog = showDialog("Processing image");
+            // check resultCode
+            displayResults(lastReaderResults);
+        } else {
+            if (resultCode == RESULT_OK) {
+                //Image browsing intent processed successfully
+                if (requestCode == REQUEST_BROWSE_PICTURE) {
+                    if (data.getData() != null) {
+                        Uri selectedImage = data.getData();
+                        Bitmap bmp = getBitmap(selectedImage, 1920, 1080);
 
-                    DocumentReader.Instance().recognizeImage(bmp, completion);
+                        loadingDialog = showDialog("Processing image");
+
+                        DocumentReader.Instance().recognizeImage(bmp, completion);
+                    }
                 }
             }
         }
@@ -216,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
 
             Intent cameraIntent = new Intent();
-            cameraIntent.setClass(MainActivity.this, CameraActivity.class);
+            cameraIntent.setClass(MainActivity.this, CustomCameraActivity.class);
             startActivity(cameraIntent);
         });
     }
@@ -239,17 +253,17 @@ public class MainActivity extends AppCompatActivity {
             //initialization successful
             if (DocumentReader.Instance().isRFIDAvailableForUse()) {
                 //reading shared preferences
-                doRfid = sharedPreferences.getBoolean(DO_RFID, false);
+                boolean doRfid = sharedPreferences.getBoolean(DO_RFID, false);
                 doRfidCb.setChecked(doRfid);
-                doRfidCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                        doRfid = checked;
-                        sharedPreferences.edit().putBoolean(DO_RFID, checked).apply();
-                    }
+                doRfidCb.setVisibility(View.VISIBLE);
+                rfidLayout.setVisibility(doRfid ? View.VISIBLE : View.GONE);
+                doRfidCb.setOnCheckedChangeListener((compoundButton, checked) -> {
+                    rfidLayout.setVisibility(checked ? View.VISIBLE : View.GONE);
+                    sharedPreferences.edit().putBoolean(DO_RFID, checked).apply();
                 });
             } else {
                 doRfidCb.setVisibility(View.GONE);
+                rfidLayout.setVisibility(View.GONE);
             }
 
             //getting current processing scenario and loading available scenarios to ListView
@@ -286,16 +300,12 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 //Checking, if nfc chip reading should be performed
-                if (doRfid && results!=null && results.chipPage != 0) {
+                if (doRfidCb.isChecked() && results!=null && results.chipPage != 0) {
+
+                    lastReaderResults = results;
+
                     //starting chip reading
-                    DocumentReader.Instance().startRFIDReader(MainActivity.this, new IDocumentReaderCompletion() {
-                        @Override
-                        public void onCompleted(int rfidAction, DocumentReaderResults results, DocumentReaderException error) {
-                            if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
-                                displayResults(results);
-                            }
-                        }
-                    });
+                    startChipReading();
                 } else {
                     displayResults(results);
                 }
@@ -310,6 +320,29 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private void startChipReading() {
+        switch (nfcRadioGroup.getCheckedRadioButtonId()) {
+            case R.id.nativeTagButton:
+                DocumentReader.Instance().startRFIDReader(MainActivity.this, (rfidAction, results, error) -> {
+                    if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
+                        displayResults(results);
+                    }
+                });
+                break;
+            case R.id.nativeTagCustomButton: {
+                Intent rfidIntent = new Intent(MainActivity.this, CustomRfidActivity.class);
+                startActivityForResult(rfidIntent, RFID_RESULT);
+            }
+                break;
+            case R.id.acsButton: {
+                Intent rfidIntent = new Intent(MainActivity.this, AcsDeviceCustomRfidActivity.class);
+                startActivityForResult(rfidIntent, RFID_RESULT);
+            }
+                break;
+        }
+
+    }
+
     private AlertDialog showDialog(String msg) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
         View dialogView = getLayoutInflater().inflate(R.layout.simple_dialog, null);
@@ -321,31 +354,32 @@ public class MainActivity extends AppCompatActivity {
 
     //show received results on the UI
     private void displayResults(DocumentReaderResults results){
-        if(results!=null) {
-            String name = results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES);
-            if (name != null){
-                nameTv.setText(name);
-            }
+        if (results == null)
+            return;
 
-            // through all text fields
-            if(results.textResult != null) {
-                for (DocumentReaderTextField textField : results.textResult.fields) {
-                    String value = results.getTextFieldValueByType(textField.fieldType, textField.lcid);
-                    Log.d("MainActivity", value + "\n");
-                }
-            }
+        String name = results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES);
+        if (name != null){
+            nameTv.setText(name);
+        }
 
-            Bitmap portrait = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT);
-            if(portrait!=null){
-                portraitIv.setImageBitmap(portrait);
+        // through all text fields
+        if(results.textResult != null) {
+            for (DocumentReaderTextField textField : results.textResult.fields) {
+                String value = results.getTextFieldValueByType(textField.fieldType, textField.lcid);
+                Log.d("MainActivity", value + "\n");
             }
+        }
 
-            Bitmap documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE);
-            if(documentImage!=null){
-                double aspectRatio = (double) documentImage.getWidth() / (double) documentImage.getHeight();
-                documentImage = Bitmap.createScaledBitmap(documentImage, (int)(480 * aspectRatio), 480, false);
-                docImageIv.setImageBitmap(documentImage);
-            }
+        Bitmap portrait = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT);
+        if(portrait!=null){
+            portraitIv.setImageBitmap(portrait);
+        }
+
+        Bitmap documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE);
+        if(documentImage!=null){
+            double aspectRatio = (double) documentImage.getWidth() / (double) documentImage.getHeight();
+            documentImage = Bitmap.createScaledBitmap(documentImage, (int)(480 * aspectRatio), 480, false);
+            docImageIv.setImageBitmap(documentImage);
         }
     }
 
