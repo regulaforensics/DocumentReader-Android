@@ -26,6 +26,9 @@ import com.regula.documentreader.api.enums.eVisualFieldType
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.results.DocumentReaderScenario
+import com.regula.documentreader.custom.CustomCameraActivity
+import com.regula.documentreader.custom.rfid.AcsDeviceCustomRfidActivity
+import com.regula.documentreader.custom.rfid.CustomRfidActivity
 import java.io.FileNotFoundException
 import java.io.InputStream
 import java.util.*
@@ -39,9 +42,11 @@ class MainActivity : AppCompatActivity() {
     private var docImageIv: ImageView? = null
     private var doRfidCb: CheckBox? = null
     private var scenarioLv: ListView? = null
+    private var rfidLayout: LinearLayout? = null
+    private var nfcRadioGroup: RadioGroup? = null
     private var sharedPreferences: SharedPreferences? = null
-    private var doRfid = false
     private var loadingDialog: AlertDialog? = null
+    private var lastReaderResults: DocumentReaderResults? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -53,6 +58,8 @@ class MainActivity : AppCompatActivity() {
         docImageIv = findViewById(R.id.documentImageIv)
         scenarioLv = findViewById(R.id.scenariosList)
         doRfidCb = findViewById(R.id.doRfidCb)
+        rfidLayout = findViewById(R.id.rfidLayout)
+        nfcRadioGroup = findViewById(R.id.nfcRadioGroup)
         sharedPreferences = getSharedPreferences(MY_SHARED_PREFS, MODE_PRIVATE)
         initView()
     }
@@ -101,14 +108,24 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK) {
-            //Image browsing intent processed successfully
-            if (requestCode == REQUEST_BROWSE_PICTURE) {
-                if (data!!.data != null) {
-                    val selectedImage = data.data
-                    val bmp = getBitmap(selectedImage, 1920, 1080)
-                    loadingDialog = showDialog("Processing image")
-                    DocumentReader.Instance().recognizeImage(bmp!!, completion)
+        if (requestCode == RFID_RESULT) {
+            if (SharedDocReaderResults.documentReaderResults != null) {
+                lastReaderResults = SharedDocReaderResults.documentReaderResults
+                SharedDocReaderResults.documentReaderResults = null
+            }
+
+            // check resultCode
+            displayResults(lastReaderResults)
+        } else {
+            if (resultCode == RESULT_OK) {
+                //Image browsing intent processed successfully
+                if (requestCode == REQUEST_BROWSE_PICTURE) {
+                    if (data!!.data != null) {
+                        val selectedImage = data.data
+                        val bmp = getBitmap(selectedImage, 1920, 1080)
+                        loadingDialog = showDialog("Processing image")
+                        DocumentReader.Instance().recognizeImage(bmp!!, completion)
+                    }
                 }
             }
         }
@@ -180,7 +197,7 @@ class MainActivity : AppCompatActivity() {
         showCameraActivity!!.setOnClickListener { _: View? ->
             if (!DocumentReader.Instance().documentReaderIsReady) return@setOnClickListener
             val cameraIntent = Intent()
-            cameraIntent.setClass(this@MainActivity, CameraActivity::class.java)
+            cameraIntent.setClass(this@MainActivity, CustomCameraActivity::class.java)
             startActivity(cameraIntent)
         }
     }
@@ -204,15 +221,18 @@ class MainActivity : AppCompatActivity() {
 
                 //initialization successful
                 if (DocumentReader.Instance().isRFIDAvailableForUse) {
+
                     //reading shared preferences
-                    doRfid = sharedPreferences!!.getBoolean(DO_RFID, false)
-                    doRfidCb!!.isChecked = doRfid
-                    doRfidCb!!.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { compoundButton, checked ->
-                        doRfid = checked
-                        sharedPreferences!!.edit().putBoolean(DO_RFID, checked).apply()
-                    })
+                    val doRfid = sharedPreferences?.getBoolean(DO_RFID, false) == true
+                    doRfidCb?.isChecked = doRfid
+                    doRfidCb?.visibility = View.VISIBLE
+                    rfidLayout?.visibility = if (doRfid) View.VISIBLE else View.GONE
+                    doRfidCb?.setOnCheckedChangeListener { _: CompoundButton?, checked: Boolean ->
+                        rfidLayout?.visibility = if (checked) View.VISIBLE else View.GONE
+                        sharedPreferences?.edit()?.putBoolean(DO_RFID, checked)?.apply()
+                    }
                 } else {
-                    doRfidCb!!.visibility = View.GONE
+                    doRfidCb?.visibility = View.GONE
                 }
 
                 //getting current processing scenario and loading available scenarios to ListView
@@ -225,7 +245,7 @@ class MainActivity : AppCompatActivity() {
                 DocumentReader.Instance().processParams().scenario = scenarios[0]
                 val adapter =
                     ScenarioAdapter(this@MainActivity, android.R.layout.simple_list_item_1, scenarios)
-                scenarioLv!!.adapter = adapter
+                scenarioLv?.adapter = adapter
             }
         }
     }
@@ -242,19 +262,16 @@ class MainActivity : AppCompatActivity() {
     private val completion = IDocumentReaderCompletion { action, results, error ->
         //processing is finished, all results are ready
         if (action == DocReaderAction.COMPLETE) {
-            if (loadingDialog != null && loadingDialog!!.isShowing) {
-                loadingDialog!!.dismiss()
+            if (loadingDialog != null && loadingDialog?.isShowing == true) {
+                loadingDialog?.dismiss()
             }
 
             //Checking, if nfc chip reading should be performed
-            if (doRfid && results != null && results.chipPage != 0) {
+            if (doRfidCb?.isChecked == true && results != null && results.chipPage != 0) {
+                lastReaderResults = results
+
                 //starting chip reading
-                DocumentReader.Instance()
-                    .startRFIDReader(this@MainActivity) { rfidAction, results, _ ->
-                        if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
-                            displayResults(results)
-                        }
-                    }
+                startChipReading()
             } else {
                 displayResults(results)
             }
@@ -265,6 +282,26 @@ class MainActivity : AppCompatActivity() {
                     .show()
             } else if (action == DocReaderAction.ERROR) {
                 Toast.makeText(this@MainActivity, "Error:$error", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun startChipReading() {
+        when (nfcRadioGroup?.checkedRadioButtonId) {
+            R.id.nativeTagButton -> DocumentReader.Instance().startRFIDReader(
+                this@MainActivity
+            ) { rfidAction: Int, results: DocumentReaderResults?, error: DocumentReaderException? ->
+                if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
+                    displayResults(results)
+                }
+            }
+            R.id.nativeTagCustomButton -> {
+                val rfidIntent = Intent(this@MainActivity, CustomRfidActivity::class.java)
+                startActivityForResult(rfidIntent, RFID_RESULT)
+            }
+            R.id.acsButton -> {
+                val rfidIntent = Intent(this@MainActivity, AcsDeviceCustomRfidActivity::class.java)
+                startActivityForResult(rfidIntent, RFID_RESULT)
             }
         }
     }
@@ -319,9 +356,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun clearResults() {
-        nameTv!!.text = ""
-        portraitIv!!.setImageResource(R.drawable.portrait)
-        docImageIv!!.setImageResource(R.drawable.id)
+        nameTv?.text = ""
+        portraitIv?.setImageResource(R.drawable.portrait)
+        docImageIv?.setImageResource(R.drawable.id)
     }
 
     // creates and starts image browsing intent
@@ -394,5 +431,6 @@ class MainActivity : AppCompatActivity() {
         private const val PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 22
         private const val MY_SHARED_PREFS = "MySharedPrefs"
         private const val DO_RFID = "doRfid"
+        private const val RFID_RESULT = 100
     }
 }

@@ -8,4 +8,7 @@
     <string name="recognizeImageLink">Use recognizeImage() method</string>
     <string name="showScannerLink">Use showScanner() method</string>
     <string name="doRfidCb">Perform NFC chip reading</string>
+    <string name="error_bluetooth_le_not_supported">Bluetooth LE not supported</string>
+    <string name="error_bluetooth_not_supported">Bluetooth not supported</string>
+    <string name="error_bluetooth_provider_not_found">Bluetooth provider not found</string>
 </resources>

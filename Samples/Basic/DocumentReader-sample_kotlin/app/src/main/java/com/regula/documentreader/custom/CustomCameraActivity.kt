@@ -1,4 +1,4 @@
-package com.regula.documentreader
+package com.regula.documentreader.custom
 
 import android.Manifest
 import android.app.Activity
@@ -17,6 +17,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.regula.documentreader.R
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.eVisualFieldType
@@ -24,7 +25,7 @@ import com.regula.documentreader.api.params.ImageInputParam
 import java.io.IOException
 import java.util.*
 
-class CameraActivity : AppCompatActivity(), PreviewCallback {
+class CustomCameraActivity : AppCompatActivity(), PreviewCallback {
     private var mCameraId: Int = 0
     private var mCamera: Camera? = null
     private var mParams: Camera.Parameters? = null
@@ -44,12 +45,12 @@ class CameraActivity : AppCompatActivity(), PreviewCallback {
 //        DocumentReader.Instance().processParams().multipageProcessing = false;
         //let API know, that all previous results should be disposed
         DocumentReader.Instance().startNewSession()
-        if ((ContextCompat.checkSelfPermission(this@CameraActivity, Manifest.permission.CAMERA)
+        if ((ContextCompat.checkSelfPermission(this@CustomCameraActivity, Manifest.permission.CAMERA)
                     != PackageManager.PERMISSION_GRANTED)
         ) {
             Log.d(DEBUG, "OnResume: Asking permissions")
             ActivityCompat.requestPermissions(
-                this@CameraActivity,
+                this@CustomCameraActivity,
                 arrayOf(Manifest.permission.CAMERA),
                 PERMISSIONS_CAMERA
             )
@@ -102,7 +103,7 @@ class CameraActivity : AppCompatActivity(), PreviewCallback {
                     synchronized(lock) { isPauseRecognize = true }
                     if (documentReaderResults?.morePagesAvailable == 1) { //more pages are available for this document
                         Toast.makeText(
-                            this@CameraActivity,
+                            this@CustomCameraActivity,
                             "Page ready, flip",
                             Toast.LENGTH_LONG
                         ).show()
@@ -112,7 +113,7 @@ class CameraActivity : AppCompatActivity(), PreviewCallback {
                         //                            mPreview.startCameraPreview();
                     } else { //no more pages available
                         val builder: AlertDialog.Builder =
-                            AlertDialog.Builder(this@CameraActivity)
+                            AlertDialog.Builder(this@CustomCameraActivity)
                         builder.setPositiveButton(
                             "Ok"
                         ) { dialogInterface, i ->
@@ -133,7 +134,7 @@ class CameraActivity : AppCompatActivity(), PreviewCallback {
                 DocReaderAction.ERROR -> {
                     isPauseRecognize = true
                     Toast.makeText(
-                        this@CameraActivity,
+                        this@CustomCameraActivity,
                         "Error: " + (if (throwable != null) throwable.message else ""),
                         Toast.LENGTH_LONG
                     ).show()
@@ -174,7 +175,7 @@ class CameraActivity : AppCompatActivity(), PreviewCallback {
         if (qOpened) {
             mParams = mCamera!!.parameters
             previewParent = findViewById(R.id.camera_preview)
-            mPreview = CameraPreview(this@CameraActivity, mCamera, this, previewParent)
+            mPreview = CameraPreview(this@CustomCameraActivity, mCamera, this, previewParent)
             with(previewParent) {
                 this?.addView(
                     mPreview,

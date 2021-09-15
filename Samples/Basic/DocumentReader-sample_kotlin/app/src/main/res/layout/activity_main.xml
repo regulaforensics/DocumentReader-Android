@@ -119,7 +119,52 @@
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:text="Perform NFC chip reading"
+            android:visibility="gone"
             android:id="@+id/doRfidCb"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:id="@+id/rfidLayout">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:text="Choose reading type:" />
+
+            <RadioGroup
+                android:id="@+id/nfcRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checkedButton="@id/nativeTagButton">
+
+                <RadioButton
+                    android:id="@+id/nativeTagButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:text="Use native tag" />
+
+                <RadioButton
+                    android:id="@+id/nativeTagCustomButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:text="Use native tag (custom activity)"/>
+
+                <RadioButton
+                    android:id="@+id/acsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:text="Use ACS device"/>
+
+            </RadioGroup>
+
+        </LinearLayout>
 
     </LinearLayout>
 

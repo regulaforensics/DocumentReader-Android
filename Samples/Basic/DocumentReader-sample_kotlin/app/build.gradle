@@ -36,4 +36,7 @@ dependencies {
     implementation('com.regula.documentreader:api:5.7.+@aar') {
         transitive = true;
     }
+
+    implementation project(':smartcardio')
+    implementation project(':acssmcio')
 }
