@@ -9,13 +9,14 @@
         android:id="@+id/currentDataGroupLt"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_toStartOf="@id/skipRfidBtn"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/skipRfidBtn"
+        app:layout_constraintTop_toBottomOf="@id/rfidStatus"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:orientation="vertical"
-        android:layout_margin="10dp">
+        android:layout_marginTop="30dp"
+        android:padding="10dp"
+        android:gravity="center_horizontal">
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -23,7 +24,6 @@
             android:layout_width="200dp"
             android:layout_height="10dp"
             android:layout_below="@id/currentRfidDgTv"
-            android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
             android:indeterminate="false"
             android:visibility="visible"
