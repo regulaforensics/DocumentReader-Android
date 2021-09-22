@@ -158,11 +158,11 @@ class CustomRfidActivity : AppCompatActivity() {
                             binding.currentDataGroupLt.visibility = View.VISIBLE
                             binding.rfidStatus.setTextColor(getColor(android.R.color.holo_orange_light))
                         }
+                        rfidProgress(
+                            results.documentReaderNotification!!.code,
+                            results.documentReaderNotification!!.value
+                        )
                     }
-                    rfidProgress(
-                        results.documentReaderNotification!!.code,
-                        results.documentReaderNotification!!.value
-                    )
                 }
                 DocReaderAction.ERROR -> {
                     val builder =
@@ -179,19 +179,26 @@ class CustomRfidActivity : AppCompatActivity() {
         }
     }
 
-    private fun codeToType(code: Int): Int = code and 0x10000
+//    private fun codeToType(code: Int): Int = code and 0x10000
 
     private fun rfidProgress(code: Int, value: Int) {
-        when (code and -0x10000) {
-            eRFID_NotificationAndErrorCodes.RFID_NOTIFICATION_PCSC_READING_DATAGROUP -> if (value == 0) {
-                handler.post {
-                    binding.currentRfidDgTv.text = String.format(
-                        getString(R.string.strReadingRFIDDG), eRFID_DataFile_Type.getTranslation(
-                            applicationContext, codeToType(code)
-                        )
-                    )
-                }
-            }
+        val hiword = code and -0x10000
+        val loword = code and 0x0000FFFF
+        val progress = value and -0x10
+
+        var currentDataGroup: String? = null
+        if (hiword == eRFID_NotificationAndErrorCodes.RFID_NOTIFICATION_PCSC_READING_DATAGROUP)
+            currentDataGroup = if (value == 100) null else String.format(
+                getString(com.regula.documentreader.api.R.string.strReadingRFIDDG),
+                eRFID_DataFile_Type.getTranslation(applicationContext, loword)
+            )
+
+        if (currentDataGroup != null && currentDataGroup.isNotEmpty()) {
+            binding.currentRfidDgTv.text = currentDataGroup
+        }
+
+        if (progress in 1..100) {
+            binding.progressBar.progress = progress
         }
     }
 

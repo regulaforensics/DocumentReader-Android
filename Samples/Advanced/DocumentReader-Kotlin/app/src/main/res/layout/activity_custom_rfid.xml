@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context=".CustomRfidActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:id="@+id/currentDataGroupLt"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -13,29 +13,32 @@
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/skipRfidBtn"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        android:orientation="vertical"
+        android:layout_margin="10dp">
 
         <ProgressBar
-            android:id="@+id/progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:indeterminateTint="?colorAccent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:id="@+id/progressBar"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="200dp"
+            android:layout_height="10dp"
+            android:layout_below="@id/currentRfidDgTv"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:indeterminate="false"
+            android:visibility="visible"
+            android:layout_marginTop="@dimen/reg_visual_element_margin"
+            android:foregroundTint="@color/imageTintColor" />
 
         <TextView
             android:id="@+id/currentRfidDgTv"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingStart="@dimen/padding_gap"
             android:paddingEnd="@dimen/padding_gap"
-            android:textColor="?colorOnSecondary"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/progress"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:paddingTop="@dimen/padding_gap"
+            android:textColor="?colorOnSecondary" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/rfidStatus"
