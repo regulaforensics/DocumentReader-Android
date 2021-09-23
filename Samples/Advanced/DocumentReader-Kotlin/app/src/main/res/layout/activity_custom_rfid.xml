@@ -16,7 +16,8 @@
         android:orientation="vertical"
         android:layout_marginTop="30dp"
         android:padding="10dp"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        tools:visibility="visible">
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -37,7 +38,10 @@
             android:paddingStart="@dimen/padding_gap"
             android:paddingEnd="@dimen/padding_gap"
             android:paddingTop="@dimen/padding_gap"
+            tools:text="Group rfis tatus"
+            android:gravity="center_horizontal"
             android:textColor="?colorOnSecondary" />
+
     </LinearLayout>
 
     <TextView
