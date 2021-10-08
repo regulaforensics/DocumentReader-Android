@@ -1,6 +1,5 @@
 package com.regula.documentreader
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -29,9 +28,7 @@ import java.io.InputStream
 
 class Helpers {
     companion object {
-        const val REQUEST_BROWSE_PICTURE = 11
         const val PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 22
-        const val RFID_RESULT = 100
 
         private val links = mapOf(
             "Documents" to "https://docs.regulaforensics.com/home/faq/machine-readable-travel-documents",
@@ -69,6 +66,18 @@ class Helpers {
             return list.toString().removeSurrounding("[", "]")
         }
 
+        fun Array<String>.toIntArray(): IntArray {
+            val result = IntArray(size)
+            forEachIndexed { index, s -> result[index] = s.toInt() }
+            return result
+        }
+
+        fun MutableList<Int>.toMutableListString(): MutableList<String> {
+            val result = mutableListOf<String>()
+            forEach { result.add(it.toString()) }
+            return result
+        }
+
         fun String.toIntArray(): IntArray = try {
             if (trim().isEmpty())
                 arrayOf<Int>().toIntArray()
@@ -86,7 +95,7 @@ class Helpers {
 
         fun Context.themeColor(@AttrRes attrRes: Int): Int {
             val typedValue = TypedValue()
-            theme.resolveAttribute (attrRes, typedValue, true)
+            theme.resolveAttribute(attrRes, typedValue, true)
             return typedValue.data
         }
 
@@ -109,17 +118,6 @@ class Helpers {
 
         fun colorString(color: Int): String = String.format("#%06X", 0xFFFFFF and color)
 
-        fun createImageBrowsingRequest(activity: Activity) {
-            val intent = Intent()
-            intent.type = "image/*"
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-            intent.action = Intent.ACTION_GET_CONTENT
-            activity.startActivityForResult(
-                Intent.createChooser(intent, "Select Picture"),
-                REQUEST_BROWSE_PICTURE
-            )
-        }
-
         fun View.beforeRender(run: () -> Unit) {
             val preDrawListener = object : ViewTreeObserver.OnPreDrawListener {
                 override fun onPreDraw(): Boolean {
@@ -132,10 +130,6 @@ class Helpers {
         }
 
         fun grayedOutAlpha(enabled: Boolean): Float = if (enabled) 1f else 0.3f
-
-        fun reloadFragment(fragment: Fragment, activity: FragmentActivity) =
-            activity.supportFragmentManager.beginTransaction().detach(fragment).attach(fragment)
-                .commit()
 
         fun replaceFragment(fragment: Fragment, activity: FragmentActivity, id: Int) =
             activity.supportFragmentManager.beginTransaction().replace(id, fragment).commit()

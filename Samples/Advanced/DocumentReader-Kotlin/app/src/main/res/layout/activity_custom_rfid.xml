@@ -5,44 +5,37 @@
     android:layout_height="match_parent"
     tools:context=".CustomRfidActivity">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/currentDataGroupLt"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_toStartOf="@id/skipRfidBtn"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/rfidStatus"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:orientation="vertical"
-        android:layout_marginTop="30dp"
-        android:padding="10dp"
-        android:gravity="center_horizontal"
-        tools:visibility="visible">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/skipRfidBtn"
+        app:layout_constraintStart_toStartOf="parent">
 
         <ProgressBar
-            android:id="@+id/progressBar"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:layout_width="200dp"
-            android:layout_height="10dp"
-            android:layout_below="@id/currentRfidDgTv"
-            android:layout_gravity="center_horizontal"
-            android:indeterminate="false"
-            android:visibility="visible"
-            android:layout_marginTop="@dimen/reg_visual_element_margin"
-            android:foregroundTint="@color/imageTintColor" />
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="?colorAccent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/currentRfidDgTv"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingStart="@dimen/padding_gap"
             android:paddingEnd="@dimen/padding_gap"
-            android:paddingTop="@dimen/padding_gap"
-            tools:text="Group rfis tatus"
-            android:gravity="center_horizontal"
-            android:textColor="?colorOnSecondary" />
-
-    </LinearLayout>
+            android:textColor="?colorOnSecondary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/progress"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
         android:id="@+id/rfidStatus"

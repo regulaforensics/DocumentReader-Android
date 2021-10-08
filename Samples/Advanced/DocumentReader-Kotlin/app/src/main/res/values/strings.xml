@@ -39,4 +39,9 @@
     <string name="result">Result:</string>
     <string name="code_definition">Code definition:</string>
     <string name="all_results">All Results</string>
+    <string name="pageIndex">Page: %1$d</string>
+    <string name="strResetAllSettings">Reset all settings</string>
+    <string name="strResetAllAppSettingsConfirmation">This will reset all settings of the application</string>
+    <string name="strResetAllAPISettingsConfirmation">This will reset all API settings</string>
+    <string name="strCancel">Cancel</string>
 </resources>

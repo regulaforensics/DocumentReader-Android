@@ -12,6 +12,7 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.view.*
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -23,17 +24,14 @@ import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.regula.documentreader.Helpers.Companion.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
-import com.regula.documentreader.Helpers.Companion.REQUEST_BROWSE_PICTURE
-import com.regula.documentreader.Helpers.Companion.RFID_RESULT
 import com.regula.documentreader.Helpers.Companion.colorString
-import com.regula.documentreader.Helpers.Companion.createImageBrowsingRequest
 import com.regula.documentreader.Helpers.Companion.drawable
 import com.regula.documentreader.Helpers.Companion.getBitmap
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_GALLERY
 import com.regula.documentreader.SettingsActivity.Companion.functionality
+import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnabled
 import com.regula.documentreader.SettingsActivity.Companion.isRfidEnabled
 import com.regula.documentreader.SettingsActivity.Companion.useCustomRfidActivity
-import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnabled
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
@@ -42,6 +40,7 @@ import com.regula.documentreader.api.enums.FrameShapeType
 import com.regula.documentreader.api.enums.eRFID_Password_Type
 import com.regula.documentreader.api.enums.eVisualFieldType
 import com.regula.documentreader.api.errors.DocumentReaderException
+import com.regula.documentreader.api.params.DocReaderConfig
 import com.regula.documentreader.api.parser.DocReaderResultsJsonParser
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.databinding.ActivityMainBinding
@@ -59,12 +58,28 @@ class MainActivity : FragmentActivity(), Serializable {
     @Transient
     private var initDialog: AlertDialog? = null
 
+    @Transient
+    val imageBrowsingIntentLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) it.data?.data.let { uri ->
+                val bmp = getBitmap(uri, 1920, 1080, this)
+                loadingDialog = showDialog("Processing image")
+                bmp?.let { Instance().recognizeImage(bmp, completion) }
+            }
+        }
+
+    @Transient
+    val customRfidIntentLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            results?.let { displayResults(it) }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         Helpers.opaqueStatusBar(binding.root)
-        if (Instance().documentReaderIsReady)
+        if (Instance().isReady)
             onInitComplete()
 
         binding.helpBtn.setOnClickListener(OnClickListenerSerializable {
@@ -88,7 +103,7 @@ class MainActivity : FragmentActivity(), Serializable {
 
     override fun onResume() {
         super.onResume()
-        if (Instance().documentReaderIsReady)
+        if (Instance().isReady)
             return
 
         initDialog = showDialog("Initializing")
@@ -107,7 +122,7 @@ class MainActivity : FragmentActivity(), Serializable {
             }
 
             override fun onPrepareCompleted(status: Boolean, error: DocumentReaderException?) {
-                Instance().initializeReader(this@MainActivity, license)
+                Instance().initializeReader(this@MainActivity, DocReaderConfig(license, null as ByteArray?))
                 { success, error_initializeReader ->
                     if (initDialog!!.isShowing)
                         initDialog!!.dismiss()
@@ -189,15 +204,15 @@ class MainActivity : FragmentActivity(), Serializable {
                 if (!useCustomRfidActivity)
                     Instance().startRFIDReader(this) { rfidAction, results_RFIDReader, _ ->
                         if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL)
-                            displayResults(results_RFIDReader)
+                            displayResults(results_RFIDReader!!)
                     }
                 else {
                     MainActivity.results = results
                     val rfidIntent = Intent(this@MainActivity, CustomRfidActivity::class.java)
-                    startActivityForResult(rfidIntent, RFID_RESULT)
+                    customRfidIntentLauncher.launch(rfidIntent)
                 }
             } else
-                displayResults(results)
+                displayResults(results!!)
         } else
             if (action == DocReaderAction.CANCEL)
                 Toast.makeText(this, "Scanning was cancelled", Toast.LENGTH_LONG).show()
@@ -254,6 +269,14 @@ class MainActivity : FragmentActivity(), Serializable {
 
     fun showScanner() = Instance().showScanner(this, completion)
 
+    private fun createImageBrowsingRequest() {
+        val intent = Intent()
+        intent.type = "image/*"
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+        intent.action = Intent.ACTION_GET_CONTENT
+        imageBrowsingIntentLauncher.launch(Intent.createChooser(intent, "Select Picture"))
+    }
+
     fun recognizeImage() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
             != PackageManager.PERMISSION_GRANTED
@@ -264,20 +287,7 @@ class MainActivity : FragmentActivity(), Serializable {
                 PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
             )
         } else
-            createImageBrowsingRequest(this)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            RFID_RESULT -> results?.let { displayResults(it) }
-            REQUEST_BROWSE_PICTURE -> if (resultCode == Activity.RESULT_OK) data!!.data?.let {
-                val selectedImage = it
-                val bmp = getBitmap(selectedImage, 1920, 1080, this)
-                loadingDialog = showDialog("Processing image")
-                bmp?.let { Instance().recognizeImage(bmp, completion) }
-            }
-        }
+            createImageBrowsingRequest()
     }
 
     override fun onRequestPermissionsResult(
@@ -289,7 +299,7 @@ class MainActivity : FragmentActivity(), Serializable {
         when (requestCode) {
             PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    createImageBrowsingRequest(this)
+                    createImageBrowsingRequest()
                 else
                     Toast.makeText(this, "Permission required, to browse images", Toast.LENGTH_LONG)
                         .show()

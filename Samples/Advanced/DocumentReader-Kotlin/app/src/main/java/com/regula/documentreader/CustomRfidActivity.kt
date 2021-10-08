@@ -2,6 +2,7 @@ package com.regula.documentreader
 
 import android.app.Activity
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -77,7 +78,7 @@ class CustomRfidActivity : AppCompatActivity() {
     }
 
     private fun checkAdapterEnabled() {
-        if (nfcAdapter.isEnabled && DocumentReader.Instance().documentReaderIsReady)
+        if (nfcAdapter.isEnabled && DocumentReader.Instance().isReady)
             setupForegroundDispatch(this, nfcAdapter)
         else
             Log.e(TAG, "NFC is not enabled")
@@ -89,7 +90,7 @@ class CustomRfidActivity : AppCompatActivity() {
      */
     private fun setupForegroundDispatch(activity: Activity, adapter: NfcAdapter) {
         val intent = Intent(activity.applicationContext, activity.javaClass)
-        val pendingIntent = PendingIntent.getActivity(activity.applicationContext, 0, intent, 0)
+        val pendingIntent = PendingIntent.getActivity(activity.applicationContext, 0, intent, FLAG_IMMUTABLE)
         val filters = arrayOfNulls<IntentFilter>(1)
 
         // Notice that this is the same filter as in our manifest.
@@ -130,7 +131,7 @@ class CustomRfidActivity : AppCompatActivity() {
         DocumentReader.Instance().readRFID(isoDepTag) { rfidAction, results, error ->
             when (rfidAction) {
                 DocReaderAction.COMPLETE -> {
-                    MainActivity.results = results
+                    MainActivity.results = results!!
                     if (results.rfidResult == 0x00000001) {
                         setResult(RESULT_OK)
                         binding.rfidStatus.text =
@@ -158,17 +159,17 @@ class CustomRfidActivity : AppCompatActivity() {
                             binding.currentDataGroupLt.visibility = View.VISIBLE
                             binding.rfidStatus.setTextColor(getColor(android.R.color.holo_orange_light))
                         }
-                        rfidProgress(
-                            results.documentReaderNotification!!.code,
-                            results.documentReaderNotification!!.value
-                        )
                     }
+                    rfidProgress(
+                        results!!.documentReaderNotification!!.code,
+                        results.documentReaderNotification!!.value
+                    )
                 }
                 DocReaderAction.ERROR -> {
                     val builder =
                         getString(R.string.RFID_Error_Failed) + "\n" + eRFID_NotificationAndErrorCodes.getTranslation(
                             this,
-                            results.rfidResult
+                            results!!.rfidResult
                         )
                     binding.rfidStatus.text = builder
                     binding.rfidStatus.setTextColor(getColor(R.color.reg_red_fail))
@@ -179,26 +180,19 @@ class CustomRfidActivity : AppCompatActivity() {
         }
     }
 
-//    private fun codeToType(code: Int): Int = code and 0x10000
+    private fun codeToType(code: Int): Int = code and 0x10000
 
     private fun rfidProgress(code: Int, value: Int) {
-        val hiword = code and -0x10000
-        val loword = code and 0x0000FFFF
-        val progress = value and -0x10
-
-        var currentDataGroup: String? = null
-        if (hiword == eRFID_NotificationAndErrorCodes.RFID_NOTIFICATION_PCSC_READING_DATAGROUP)
-            currentDataGroup = if (value == 100) null else String.format(
-                getString(com.regula.documentreader.api.R.string.strReadingRFIDDG),
-                eRFID_DataFile_Type.getTranslation(applicationContext, loword)
-            )
-
-        if (currentDataGroup != null && currentDataGroup.isNotEmpty()) {
-            binding.currentRfidDgTv.text = currentDataGroup
-        }
-
-        if (progress in 1..100) {
-            binding.progressBar.progress = progress
+        when (code and -0x10000) {
+            eRFID_NotificationAndErrorCodes.RFID_NOTIFICATION_PCSC_READING_DATAGROUP -> if (value == 0) {
+                handler.post {
+                    binding.currentRfidDgTv.text = String.format(
+                        getString(R.string.strReadingRFIDDG), eRFID_DataFile_Type.getTranslation(
+                            applicationContext, codeToType(code)
+                        )
+                    )
+                }
+            }
         }
     }
 

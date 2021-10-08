@@ -4,19 +4,24 @@ import android.graphics.Bitmap
 import android.view.View
 import java.io.Serializable
 
-class OnClickListenerSerializable(val function: (View?) -> Unit) : View.OnClickListener, Serializable {
+class OnClickListenerSerializable(val function: (View?) -> Unit) : View.OnClickListener,
+    Serializable {
     override fun onClick(v: View?) {
         function(v)
     }
 }
 
 abstract class BSItemAbstract(
-    val title: String)
+    val title: String
+)
 
 class BSItem(
-    title: String
+    title: String,
+    var value: String = title
 ) : BSItemAbstract(title), Serializable {
     var selected: Boolean = false
+
+    constructor(title: String, value: Int) : this(title, value.toString())
 }
 
 class HelpBig(
@@ -48,8 +53,9 @@ class Scan(
 
 class Switch(
     title: String,
-    val get: () -> Boolean,
-    val set: (input: Boolean) -> Unit
+    val get: () -> Boolean?,
+    val set: (input: Boolean) -> Unit,
+    val enabled: () -> Boolean = { true },
 ) : Base(title)
 
 class Stepper(
@@ -69,7 +75,15 @@ class BS(
     val items: ArrayList<BSItem>,
     val get: () -> String?,
     val set: (input: String) -> Unit
-) : Base(title), Serializable
+) : Base(title), Serializable {
+    private val valueTitleMap = mutableMapOf<String, String>()
+
+    init {
+        items.forEach { valueTitleMap[it.value] = it.title }
+    }
+
+    fun getFromMap() = valueTitleMap[get()]
+}
 
 class BSMulti(
     title: String,
@@ -77,12 +91,30 @@ class BSMulti(
     val items: ArrayList<BSItem>,
     val get: () -> MutableList<String>,
     val set: (input: List<String>) -> Unit
-) : Base(title), Serializable
+) : Base(title), Serializable {
+    private val valueTitleMap = mutableMapOf<String, String>()
+
+    init {
+        items.forEach { valueTitleMap[it.value] = it.title }
+    }
+
+    fun getFromMap(): MutableList<String>{
+        val result = mutableListOf<String>()
+        get().sorted().forEach { result.add(valueTitleMap[it]!!) }
+        return result
+    }
+}
 
 class InputInt(
     title: String,
     val get: () -> Int?,
     val set: (input: Int?) -> Unit
+) : Base(title)
+
+class InputDouble(
+    title: String,
+    val get: () -> Double?,
+    val set: (input: Double?) -> Unit
 ) : Base(title)
 
 class InputString(
@@ -95,6 +127,7 @@ class TextResult(
     title: String,
     var value: String,
     var lcid: String,
+    var pageIndex: Int,
     var color: Int
 ) : Base(title)
 
@@ -124,6 +157,7 @@ class Attribute(
     var name: String,
     var value: String? = null,
     var lcid: Int? = null,
+    var pageIndex: Int? = null,
     var valid: Int? = null,
     var source: Int? = null,
     @Transient

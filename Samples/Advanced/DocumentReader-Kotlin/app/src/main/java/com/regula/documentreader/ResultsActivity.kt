@@ -145,7 +145,14 @@ class ResultsActivity : AppCompatActivity() {
             val name = it.getFieldName(this)
             for (value in it.values) {
                 val valid = value.validity
-                val item = Attribute(name!!, value.value, it.lcid, valid, value.sourceType)
+                val item = Attribute(
+                    name!!,
+                    value.value,
+                    it.lcid,
+                    value.pageIndex,
+                    valid,
+                    value.sourceType
+                )
                 attributes.add(item)
             }
         }
@@ -428,6 +435,7 @@ class GroupFragment : Fragment() {
                             attribute.name,
                             attribute.value!!,
                             LCID.getTranslation(context, attribute.lcid!!),
+                            attribute.pageIndex!!,
                             color
                         )
                     )

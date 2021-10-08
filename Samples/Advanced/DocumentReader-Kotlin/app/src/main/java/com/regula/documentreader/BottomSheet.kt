@@ -92,9 +92,9 @@ class BottomSheet :
         return dialog
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        (view?.parent as View).setBackgroundColor(Color.TRANSPARENT)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        (view.parent as View).setBackgroundColor(Color.TRANSPARENT)
     }
 
     private fun countHeight(maxHeightPx: Int, fullHeight: Boolean): Int {

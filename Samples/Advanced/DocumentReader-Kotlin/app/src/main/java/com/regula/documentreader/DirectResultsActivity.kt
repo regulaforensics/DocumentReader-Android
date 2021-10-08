@@ -33,7 +33,6 @@ import com.regula.documentreader.databinding.ActivityDirectResultsBinding
 import com.regula.documentreader.databinding.FragmentRvAddParameterBinding
 import java.io.Serializable
 
-
 class DirectResultsActivity : AppCompatActivity() {
     lateinit var binding: ActivityDirectResultsBinding
     var fields = mutableListOf<ParameterField>()

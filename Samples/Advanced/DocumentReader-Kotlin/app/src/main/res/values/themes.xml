@@ -1,4 +1,5 @@
 <resources>
+
     <style name="Theme.DocumentReaderSample_kotlin" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorAccent">@color/blue</item>
 
@@ -18,7 +19,7 @@
         <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
     </style>
 
-    <style name="AppBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog" >
+    <style name="AppBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="colorAccent">@color/blue</item>
     </style>
 
@@ -28,10 +29,25 @@
     </style>
 
     <style name="AlertDialogTheme" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
-        <item name="buttonBarPositiveButtonStyle">@style/ButtonStyle</item>
-        <item name="buttonBarNegativeButtonStyle">@style/ButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/ButtonStyleDefault</item>
+        <item name="buttonBarNegativeButtonStyle">@style/ButtonStyleDefault</item>
     </style>
-    <style name="ButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+
+    <style name="ButtonStyleDefault" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="android:textColor">?colorAccent</item>
     </style>
+
+    <style name="ConfirmAlertDialogTheme" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="buttonBarPositiveButtonStyle">@style/ButtonStyleConfirm</item>
+        <item name="buttonBarNegativeButtonStyle">@style/ButtonStyleCancel</item>
+    </style>
+
+    <style name="ButtonStyleCancel" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">?colorSecondaryVariant</item>
+    </style>
+
+    <style name="ButtonStyleConfirm" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/confirm_red</item>
+    </style>
+
 </resources>

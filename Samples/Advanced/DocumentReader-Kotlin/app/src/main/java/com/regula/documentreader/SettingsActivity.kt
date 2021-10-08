@@ -1,5 +1,6 @@
 package com.regula.documentreader
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,21 +9,23 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.regula.documentreader.Helpers.Companion.captureModeIntToString
 import com.regula.documentreader.Helpers.Companion.captureModeStringToInt
 import com.regula.documentreader.Helpers.Companion.listToString
 import com.regula.documentreader.Helpers.Companion.measureSystemIntToString
 import com.regula.documentreader.Helpers.Companion.measureSystemStringToInt
-import com.regula.documentreader.Helpers.Companion.reloadFragment
 import com.regula.documentreader.Helpers.Companion.replaceFragment
 import com.regula.documentreader.Helpers.Companion.setProcessParams
 import com.regula.documentreader.Helpers.Companion.toIntArray
+import com.regula.documentreader.Helpers.Companion.toMutableListString
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_CUSTOM
 import com.regula.documentreader.SettingsActivity.Companion.functionality
 import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnabled
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.enums.DocReaderFrame.*
+import com.regula.documentreader.api.enums.MRZFormat.*
 import com.regula.documentreader.api.params.Functionality
 import com.regula.documentreader.api.params.ProcessParam
 import com.regula.documentreader.databinding.ActivitySettingsBinding
@@ -43,7 +46,7 @@ class SettingsActivity : FragmentActivity() {
         Helpers.opaqueStatusBar(binding.root)
         binding.backBtn.setOnClickListener { finish() }
         replaceFragment(applicationSettingsFragment, this, R.id.settings)
-        binding.resetBtn.setOnClickListener { reset() }
+        binding.resetBtn.setOnClickListener { resetDialog() }
 
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
@@ -78,20 +81,36 @@ class SettingsActivity : FragmentActivity() {
         savedInstanceState.putInt("selectedTabIndex", selectedTabIndex)
     }
 
+    private fun resetDialog() = MaterialAlertDialogBuilder(this, R.style.ConfirmAlertDialogTheme)
+        .setTitle(getString(R.string.strResetAllSettings))
+        .setMessage(
+            getString(
+                if (selectedTabIndex == 0)
+                    R.string.strResetAllAppSettingsConfirmation
+                else
+                    R.string.strResetAllAPISettingsConfirmation
+            )
+        )
+        .setPositiveButton(getString(R.string.reset).uppercase()) { _, _ -> reset() }
+        .setNegativeButton(getString(R.string.strCancel).uppercase(), null)
+        .show()
+
     private fun reset() {
-        when (selectedTabIndex) {
-            0 -> {
-                isRfidEnabled = false
-                useCustomRfidActivity = false
-                reloadFragment(applicationSettingsFragment, this)
-            }
-            1 -> {
-                val scenario = Instance().processParams().scenario
-                setProcessParams(ProcessParam())
-                Instance().processParams().scenario = scenario
-                functionality = Functionality()
-                reloadFragment(apiSettingsFragment, this)
-            }
+        if (selectedTabIndex == 0) {
+            isRfidEnabled = false
+            useCustomRfidActivity = false
+            isDataEncryptionEnabled = false
+            val adapter =
+                applicationSettingsFragment.binding.recyclerView.adapter as CommonRecyclerAdapter
+            adapter.notifyItemRangeChanged(0, adapter.itemCount)
+        } else {
+            val scenario = Instance().processParams().scenario
+            setProcessParams(ProcessParam())
+            Instance().processParams().scenario = scenario
+            functionality = Functionality()
+            val adapter =
+                apiSettingsFragment.binding.recyclerView.adapter as CommonRecyclerAdapter
+            adapter.notifyItemRangeChanged(0, adapter.itemCount)
         }
     }
 
@@ -105,7 +124,7 @@ class SettingsActivity : FragmentActivity() {
 
 class ApplicationSettingsFragment : Fragment() {
     private var _binding: FragmentRvBinding? = null
-    private val binding get() = _binding!!
+    val binding get() = _binding!!
 
     override fun onCreateView(inflater: LayoutInflater, vg: ViewGroup?, bundle: Bundle?): View {
         _binding = FragmentRvBinding.inflate(inflater, vg, false)
@@ -140,8 +159,9 @@ class ApplicationSettingsFragment : Fragment() {
 
 class APISettingsFragment : Fragment() {
     private var _binding: FragmentRvBinding? = null
-    private val binding get() = _binding!!
+    val binding get() = _binding!!
 
+    @SuppressLint("WrongConstant")
     override fun onCreateView(inflater: LayoutInflater, vg: ViewGroup?, bundle: Bundle?): View {
         _binding = FragmentRvBinding.inflate(inflater, vg, false)
         val sectionsData = mutableListOf<Base>()
@@ -164,31 +184,33 @@ class APISettingsFragment : Fragment() {
                 { functionality.isShowCameraSwitchButton },
                 { functionality.edit().setShowCameraSwitchButton(it).apply() })
         )
+        val showCaptureButtonDelayFromStart = Stepper(
+            "Capture button delay (from start)",
+            "sec",
+            { functionality.showCaptureButtonDelayFromStart.toInt() },
+            { functionality.edit().setShowCaptureButtonDelayFromStart(it.toLong()).apply() },
+            { functionality.isShowCaptureButton })
+        val showCaptureButtonDelayFromDetect = Stepper(
+            "Capture button delay (from detect)",
+            "sec",
+            { functionality.showCaptureButtonDelayFromDetect.toInt() },
+            { functionality.edit().setShowCaptureButtonDelayFromDetect(it.toLong()).apply() },
+            { functionality.isShowCaptureButton })
         sectionsData.add(
             Switch(
                 "Capture button",
                 { functionality.isShowCaptureButton },
                 {
                     functionality.edit().setShowCaptureButton(it).apply()
-                    adapter.notifyItemChanged(4)
-                    adapter.notifyItemChanged(5)
+                    adapter.notifyItemChanged(sectionsData.indexOf(showCaptureButtonDelayFromStart))
+                    adapter.notifyItemChanged(sectionsData.indexOf(showCaptureButtonDelayFromDetect))
                 })
         )
         sectionsData.add(
-            Stepper(
-                "Capture button delay (from start)",
-                "sec",
-                { functionality.showCaptureButtonDelayFromStart.toInt() },
-                { functionality.edit().setShowCaptureButtonDelayFromStart(it.toLong()).apply() },
-                { functionality.isShowCaptureButton })
+            showCaptureButtonDelayFromStart
         )
         sectionsData.add(
-            Stepper(
-                "Capture button delay (from detect)",
-                "sec",
-                { functionality.showCaptureButtonDelayFromDetect.toInt() },
-                { functionality.edit().setShowCaptureButtonDelayFromDetect(it.toLong()).apply() },
-                { functionality.isShowCaptureButton })
+            showCaptureButtonDelayFromDetect
         )
         sectionsData.add(
             Switch(
@@ -209,17 +231,142 @@ class APISettingsFragment : Fragment() {
                 { Instance().processParams().multipageProcessing },
                 { Instance().processParams().multipageProcessing = it })
         )
+        val generateDoublePageSpreadImage = Switch(
+            "Generate double-page spread image",
+            { Instance().processParams().generateDoublePageSpreadImage },
+            { Instance().processParams().generateDoublePageSpreadImage = it },
+            { Instance().processParams().doublePageSpread })
         sectionsData.add(
             Switch(
                 "Double-page spread processing",
                 { Instance().processParams().doublePageSpread },
-                { Instance().processParams().doublePageSpread = it })
+                {
+                    Instance().processParams().doublePageSpread = it
+                    adapter.notifyItemChanged(sectionsData.indexOf(generateDoublePageSpreadImage))
+                })
+        )
+        sectionsData.add(
+            generateDoublePageSpreadImage
         )
         sectionsData.add(
             Switch(
                 "Manual crop",
                 { Instance().processParams().manualCrop },
                 { Instance().processParams().manualCrop = it })
+        )
+        sectionsData.add(
+            Switch(
+                "Force read Mrz before Locate",
+                { Instance().processParams().forceReadMrzBeforeLocate },
+                { Instance().processParams().forceReadMrzBeforeLocate = it })
+        )
+        sectionsData.add(
+            Switch(
+                "Multiple documents from one image",
+                { Instance().processParams().multiDocOnImage },
+                { Instance().processParams().multiDocOnImage = it })
+        )
+        sectionsData.add(
+            Switch(
+                "No graphics",
+                { Instance().processParams().noGraphics },
+                { Instance().processParams().noGraphics = it })
+        )
+        sectionsData.add(
+            Switch(
+                "Match text field mask",
+                { Instance().processParams().matchTextFieldMask },
+                { Instance().processParams().matchTextFieldMask = it })
+        )
+        sectionsData.add(
+            Switch(
+                "Fast document detection",
+                { Instance().processParams().fastDocDetect },
+                { Instance().processParams().fastDocDetect = it })
+        )
+        sectionsData.add(Section("Image QA"))
+        sectionsData.add(
+            Stepper(
+                "DPI threshold",
+                "",
+                { Instance().processParams().imageQA.dpiThreshold },
+                { Instance().processParams().imageQA.dpiThreshold = it },
+                step = 25,
+                addMinusOne = true
+            )
+        )
+        sectionsData.add(
+            Stepper(
+                "Angle threshold",
+                "",
+                { Instance().processParams().imageQA.angleThreshold },
+                { Instance().processParams().imageQA.angleThreshold = it },
+            )
+        )
+        sectionsData.add(
+            Switch(
+                "Focus check",
+                { Instance().processParams().imageQA.focusCheck },
+                { Instance().processParams().imageQA.focusCheck = it })
+        )
+        sectionsData.add(
+            Switch(
+                "Glares check",
+                { Instance().processParams().imageQA.glaresCheck },
+                { Instance().processParams().imageQA.glaresCheck = it })
+        )
+        sectionsData.add(
+            Switch(
+                "Colorness check",
+                { Instance().processParams().imageQA.colornessCheck },
+                { Instance().processParams().imageQA.colornessCheck = it })
+        )
+        sectionsData.add(
+            Switch(
+                "Moire check",
+                { Instance().processParams().imageQA.moireCheck },
+                { Instance().processParams().imageQA.moireCheck = it })
+        )
+        sectionsData.add(Section("Restrictions"))
+        sectionsData.add(
+            BS(
+                "Force document format",
+                "processParams.forceDocFormat",
+                arrayListOf(
+                    BSItem("ID1", 0),
+                    BSItem("ID2", 1),
+                    BSItem("ID3", 2),
+                    BSItem("NON", 3),
+                    BSItem("A4", 4),
+                    BSItem("ID3_x2", 5),
+                    BSItem("ID1_90", 10),
+                    BSItem("ID1_180", 11),
+                    BSItem("ID1_270", 12),
+                    BSItem("ID2_180", 13),
+                    BSItem("ID3_180", 14),
+                    BSItem("Custom", 1000),
+                    BSItem("Flexible", 1002)
+                ),
+                { Instance().processParams().forceDocFormat.toString() },
+                { Instance().processParams().forceDocFormat = it.toInt() }
+            ))
+        sectionsData.add(
+            InputInt(
+                "Force document ID",
+                { Instance().processParams().forceDocID },
+                { Instance().processParams().forceDocID = it })
+        )
+        sectionsData.add(
+            InputInt(
+                "Minimal holder age",
+                { Instance().processParams().minimalHolderAge },
+                { Instance().processParams().minimalHolderAge = it })
+        )
+        sectionsData.add(
+            Switch(
+                "Update OCR validity by glare",
+                { Instance().processParams().updateOCRValidityByGlare },
+                { Instance().processParams().updateOCRValidityByGlare = it })
         )
         sectionsData.add(Section("Authenticity"))
         sectionsData.add(
@@ -358,6 +505,21 @@ class APISettingsFragment : Fragment() {
         )
         sectionsData.add(Section("Filters"))
         sectionsData.add(
+            BSMulti(
+                "Mrz formats filter",
+                "processParams.mrzFormatsFilter",
+                arrayListOf(
+                    BSItem(FORMAT_1X30),
+                    BSItem(FORMAT_3X30),
+                    BSItem(FORMAT_2X36),
+                    BSItem(FORMAT_2X44),
+                    BSItem(FORMAT_1X6),
+                    BSItem(FORMAT_2X30)
+                ),
+                { Instance().processParams().mrzFormatsFilter?.toMutableList() ?: mutableListOf() },
+                { Instance().processParams().mrzFormatsFilter = it.toTypedArray() }
+            ))
+        sectionsData.add(
             InputString(
                 "Document ID List",
                 {
@@ -413,7 +575,67 @@ class APISettingsFragment : Fragment() {
                 { Instance().processParams().perspectiveAngle },
                 { Instance().processParams().perspectiveAngle = it })
         )
-        sectionsData.add(Section("Output images"))
+        sectionsData.add(
+            Switch(
+                "Already cropped",
+                { Instance().processParams().alreadyCropped },
+                { Instance().processParams().alreadyCropped = it })
+        )
+        sectionsData.add(
+            InputDouble(
+                "Minimal document area",
+                { Instance().processParams().documentAreaMin ?: 1.0 },
+                { Instance().processParams().documentAreaMin = it })
+        )
+        sectionsData.add(Section("Results"))
+        sectionsData.add(
+            BSMulti(
+                "Result types",
+                "processParams.resultTypeOutput",
+                arrayListOf(
+                    BSItem("None", -1),
+                    BSItem("Empty", 0),
+                    BSItem("Raw Image", 1),
+                    BSItem("File Image", 2),
+                    BSItem("Mrz OCR Extended", 3),
+                    BSItem("Barcodes", 5),
+                    BSItem("Graphics", 6),
+                    BSItem("Mrz Test Quality", 7),
+                    BSItem("Document Types Candidates", 8),
+                    BSItem("Chosen Document Type Candidate", 9),
+                    BSItem("Documents Info List", 10),
+                    BSItem("OCR Lexical Analyze", 15),
+                    BSItem("Raw Uncropped Image", 16),
+                    BSItem("Visual OCR Extended", 17),
+                    BSItem("Bar Codes Text Data", 18),
+                    BSItem("Bar Codes Image Data", 19),
+                    BSItem("Authenticity", 20),
+                    BSItem("EOS Image", 23),
+                    BSItem("Bayer Image", 24),
+                    BSItem("Magnetic Stripe", 25),
+                    BSItem("Magnetic Stripe Text Data", 26),
+                    BSItem("Field File Image", 27),
+                    BSItem("Database Check", 28),
+                    BSItem("Fingerprint Template ISO", 29),
+                    BSItem("Input Image Quality", 30),
+                    BSItem("Images", 37),
+                    BSItem("Holo Params", 47),
+                    BSItem("Mrz Position", 61),
+                    BSItem("Barcode Position", 62),
+                    BSItem("Document Position", 85),
+                    BSItem("Custom", 100),
+                    BSItem("RFID Raw Data", 101),
+                    BSItem("RFID Text Data", 102),
+                    BSItem("RFID Image Data", 103),
+                    BSItem("RFID Binary Data", 104),
+                    BSItem("RFID Original Graphics", 105)
+                ),
+                {
+                    (Instance().processParams().resultTypeOutput
+                        ?.toMutableList() ?: mutableListOf()).toMutableListString()
+                },
+                { Instance().processParams().resultTypeOutput = it.toTypedArray().toIntArray() }
+            ))
         sectionsData.add(
             Switch(
                 "Return uncropped image",
@@ -428,10 +650,20 @@ class APISettingsFragment : Fragment() {
         )
         sectionsData.add(
             Stepper(
-                "Minimum DPI",
+                "Minimal DPI",
                 "",
                 { Instance().processParams().minDPI },
                 { Instance().processParams().minDPI = it },
+                step = 25,
+                addMinusOne = true
+            )
+        )
+        sectionsData.add(
+            Stepper(
+                "Image DPI maximum output",
+                "",
+                { Instance().processParams().imageDpiOutMax ?: 0 },
+                { Instance().processParams().imageDpiOutMax = it },
                 step = 25,
                 addMinusOne = true
             )
@@ -504,6 +736,19 @@ class APISettingsFragment : Fragment() {
                 { functionality.cameraFrame },
                 { functionality.edit().setCameraFrame(it).apply() }
             ))
+        sectionsData.add(Section("Licensing"))
+        sectionsData.add(
+            Stepper(
+                "Shift expiry date",
+                "month(s)",
+                { Instance().processParams().shiftExpiryDate ?: 0 },
+                { Instance().processParams().shiftExpiryDate = it },
+                step = 1,
+                min = Int.MIN_VALUE,
+                addMinusOne = false
+            )
+        )
+
         sectionsData.add(Scan("", ACTION_TYPE_CUSTOM))
 
         return binding.root

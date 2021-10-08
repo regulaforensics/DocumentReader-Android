@@ -21,7 +21,7 @@ allprojects {
         mavenCentral()
         repositories{
             maven {
-                url "http://maven.regulaforensics.com/RegulaDocumentReader"
+                url "https://maven.regulaforensics.com/RegulaDocumentReader"
             }
         }
     }

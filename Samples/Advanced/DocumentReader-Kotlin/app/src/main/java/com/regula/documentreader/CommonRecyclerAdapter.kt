@@ -38,6 +38,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
         is TextResult -> TEXT_RESULT
         is Image -> IMAGE
         is Status -> STATUS
+        is InputDouble -> INPUT_DOUBLE
         else -> 0
     }
 
@@ -56,6 +57,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
             TEXT_RESULT -> VH.TextResultVH(RvTextResultBinding.inflate(li, parent, false))
             IMAGE -> VH.ImageVH(RvImageBinding.inflate(li, parent, false))
             STATUS -> VH.StatusVH(RvStatusBinding.inflate(li, parent, false))
+            INPUT_DOUBLE -> VH.InputDoubleVH(RvTitleValueBinding.inflate(li, parent, false))
             else -> VH.SectionVH(RvSectionBinding.inflate(li, parent, false))
         }
     }
@@ -129,8 +131,12 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
                 val switch = base as Switch
                 binding.switcher.text = switch.title
                 binding.switcher.setOnCheckedChangeListener(null)
-                binding.switcher.isChecked = switch.get()
+                binding.switcher.isChecked = switch.get() ?: false
                 binding.switcher.setOnCheckedChangeListener { _, isChecked -> switch.set(isChecked) }
+
+                val enabled = switch.enabled()
+                binding.switcher.isEnabled = enabled
+                binding.alphaChanger.alpha = grayedOutAlpha(enabled)
             }
         }
 
@@ -177,13 +183,13 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
                 val bs = base as BS
                 init(bs)
                 for (item in bs.items)
-                    if (item.title == bs.get()) {
+                    if (item.value == bs.get()) {
                         selected = item
                         item.selected = true
                     }
                 binding.root.setOnClickListener(OnClickListenerSerializable {
                     BottomSheet.newInstance(bs.bsTitle, bs.items, true) {
-                        bs.set(it.title)
+                        bs.set(it.value)
                         init(bs)
                         if (selected != null)
                             selected?.selected = false
@@ -198,7 +204,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
                 if (bs.get() == null || bs.get()!!.isEmpty())
                     binding.value.text = context.resources.getString(R.string.string_default)
                 else
-                    binding.value.text = bs.get()
+                    binding.value.text = bs.getFromMap()
             }
         }
 
@@ -207,15 +213,18 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
             override fun bind(base: Base) {
                 val bs = base as BSMulti
                 init(bs)
+                for (item in bs.items)
+                    if (bs.get().contains(item.value))
+                        item.selected = true
                 binding.root.setOnClickListener(OnClickListenerSerializable {
                     BottomSheet.newInstance(bs.bsTitle, bs.items, false, "Close") {
                         if (it.selected) {
                             val list = bs.get()
-                            list.remove(it.title)
+                            list.remove(it.value)
                             bs.set(list)
                         } else {
                             val list = bs.get()
-                            list.add(it.title)
+                            list.add(it.value)
                             bs.set(list)
                         }
                         it.selected = !it.selected
@@ -226,7 +235,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
 
             private fun init(bsMulti: BSMulti) {
                 binding.title.text = bsMulti.title
-                binding.value.text = listToString(bsMulti.get(), context)
+                binding.value.text = listToString(bsMulti.getFromMap(), context)
             }
         }
 
@@ -257,6 +266,36 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
             private fun init(inputInt: InputInt) {
                 binding.title.text = inputInt.title
                 binding.value.text = inputInt.get()?.toString() ?: ""
+            }
+        }
+
+        class InputDoubleVH(private val binding: RvTitleValueBinding) : VH(binding.root) {
+            override fun bind(base: Base) {
+                val input = base as InputDouble
+                init(input)
+                binding.root.setOnClickListener {
+                    val editText = EditText(context)
+                    editText.inputType = InputType.TYPE_NUMBER_FLAG_DECIMAL
+                    input.get()?.let { editText.setText(it.toString()) }
+                    MaterialAlertDialogBuilder(
+                        context,
+                        R.style.AlertDialogTheme
+                    ).setTitle(input.title).setView(editText)
+                        .setPositiveButton("Done") { _, _ ->
+                            if (editText.text.toString().isEmpty())
+                                input.set(null)
+                            else try {
+                                input.set(editText.text.toString().toDouble())
+                            } catch (e: Exception) {
+                            }
+                            init(input)
+                        }.setNegativeButton("Cancel", null).show()
+                }
+            }
+
+            private fun init(inputDouble: InputDouble) {
+                binding.title.text = inputDouble.title
+                binding.value.text = inputDouble.get()?.toString() ?: ""
             }
         }
 
@@ -293,6 +332,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
                 binding.value.text = textResult.value
                 binding.value.setTextColor(textResult.color)
                 binding.lcid.text = textResult.lcid
+                binding.pageIndex.text = context.getString(R.string.pageIndex, textResult.pageIndex)
             }
         }
 
@@ -329,5 +369,6 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
         private const val TEXT_RESULT = 7
         private const val IMAGE = 8
         private const val STATUS = 9
+        private const val INPUT_DOUBLE = 10
     }
 }
