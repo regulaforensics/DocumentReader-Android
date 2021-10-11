@@ -55,7 +55,7 @@ class Switch(
     title: String,
     val get: () -> Boolean?,
     val set: (input: Boolean) -> Unit,
-    val enabled: () -> Boolean = { true },
+    val enabled: () -> Boolean? = { true },
 ) : Base(title)
 
 class Stepper(
@@ -63,7 +63,7 @@ class Stepper(
     val valueUnits: String,
     val get: () -> Int?,
     val set: (input: Int) -> Unit,
-    val enabled: () -> Boolean = { true },
+    val enabled: () -> Boolean? = { true },
     val step: Int = 1,
     val min: Int = -1,
     val addMinusOne: Boolean = false

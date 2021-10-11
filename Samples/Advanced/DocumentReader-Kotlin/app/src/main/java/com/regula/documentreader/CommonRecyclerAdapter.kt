@@ -134,7 +134,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
                 binding.switcher.isChecked = switch.get() ?: false
                 binding.switcher.setOnCheckedChangeListener { _, isChecked -> switch.set(isChecked) }
 
-                val enabled = switch.enabled()
+                val enabled = switch.enabled() ?: false
                 binding.switcher.isEnabled = enabled
                 binding.alphaChanger.alpha = grayedOutAlpha(enabled)
             }
@@ -168,7 +168,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
                     stepper.get(),
                     stepper.valueUnits
                 )
-                val enabled = stepper.enabled()
+                val enabled = stepper.enabled() ?: false
                 binding.plus.isEnabled = enabled
                 binding.minus.isEnabled = enabled
                 binding.alphaChanger.alpha = grayedOutAlpha(enabled)
