@@ -24,11 +24,13 @@ import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.eGraphicFieldType
 import com.regula.documentreader.api.enums.eVisualFieldType
 import com.regula.documentreader.api.errors.DocumentReaderException
+import com.regula.documentreader.api.params.DocReaderConfig
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.results.DocumentReaderScenario
 import java.io.FileNotFoundException
 import java.io.InputStream
 import java.util.*
+
 
 class MainActivity : AppCompatActivity() {
     private var nameTv: TextView? = null
@@ -169,16 +171,16 @@ class MainActivity : AppCompatActivity() {
         }
         scenarioLv!!.onItemClickListener =
             OnItemClickListener { adapterView: AdapterView<*>, _: View?, i: Int, _: Long ->
-                if (!DocumentReader.Instance().documentReaderIsReady) return@OnItemClickListener
+                if (!DocumentReader.Instance().isReady) return@OnItemClickListener
                 val adapter = adapterView.adapter as ScenarioAdapter
 
                 //setting selected scenario to DocumentReader params
-                DocumentReader.Instance().processParams().scenario = adapter.getItem(i)
+                DocumentReader.Instance().processParams().scenario = adapter.getItem(i)!!
                 adapter.setSelectedPosition(i)
                 adapter.notifyDataSetChanged()
             }
         showCameraActivity!!.setOnClickListener { _: View? ->
-            if (!DocumentReader.Instance().documentReaderIsReady) return@setOnClickListener
+            if (!DocumentReader.Instance().isReady) return@setOnClickListener
             val cameraIntent = Intent()
             cameraIntent.setClass(this@MainActivity, CameraActivity::class.java)
             startActivity(cameraIntent)
@@ -186,47 +188,47 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initializeReader(initDialog: AlertDialog) {
-        //Initializing the reader
-        getLicense(this)?.let {
-            DocumentReader.Instance().initializeReader(
-                this@MainActivity,
-                it
-            ) { success, error ->
-                if (initDialog.isShowing) {
-                    initDialog.dismiss()
-                }
-                if (!success) { //Initialization was not successful
-                    Toast.makeText(this@MainActivity, "Init failed:$error", Toast.LENGTH_LONG).show()
-                    return@initializeReader
-                }
-                setupCustomization()
-                setupFunctionality()
+        val config = DocReaderConfig(getLicense(this))
+        config.isLicenseUpdate = true
 
-                //initialization successful
-                if (DocumentReader.Instance().isRFIDAvailableForUse) {
-                    //reading shared preferences
-                    doRfid = sharedPreferences!!.getBoolean(DO_RFID, false)
-                    doRfidCb!!.isChecked = doRfid
-                    doRfidCb!!.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { compoundButton, checked ->
-                        doRfid = checked
-                        sharedPreferences!!.edit().putBoolean(DO_RFID, checked).apply()
-                    })
-                } else {
-                    doRfidCb!!.visibility = View.GONE
-                }
-
-                //getting current processing scenario and loading available scenarios to ListView
-                val scenarios = ArrayList<String>()
-                for (scenario: DocumentReaderScenario in DocumentReader.Instance().availableScenarios) {
-                    scenarios.add(scenario.name)
-                }
-
-                //setting default scenario
-                DocumentReader.Instance().processParams().scenario = scenarios[0]
-                val adapter =
-                    ScenarioAdapter(this@MainActivity, android.R.layout.simple_list_item_1, scenarios)
-                scenarioLv!!.adapter = adapter
+        DocumentReader.Instance().initializeReader(
+            this@MainActivity,
+            config
+        ) { success, error ->
+            if (initDialog.isShowing) {
+                initDialog.dismiss()
             }
+            if (!success) { //Initialization was not successful
+                Toast.makeText(this@MainActivity, "Init failed:$error", Toast.LENGTH_LONG).show()
+                return@initializeReader
+            }
+            setupCustomization()
+            setupFunctionality()
+
+            //initialization successful
+            if (DocumentReader.Instance().isRFIDAvailableForUse) {
+                //reading shared preferences
+                doRfid = sharedPreferences!!.getBoolean(DO_RFID, false)
+                doRfidCb!!.isChecked = doRfid
+                doRfidCb!!.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { compoundButton, checked ->
+                    doRfid = checked
+                    sharedPreferences!!.edit().putBoolean(DO_RFID, checked).apply()
+                })
+            } else {
+                doRfidCb!!.visibility = View.GONE
+            }
+
+            //getting current processing scenario and loading available scenarios to ListView
+            val scenarios = ArrayList<String>()
+            for (scenario: DocumentReaderScenario in DocumentReader.Instance().availableScenarios) {
+                scenarios.add(scenario.name)
+            }
+
+            //setting default scenario
+            DocumentReader.Instance().processParams().scenario = scenarios[0]
+            val adapter =
+                ScenarioAdapter(this@MainActivity, android.R.layout.simple_list_item_1, scenarios)
+            scenarioLv!!.adapter = adapter
         }
     }
 

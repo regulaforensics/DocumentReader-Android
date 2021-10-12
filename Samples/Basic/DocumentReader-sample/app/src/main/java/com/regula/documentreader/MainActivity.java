@@ -37,6 +37,7 @@ import com.regula.documentreader.api.enums.DocReaderAction;
 import com.regula.documentreader.api.enums.eGraphicFieldType;
 import com.regula.documentreader.api.enums.eVisualFieldType;
 import com.regula.documentreader.api.errors.DocumentReaderException;
+import com.regula.documentreader.api.params.DocReaderConfig;
 import com.regula.documentreader.api.results.DocumentReaderResults;
 import com.regula.documentreader.api.results.DocumentReaderScenario;
 import com.regula.documentreader.api.results.DocumentReaderTextField;
@@ -97,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if(!DocumentReader.Instance().getDocumentReaderIsReady()) {
+        if(!DocumentReader.Instance().isReady()) {
             final AlertDialog initDialog = showDialog("Initializing");
 
             //preparing database files, it will be downloaded from network only one time and stored on user device
@@ -222,8 +223,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initializeReader(AlertDialog initDialog) {
+        DocReaderConfig config = new DocReaderConfig(LicenseUtil.getLicense(this));
+        config.setLicenseUpdate(true);
+
         //Initializing the reader
-        DocumentReader.Instance().initializeReader(MainActivity.this, LicenseUtil.getLicense(this), (success, error) -> {
+        DocumentReader.Instance().initializeReader(MainActivity.this, config, (success, error) -> {
             if (initDialog.isShowing()) {
                 initDialog.dismiss();
             }
