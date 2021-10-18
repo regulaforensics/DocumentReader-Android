@@ -141,12 +141,12 @@ class MainActivity : FragmentActivity(), Serializable {
         }
 
     private fun onInitComplete() {
-        var currentScenario: String? = Instance().processParams().scenario
+        var currentScenario = Instance().processParams().scenario
         val scenarios: Array<String?> = arrayOfNulls(Instance().availableScenarios.size)
         for ((i, scenario) in Instance().availableScenarios.withIndex())
             scenarios[i] = scenario.name
-        if (currentScenario == null || currentScenario.isEmpty()) {
-            currentScenario = scenarios[0]
+        if (currentScenario.isEmpty()) {
+            currentScenario = scenarios[0] ?: ""
             Instance().processParams().scenario = currentScenario
         }
         binding.scenarioPicker.visibility = View.VISIBLE
@@ -156,7 +156,7 @@ class MainActivity : FragmentActivity(), Serializable {
         binding.scenarioPicker.value = scenarios.indexOf(currentScenario)
         binding.scenarioPicker.setOnValueChangedListener { _, _, newVal ->
             binding.scenarioPicker.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-            Instance().processParams().scenario = scenarios[newVal]
+            Instance().processParams().scenario = scenarios[newVal] ?: ""
         }
 
         binding.recyclerView.visibility = View.VISIBLE

@@ -289,8 +289,8 @@ class APISettingsFragment : Fragment() {
             Stepper(
                 "DPI threshold",
                 "",
-                { Instance().processParams().imageQA.dpiThreshold },
-                { Instance().processParams().imageQA.dpiThreshold = it },
+                { Instance().processParams().imageQA?.dpiThreshold },
+                { Instance().processParams().imageQA?.dpiThreshold = it },
                 step = 25,
                 addMinusOne = true
             )
@@ -299,33 +299,33 @@ class APISettingsFragment : Fragment() {
             Stepper(
                 "Angle threshold",
                 "",
-                { Instance().processParams().imageQA.angleThreshold },
-                { Instance().processParams().imageQA.angleThreshold = it },
+                { Instance().processParams().imageQA?.angleThreshold },
+                { Instance().processParams().imageQA?.angleThreshold = it },
             )
         )
         sectionsData.add(
             Switch(
                 "Focus check",
-                { Instance().processParams().imageQA.focusCheck },
-                { Instance().processParams().imageQA.focusCheck = it })
+                { Instance().processParams().imageQA?.focusCheck },
+                { Instance().processParams().imageQA?.focusCheck = it })
         )
         sectionsData.add(
             Switch(
                 "Glares check",
-                { Instance().processParams().imageQA.glaresCheck },
-                { Instance().processParams().imageQA.glaresCheck = it })
+                { Instance().processParams().imageQA?.glaresCheck },
+                { Instance().processParams().imageQA?.glaresCheck = it })
         )
         sectionsData.add(
             Switch(
                 "Colorness check",
-                { Instance().processParams().imageQA.colornessCheck },
-                { Instance().processParams().imageQA.colornessCheck = it })
+                { Instance().processParams().imageQA?.colornessCheck },
+                { Instance().processParams().imageQA?.colornessCheck = it })
         )
         sectionsData.add(
             Switch(
                 "Moire check",
-                { Instance().processParams().imageQA.moireCheck },
-                { Instance().processParams().imageQA.moireCheck = it })
+                { Instance().processParams().imageQA?.moireCheck },
+                { Instance().processParams().imageQA?.moireCheck = it })
         )
         sectionsData.add(Section("Restrictions"))
         sectionsData.add(
@@ -523,9 +523,9 @@ class APISettingsFragment : Fragment() {
             InputString(
                 "Document ID List",
                 {
-                    if (Instance().processParams().documentIDList == null || Instance().processParams().documentIDList.isEmpty())
+                    if (Instance().processParams().documentIDList == null || Instance().processParams().documentIDList?.isEmpty() == true)
                         return@InputString ""
-                    listToString(Instance().processParams().documentIDList.toList(), context)
+                    listToString(Instance().processParams().documentIDList?.toList(), context)
                 },
                 {
                     try {
@@ -538,9 +538,9 @@ class APISettingsFragment : Fragment() {
             InputString(
                 "Field type filter",
                 {
-                    if (Instance().processParams().fieldTypesFilter == null || Instance().processParams().fieldTypesFilter.isEmpty())
+                    if (Instance().processParams().fieldTypesFilter == null || Instance().processParams().fieldTypesFilter?.isEmpty() == true)
                         return@InputString ""
-                    listToString(Instance().processParams().fieldTypesFilter.toList(), context)
+                    listToString(Instance().processParams().fieldTypesFilter?.toList(), context)
                 },
                 {
                     try {

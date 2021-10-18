@@ -60,8 +60,8 @@ class Helpers {
             "Capture frame" to 2
         )
 
-        fun <T> listToString(list: List<T>, context: Context?): String {
-            if (list.isEmpty())
+        fun <T> listToString(list: List<T>?, context: Context?): String {
+            if (list?.isEmpty() == true)
                 return context!!.resources.getString(R.string.string_default)
             return list.toString().removeSurrounding("[", "]")
         }
