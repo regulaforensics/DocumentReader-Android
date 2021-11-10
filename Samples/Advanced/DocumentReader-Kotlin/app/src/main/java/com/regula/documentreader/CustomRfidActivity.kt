@@ -2,7 +2,7 @@ package com.regula.documentreader
 
 import android.app.Activity
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.app.PendingIntent.FLAG_MUTABLE
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -90,7 +90,7 @@ class CustomRfidActivity : AppCompatActivity() {
      */
     private fun setupForegroundDispatch(activity: Activity, adapter: NfcAdapter) {
         val intent = Intent(activity.applicationContext, activity.javaClass)
-        val pendingIntent = PendingIntent.getActivity(activity.applicationContext, 0, intent, FLAG_IMMUTABLE)
+        val pendingIntent = PendingIntent.getActivity(activity.applicationContext, 0, intent, FLAG_MUTABLE)
         val filters = arrayOfNulls<IntentFilter>(1)
 
         // Notice that this is the same filter as in our manifest.
