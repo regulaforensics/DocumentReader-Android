@@ -33,6 +33,7 @@ public class CustomRfidActivity extends AppCompatActivity {
     LinearLayout currentDataGroupLt;
 
     PCSCWrapper pcscReader;
+    PCSCTag pcscTag;
 
     Runnable retryRunnable = new Runnable() {
         @Override
@@ -52,6 +53,7 @@ public class CustomRfidActivity extends AppCompatActivity {
         rfidStatus = findViewById(R.id.rfidStatus);
 
         pcscReader = new PCSCWrapper(this, pcscReaderCallback);
+        pcscTag = new PCSCTag(pcscReader);
     }
 
     @Override
@@ -59,6 +61,7 @@ public class CustomRfidActivity extends AppCompatActivity {
         super.onDestroy();
         if (pcscReader != null) {
             pcscReader.removeAllCallbacks();
+            pcscReader.powerOff();
             pcscReader.disconnect();
         }
     }
@@ -74,7 +77,7 @@ public class CustomRfidActivity extends AppCompatActivity {
         Log.d(TAG, "Start read RFID");
         rfidStatus.setText(R.string.strReadingRFID);
         rfidStatus.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
-        DocumentReader.Instance().readRFID(new PCSCTag(pcscReader), new IDocumentReaderCompletion() {
+        DocumentReader.Instance().readRFID(pcscTag, new IDocumentReaderCompletion() {
             @Override
             public void onCompleted(int rfidAction, DocumentReaderResults documentReaderResults, DocumentReaderException error) {
                 if(rfidAction == DocReaderAction.COMPLETE) {
@@ -156,13 +159,14 @@ public class CustomRfidActivity extends AppCompatActivity {
     private PCSCCallback pcscReaderCallback = new PCSCCallback() {
         @Override
         public void onConnected() {
-            pcscReader.startPolling();
             HANDLER.post(new Runnable() {
                 @Override
                 public void run() {
-                    startReadRfid();
+                    onCardStatusChanged(null, true);
                 }
             });
+            pcscReader.bind();
+            pcscReader.powerOn();
         }
 
         @Override
@@ -175,8 +179,13 @@ public class CustomRfidActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onCardStatusChanged(byte[] bytes, boolean b) {
-
+        public void onCardStatusChanged(byte[] bytes, boolean isPresent) {
+            Log.d(TAG, "Card status: present=" + isPresent);
+            if (isPresent) {
+                startReadRfid();
+            } else {
+                pcscTag.cardAbsent();
+            }
         }
 
         @Override

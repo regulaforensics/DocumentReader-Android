@@ -4,7 +4,7 @@ android {
     compileSdkVersion 29
     defaultConfig {
         applicationId "com.regula.dr.fullrfid"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -27,8 +27,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    implementation 'com.regula.documentreader.core:fullrfid:5.9.6162@aar'
-    implementation('com.regula.documentreader:api:5.9.6414@aar') {
+    implementation 'com.regula.documentreader.core:fullrfid:5.9.6166@aar'
+    implementation('com.regula.documentreader:api:5.8.6419@aar') {
         transitive = true;
     }
     implementation 'com.regula.documentreader:regdevice:5.4.102@aar'
