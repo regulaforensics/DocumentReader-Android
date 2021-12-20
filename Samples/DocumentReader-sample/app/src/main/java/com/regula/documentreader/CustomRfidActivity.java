@@ -61,7 +61,6 @@ public class CustomRfidActivity extends AppCompatActivity {
         super.onDestroy();
         if (pcscReader != null) {
             pcscReader.removeAllCallbacks();
-            pcscReader.powerOff();
             pcscReader.disconnect();
         }
     }
@@ -165,8 +164,6 @@ public class CustomRfidActivity extends AppCompatActivity {
                     onCardStatusChanged(null, true);
                 }
             });
-            pcscReader.bind();
-            pcscReader.powerOn();
         }
 
         @Override
