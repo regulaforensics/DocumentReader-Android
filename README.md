@@ -41,7 +41,7 @@ If you have issues with license verification when running the application, pleas
 6. You placed the license into the project.
 
 ## Documentation
-The documentation on the SDK can be found [here](https://docs.regulaforensics.com/android).
+The documentation on the SDK can be found [here](https://docs.regulaforensics.com/develop/doc-reader-sdk/mobile?utm_source=github).
 
 ## Additional information
 If you have any technical questions or suggestions, feel free to [contact](mailto:android.support@regulaforensics.com) us or create an issue [here](https://github.com/regulaforensics/DocumentReader-Android/issues).
