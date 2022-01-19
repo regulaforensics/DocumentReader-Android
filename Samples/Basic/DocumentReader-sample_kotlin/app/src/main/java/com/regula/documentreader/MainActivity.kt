@@ -27,6 +27,8 @@ import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.results.DocumentReaderScenario
+import com.regula.documentreader.custom.CameraActivity
+import com.regula.documentreader.custom.CustomRegActivity
 import java.io.FileNotFoundException
 import java.io.InputStream
 import java.util.*
@@ -36,7 +38,6 @@ class MainActivity : AppCompatActivity() {
     private var nameTv: TextView? = null
     private var showScanner: TextView? = null
     private var recognizeImage: TextView? = null
-    private var showCameraActivity: TextView? = null
     private var portraitIv: ImageView? = null
     private var docImageIv: ImageView? = null
     private var doRfidCb: CheckBox? = null
@@ -50,7 +51,6 @@ class MainActivity : AppCompatActivity() {
         nameTv = findViewById(R.id.nameTv)
         showScanner = findViewById(R.id.showScannerLink)
         recognizeImage = findViewById(R.id.recognizeImageLink)
-        showCameraActivity = findViewById(R.id.showCameraActivity)
         portraitIv = findViewById(R.id.portraitIv)
         docImageIv = findViewById(R.id.documentImageIv)
         scenarioLv = findViewById(R.id.scenariosList)
@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!DocumentReader.Instance().documentReaderIsReady) {
+        if (!DocumentReader.Instance().isReady) {
             val initDialog = showDialog("Initializing")
 
             //preparing database files, it will be downloaded from network only one time and stored on user device
@@ -144,7 +144,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initView() {
         recognizeImage!!.setOnClickListener { view: View? ->
-            if (!DocumentReader.Instance().documentReaderIsReady) return@setOnClickListener
+            if (!DocumentReader.Instance().isReady) return@setOnClickListener
             clearResults()
             //checking for image browsing permissions
             if ((ContextCompat.checkSelfPermission(
@@ -163,7 +163,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         showScanner!!.setOnClickListener { _: View? ->
-            if (!DocumentReader.Instance().documentReaderIsReady) return@setOnClickListener
+            if (!DocumentReader.Instance().isReady) return@setOnClickListener
             clearResults()
 
             //starting video processing
@@ -179,12 +179,6 @@ class MainActivity : AppCompatActivity() {
                 adapter.setSelectedPosition(i)
                 adapter.notifyDataSetChanged()
             }
-        showCameraActivity!!.setOnClickListener { _: View? ->
-            if (!DocumentReader.Instance().isReady) return@setOnClickListener
-            val cameraIntent = Intent()
-            cameraIntent.setClass(this@MainActivity, CameraActivity::class.java)
-            startActivity(cameraIntent)
-        }
     }
 
     private fun initializeReader(initDialog: AlertDialog) {
@@ -396,5 +390,19 @@ class MainActivity : AppCompatActivity() {
         private const val PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 22
         private const val MY_SHARED_PREFS = "MySharedPrefs"
         private const val DO_RFID = "doRfid"
+    }
+
+    fun clickOnShowCameraActivity(view: View?) {
+        if (!DocumentReader.Instance().isReady) return
+        val cameraIntent = Intent()
+        cameraIntent.setClass(this@MainActivity, CameraActivity::class.java)
+        startActivity(cameraIntent)
+    }
+
+    fun clickOnShowCustomCameraActivity(view: View?) {
+        if (!DocumentReader.Instance().isReady) return
+        val cameraIntent = Intent()
+        cameraIntent.setClass(this@MainActivity, CustomRegActivity::class.java)
+        startActivity(cameraIntent)
     }
 }
