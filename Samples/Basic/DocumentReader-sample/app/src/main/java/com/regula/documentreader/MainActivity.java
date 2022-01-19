@@ -2,26 +2,20 @@ package com.regula.documentreader;
 
 import android.Manifest;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -31,7 +25,6 @@ import android.widget.Toast;
 
 import com.regula.documentreader.api.DocumentReader;
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion;
-import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion;
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion;
 import com.regula.documentreader.api.enums.DocReaderAction;
 import com.regula.documentreader.api.enums.eGraphicFieldType;
@@ -41,11 +34,12 @@ import com.regula.documentreader.api.params.DocReaderConfig;
 import com.regula.documentreader.api.results.DocumentReaderResults;
 import com.regula.documentreader.api.results.DocumentReaderScenario;
 import com.regula.documentreader.api.results.DocumentReaderTextField;
+import com.regula.documentreader.custom.CameraActivity;
+import com.regula.documentreader.custom.CustomRegActivity;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 import static android.graphics.BitmapFactory.decodeStream;
 
@@ -59,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView nameTv;
     private TextView showScanner;
     private TextView recognizeImage;
-    private TextView showCameraActivity;
 
     private ImageView portraitIv;
     private ImageView docImageIv;
@@ -80,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
         nameTv = findViewById(R.id.nameTv);
         showScanner = findViewById(R.id.showScannerLink);
         recognizeImage = findViewById(R.id.recognizeImageLink);
-        showCameraActivity = findViewById(R.id.showCameraActivity);
 
         portraitIv = findViewById(R.id.portraitIv);
         docImageIv = findViewById(R.id.documentImageIv);
@@ -171,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView() {
         recognizeImage.setOnClickListener(view -> {
-            if (!DocumentReader.Instance().getDocumentReaderIsReady())
+            if (!DocumentReader.Instance().isReady())
                 return;
 
             clearResults();
@@ -190,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         showScanner.setOnClickListener(view -> {
-            if (!DocumentReader.Instance().getDocumentReaderIsReady())
+            if (!DocumentReader.Instance().isReady())
                 return;
 
             clearResults();
@@ -200,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         scenarioLv.setOnItemClickListener((adapterView, view, i, l) -> {
-            if (!DocumentReader.Instance().getDocumentReaderIsReady())
+            if (!DocumentReader.Instance().isReady())
                 return;
 
             ScenarioAdapter adapter = (ScenarioAdapter) adapterView.getAdapter();
@@ -210,15 +202,6 @@ public class MainActivity extends AppCompatActivity {
             adapter.setSelectedPosition(i);
             adapter.notifyDataSetChanged();
 
-        });
-
-        showCameraActivity.setOnClickListener(view -> {
-            if (!DocumentReader.Instance().getDocumentReaderIsReady())
-                return;
-
-            Intent cameraIntent = new Intent();
-            cameraIntent.setClass(MainActivity.this, CameraActivity.class);
-            startActivity(cameraIntent);
         });
     }
 
@@ -419,5 +402,21 @@ public class MainActivity extends AppCompatActivity {
         return inSampleSize;
     }
 
+    public void clickOnShowCameraActivity(View view) {
+        if (!DocumentReader.Instance().isReady())
+            return;
 
+        Intent cameraIntent = new Intent();
+        cameraIntent.setClass(MainActivity.this, CameraActivity.class);
+        startActivity(cameraIntent);
+    }
+
+    public void clickOnShowCustomCameraActivity(View view) {
+        if (!DocumentReader.Instance().isReady())
+            return;
+
+        Intent cameraIntent = new Intent();
+        cameraIntent.setClass(MainActivity.this, CustomRegActivity.class);
+        startActivity(cameraIntent);
+    }
 }

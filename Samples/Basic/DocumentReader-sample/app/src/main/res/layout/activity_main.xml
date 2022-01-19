@@ -112,7 +112,19 @@
             android:textColor="@android:color/holo_blue_dark"
             android:id="@+id/showCameraActivity"
             android:layout_margin="4dp"
-            android:clickable="true"/>
+            android:clickable="true"
+            android:onClick="clickOnShowCameraActivity"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:text="Show Custom Camera Activity"
+            android:textColor="@android:color/holo_blue_dark"
+            android:id="@+id/showCustomCameraActivity"
+            android:layout_margin="4dp"
+            android:clickable="true"
+            android:onClick="clickOnShowCustomCameraActivity"/>
 
         <CheckBox
             android:layout_width="wrap_content"
