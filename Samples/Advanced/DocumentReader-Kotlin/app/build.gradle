@@ -4,13 +4,6 @@ plugins {
 }
 
 android {
-    allprojects {
-        repositories {
-            maven {
-                url "https://maven.regulaforensics.com/RegulaDocumentReader"
-            }
-        }
-    }
 
     compileSdkVersion 31
     buildToolsVersion "30.0.3"
