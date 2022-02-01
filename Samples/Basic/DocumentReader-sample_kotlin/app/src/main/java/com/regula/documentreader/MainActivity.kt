@@ -1,6 +1,7 @@
 package com.regula.documentreader
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -12,6 +13,7 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -31,7 +33,6 @@ import com.regula.documentreader.custom.CameraActivity
 import com.regula.documentreader.custom.CustomRegActivity
 import java.io.FileNotFoundException
 import java.io.InputStream
-import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -101,20 +102,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK) {
-            //Image browsing intent processed successfully
-            if (requestCode == REQUEST_BROWSE_PICTURE) {
-                if (data!!.data != null) {
-                    val selectedImage = data.data
+    var resultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // There are no request codes
+                if (result!!.data != null) {
+                    val selectedImage = result.data!!.data;
                     val bmp = getBitmap(selectedImage, 1920, 1080)
                     loadingDialog = showDialog("Processing image")
                     DocumentReader.Instance().recognizeImage(bmp!!, completion)
                 }
             }
         }
-    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -162,7 +161,7 @@ class MainActivity : AppCompatActivity() {
                 createImageBrowsingRequest()
             }
         }
-        showScanner!!.setOnClickListener { _: View? ->
+        showScanner!!.setOnClickListener {
             if (!DocumentReader.Instance().isReady) return@setOnClickListener
             clearResults()
 
@@ -204,10 +203,10 @@ class MainActivity : AppCompatActivity() {
                 //reading shared preferences
                 doRfid = sharedPreferences!!.getBoolean(DO_RFID, false)
                 doRfidCb!!.isChecked = doRfid
-                doRfidCb!!.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { compoundButton, checked ->
+                doRfidCb!!.setOnCheckedChangeListener { compoundButton, checked ->
                     doRfid = checked
                     sharedPreferences!!.edit().putBoolean(DO_RFID, checked).apply()
-                })
+                }
             } else {
                 doRfidCb!!.visibility = View.GONE
             }
@@ -286,12 +285,7 @@ class MainActivity : AppCompatActivity() {
             if (results.textResult != null) {
                 for (textField in results.textResult!!.fields) {
                     val value = results.getTextFieldValueByType(textField.fieldType, textField.lcid)
-                    Log.d(
-                        "MainActivity", """
-     $value
-     
-     """.trimIndent()
-                    )
+                    Log.d("MainActivity", """  $value""".trimIndent())
                 }
             }
             val portrait = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
@@ -321,16 +315,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     // creates and starts image browsing intent
-    // results will be handled in onActivityResult method
+    // results will be handled by resultLauncher object
     private fun createImageBrowsingRequest() {
         val intent = Intent()
         intent.type = "image/*"
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(
-            Intent.createChooser(intent, "Select Picture"),
-            REQUEST_BROWSE_PICTURE
-        )
+        resultLauncher.launch(intent)
     }
 
     // loads bitmap from uri

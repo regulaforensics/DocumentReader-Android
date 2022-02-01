@@ -28,7 +28,6 @@ import com.regula.documentreader.api.enums.eCheckResult.CH_CHECK_WAS_NOT_DONE
 import com.regula.documentreader.api.enums.eRFID_DataFile_Type
 import com.regula.documentreader.api.enums.eRFID_NotificationAndErrorCodes.*
 import com.regula.documentreader.api.enums.eRPRM_FieldVerificationResult.*
-import com.regula.documentreader.api.enums.eRPRM_ResultType.*
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.results.DocumentReaderValue
 import com.regula.documentreader.databinding.ActivityResultsBinding
@@ -54,9 +53,9 @@ class ResultsActivity : AppCompatActivity() {
             startActivity(Intent(this, DirectResultsActivity::class.java))
         }
 
-        if (results.overallResult == CH_CHECK_OK)
+        if (results.status.overallStatus == CH_CHECK_OK)
             binding.overAllResultImage.setImageResource(R.drawable.reg_ok)
-        if (results.overallResult == CH_CHECK_WAS_NOT_DONE)
+        if (results.status.overallStatus == CH_CHECK_WAS_NOT_DONE)
             binding.overAllResultImage.setImageResource(android.R.drawable.ic_menu_help)
 
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -276,23 +275,21 @@ class ResultsActivity : AppCompatActivity() {
         }
         if (dataGroup.items.isNotEmpty())
             pickerData.add(dataGroup)
-        if (results.rfidSessionData!!.sessionDataStatus == null)
-            return pickerData
 
         val statusGroup = GroupedAttributes("Data Status", items = mutableListOf())
         var attribute =
-            Attribute("AA", checkResult = results.rfidSessionData?.sessionDataStatus!!.AA)
+            Attribute("AA", checkResult = results.status.detailsRFID.aa)
         statusGroup.items.add(attribute)
-        attribute = Attribute("BAC", checkResult = results.rfidSessionData?.sessionDataStatus!!.BAC)
+        attribute = Attribute("BAC", checkResult = results.status.detailsRFID.bac)
         statusGroup.items.add(attribute)
-        attribute = Attribute("CA", checkResult = results.rfidSessionData?.sessionDataStatus!!.CA)
+        attribute = Attribute("CA", checkResult = results.status.detailsRFID.ca)
         statusGroup.items.add(attribute)
-        attribute = Attribute("PA", checkResult = results.rfidSessionData?.sessionDataStatus!!.PA)
+        attribute = Attribute("PA", checkResult = results.status.detailsRFID.pa)
         statusGroup.items.add(attribute)
         attribute =
-            Attribute("PACE", checkResult = results.rfidSessionData?.sessionDataStatus!!.PACE)
+            Attribute("PACE", checkResult = results.status.detailsRFID.pace)
         statusGroup.items.add(attribute)
-        attribute = Attribute("TA", checkResult = results.rfidSessionData?.sessionDataStatus!!.TA)
+        attribute = Attribute("TA", checkResult = results.status.detailsRFID.ta)
         statusGroup.items.add(attribute)
 
         if (statusGroup.items.size > 0)

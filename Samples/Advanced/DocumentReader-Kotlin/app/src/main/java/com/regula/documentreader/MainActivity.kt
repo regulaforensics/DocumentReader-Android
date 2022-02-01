@@ -46,7 +46,6 @@ import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.databinding.ActivityMainBinding
 import org.json.JSONObject
 import java.io.Serializable
-import java.util.*
 
 class MainActivity : FragmentActivity(), Serializable {
     @Transient

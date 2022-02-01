@@ -19,7 +19,6 @@ import com.regula.common.enums.CommonKeys
 import com.regula.documentreader.R
 import com.regula.documentreader.api.CaptureActivity3
 import com.regula.documentreader.api.DocumentReader
-import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.eVisualFieldType
 import com.regula.documentreader.api.errors.DocumentReaderException
@@ -32,7 +31,6 @@ import com.regula.documentreader.api.results.DocumentReaderResults
  */
 class CustomRegActivity : CaptureActivity3(), CameraCallbacks {
     private var orientationEventListener: OrientationEventListener? = null
-    private val cameraFragment: RegCameraFragment? = null
     private var mCurrentDegrees = 0
     private var recognitionFinished = true
     private var isPauseRecognize = false
@@ -180,19 +178,14 @@ class CustomRegActivity : CaptureActivity3(), CameraCallbacks {
 
     private fun orientationChanged(orientation: Int) {
         synchronized(lock) {
-            val degrees: Int
-            degrees =
-                if (orientation > 315 && orientation <= 360 || orientation >= 0 && orientation <= 45) {
-                    0
-                } else if (orientation > 45 && orientation <= 135) {
-                    -90
-                } else if (orientation > 135 && orientation <= 225) {
-                    0
-                } else if (orientation > 255 && orientation <= 315) {
-                    90
-                } else {
-                    mCurrentDegrees
-                }
+            val degrees: Int = when (orientation) {
+                in 316..360 -> 0
+                in 0..45 -> 0
+                in 46..135 -> -90
+                in 136..225 -> 0
+                in 256..315 -> 90
+                else -> mCurrentDegrees
+            }
             if (degrees != mCurrentDegrees) {
                 mCurrentDegrees = degrees
             }

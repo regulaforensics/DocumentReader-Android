@@ -477,15 +477,13 @@ class CameraActivity : AppCompatActivity(), PreviewCallback {
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
                 or View.SYSTEM_UI_FLAG_FULLSCREEN)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            decorView.systemUiVisibility = (decorView.systemUiVisibility
-                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
-        }
+        decorView.systemUiVisibility = (decorView.systemUiVisibility
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
     }
 
     companion object {
-        private val DEBUG: String = "DEBUG"
+        private const val DEBUG: String = "DEBUG"
         private val lock: Any = Any()
-        private val PERMISSIONS_CAMERA: Int = 1100
+        private const val PERMISSIONS_CAMERA: Int = 1100
     }
 }
