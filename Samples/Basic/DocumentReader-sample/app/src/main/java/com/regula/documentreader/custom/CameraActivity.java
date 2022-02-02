@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Surface;
@@ -45,10 +44,7 @@ public class CameraActivity extends AppCompatActivity implements Camera.PreviewC
     private Camera.Parameters mParams;
     private CameraPreview mPreview;
     private RelativeLayout previewParent;
-    private boolean isPreviewReady;
-    private Camera.Size previewSize;
     private int cameraOrientation;
-    private int previewFormat;
     private boolean recognitionFinished = true;
     private boolean isPauseRecognize = false;
 
@@ -112,28 +108,30 @@ public class CameraActivity extends AppCompatActivity implements Camera.PreviewC
                     synchronized (lock) {
                         isPauseRecognize = true;
                     }
-                    if (documentReaderResults.morePagesAvailable == 1) { //more pages are available for this document
-                        Toast.makeText(CameraActivity.this, "Page ready, flip", Toast.LENGTH_LONG).show();
+                    if (documentReaderResults != null) {
+                        if (documentReaderResults.morePagesAvailable == 1) { //more pages are available for this document
+                            Toast.makeText(CameraActivity.this, "Page ready, flip", Toast.LENGTH_LONG).show();
 
-                        //letting API know, that all frames will be from different page of the same document, merge same field types
-                        DocumentReader.Instance().startNewPage();
-//                            mPreview.startCameraPreview();
-                    } else { //no more pages available
-                        AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
-                        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                DocumentReader.Instance().startNewSession();
-                                dialogInterface.dismiss();
-                                synchronized (lock) {
-                                    isPauseRecognize = false;
+                            //letting API know, that all frames will be from different page of the same document, merge same field types
+                            DocumentReader.Instance().startNewPage();
+    //                            mPreview.startCameraPreview();
+                        } else { //no more pages available
+                            AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
+                            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    DocumentReader.Instance().startNewSession();
+                                    dialogInterface.dismiss();
+                                    synchronized (lock) {
+                                        isPauseRecognize = false;
+                                    }
                                 }
-                            }
-                        });
-                        builder.setTitle("Processing finished");
-                        //getting text field value from results
-                        builder.setMessage(documentReaderResults.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES));
-                        builder.show();
+                            });
+                            builder.setTitle("Processing finished");
+                            //getting text field value from results
+                            builder.setMessage(documentReaderResults.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES));
+                            builder.show();
+                        }
                     }
                     break;
                 case DocReaderAction.ERROR: //something went wrong
@@ -233,15 +231,12 @@ public class CameraActivity extends AppCompatActivity implements Camera.PreviewC
         // List of supported picture sizes
         private List<Camera.Size> mSupportedPictureSizes;
 
-        // View holding this camera.
-        private View mCameraView;
-
 
         public CameraPreview(Activity context, Camera camera, Camera.PreviewCallback previewCallback, View cameraView) {
             super(context);
 
             // Capture the context
-            mCameraView = cameraView;
+            // View holding this camera.
             mContext = context;
             setCamera(camera);
             this.callback = previewCallback;
@@ -314,10 +309,6 @@ public class CameraActivity extends AppCompatActivity implements Camera.PreviewC
 
             if (mCamera != null){
                 mCamera.stopPreview();
-
-                synchronized (lock){
-                    isPreviewReady=false;
-                }
             }
         }
 
@@ -375,9 +366,7 @@ public class CameraActivity extends AppCompatActivity implements Camera.PreviewC
                     previewParent.setLayoutParams(params);
 
                     synchronized (lock){
-                        previewSize = mPreviewSize;
                         cameraOrientation = getCorrectCameraOrientation(info);
-                        previewFormat = ImageFormat.NV21;
                     }
                 }
 
@@ -386,10 +375,6 @@ public class CameraActivity extends AppCompatActivity implements Camera.PreviewC
                 mCamera.setDisplayOrientation(cameraOrientation);
                 mCamera.setPreviewDisplay(holder);
                 mCamera.setPreviewCallback(callback);
-
-                synchronized (lock){
-                    isPreviewReady = true;
-                }
 
                 mCamera.startPreview();
             } catch (Exception e){
@@ -530,9 +515,7 @@ public class CameraActivity extends AppCompatActivity implements Camera.PreviewC
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
                 | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
         );
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            decorView.setSystemUiVisibility(decorView.getSystemUiVisibility()
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        }
+        decorView.setSystemUiVisibility(decorView.getSystemUiVisibility()
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
 }

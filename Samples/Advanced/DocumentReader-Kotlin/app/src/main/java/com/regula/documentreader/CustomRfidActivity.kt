@@ -10,6 +10,7 @@ import android.content.IntentFilter
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.nfc.tech.IsoDep
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -90,7 +91,11 @@ class CustomRfidActivity : AppCompatActivity() {
      */
     private fun setupForegroundDispatch(activity: Activity, adapter: NfcAdapter) {
         val intent = Intent(activity.applicationContext, activity.javaClass)
-        val pendingIntent = PendingIntent.getActivity(activity.applicationContext, 0, intent, FLAG_MUTABLE)
+        var flag = 0
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            flag = FLAG_MUTABLE
+        }
+        val pendingIntent = PendingIntent.getActivity(activity.applicationContext, 0, intent, flag)
         val filters = arrayOfNulls<IntentFilter>(1)
 
         // Notice that this is the same filter as in our manifest.
