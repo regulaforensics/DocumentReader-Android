@@ -20,7 +20,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.eRFID_DataFile_Type
-import com.regula.documentreader.api.enums.eRFID_NotificationAndErrorCodes
+import com.regula.documentreader.api.enums.eRFID_ErrorCodes
+import com.regula.documentreader.api.enums.eRFID_NotificationCodes
 import com.regula.documentreader.databinding.ActivityCustomRfidBinding
 
 
@@ -145,7 +146,7 @@ class CustomRfidActivity : AppCompatActivity() {
                         handler.postDelayed({ finish() }, 2500)
                     } else {
                         val builder =
-                            getString(R.string.RFID_Error_Failed) + "\n" + eRFID_NotificationAndErrorCodes.getTranslation(
+                            getString(R.string.RFID_Error_Failed) + "\n" + eRFID_ErrorCodes.getTranslation(
                                 this,
                                 results.rfidResult
                             )
@@ -172,7 +173,7 @@ class CustomRfidActivity : AppCompatActivity() {
                 }
                 DocReaderAction.ERROR -> {
                     val builder =
-                        getString(R.string.RFID_Error_Failed) + "\n" + eRFID_NotificationAndErrorCodes.getTranslation(
+                        getString(R.string.RFID_Error_Failed) + "\n" + eRFID_ErrorCodes.getTranslation(
                             this,
                             results!!.rfidResult
                         )
@@ -189,7 +190,7 @@ class CustomRfidActivity : AppCompatActivity() {
 
     private fun rfidProgress(code: Int, value: Int) {
         when (code and -0x10000) {
-            eRFID_NotificationAndErrorCodes.RFID_NOTIFICATION_PCSC_READING_DATAGROUP -> if (value == 0) {
+            eRFID_NotificationCodes.RFID_NOTIFICATION_PCSC_READING_DATAGROUP -> if (value == 0) {
                 handler.post {
                     binding.currentRfidDgTv.text = String.format(
                         getString(R.string.strReadingRFIDDG), eRFID_DataFile_Type.getTranslation(

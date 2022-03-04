@@ -102,15 +102,36 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    var resultLauncher =
+    private var resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                // There are no request codes
-                if (result!!.data != null) {
-                    val selectedImage = result.data!!.data;
-                    val bmp = getBitmap(selectedImage, 1920, 1080)
-                    loadingDialog = showDialog("Processing image")
-                    DocumentReader.Instance().recognizeImage(bmp!!, completion)
+                result.data?.let { intent ->
+                    val imageUris = ArrayList<Uri>()
+                    if (intent.clipData == null) {
+                        intent.data?.let { uri ->
+                            imageUris.add(uri)
+                        }
+                    } else {
+                        intent.clipData?.let { clipData ->
+                            for (i in 0 until clipData.itemCount) {
+                                imageUris.add(clipData.getItemAt(i).uri)
+                            }
+                        }
+                    }
+                    if (imageUris.size > 0) {
+                        loadingDialog = showDialog("Processing image")
+                        if (imageUris.size == 1) {
+                            getBitmap(imageUris[0], 1920, 1080)?.let { bitmap ->
+                                DocumentReader.Instance().recognizeImage(bitmap, completion)
+                            }
+                        } else {
+                            val bitmaps = arrayOfNulls<Bitmap>(imageUris.size)
+                            for (i in bitmaps.indices) {
+                                bitmaps[i] = getBitmap(imageUris[i], 1920, 1080)
+                            }
+                            DocumentReader.Instance().recognizeImages(bitmaps, completion)
+                        }
+                    }
                 }
             }
         }

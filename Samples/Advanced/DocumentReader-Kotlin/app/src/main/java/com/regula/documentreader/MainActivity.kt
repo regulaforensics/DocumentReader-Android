@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.*
+import android.net.Uri
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.style.AbsoluteSizeSpan
@@ -32,6 +33,7 @@ import com.regula.documentreader.SettingsActivity.Companion.functionality
 import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnabled
 import com.regula.documentreader.SettingsActivity.Companion.isRfidEnabled
 import com.regula.documentreader.SettingsActivity.Companion.useCustomRfidActivity
+import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
@@ -60,10 +62,35 @@ class MainActivity : FragmentActivity(), Serializable {
     @Transient
     val imageBrowsingIntentLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == Activity.RESULT_OK) it.data?.data.let { uri ->
-                val bmp = getBitmap(uri, 1920, 1080, this)
-                loadingDialog = showDialog("Processing image")
-                bmp?.let { Instance().recognizeImage(bmp, completion) }
+            if (it.resultCode == Activity.RESULT_OK) {
+                it.data?.let { intent ->
+                    val imageUris = ArrayList<Uri>()
+                    if (intent.clipData == null) {
+                        intent.data?.let { uri ->
+                            imageUris.add(uri)
+                        }
+                    } else {
+                        intent.clipData?.let { clipData ->
+                            for (i in 0 until clipData.itemCount) {
+                                imageUris.add(clipData.getItemAt(i).uri)
+                            }
+                        }
+                    }
+                    if (imageUris.size > 0) {
+                        loadingDialog = showDialog("Processing image")
+                        if (imageUris.size == 1) {
+                            getBitmap(imageUris[0], 1920, 1080, this)?.let { bitmap ->
+                                Instance().recognizeImage(bitmap, completion)
+                            }
+                        } else {
+                            val bitmaps = arrayOfNulls<Bitmap>(imageUris.size)
+                            for (i in bitmaps.indices) {
+                                bitmaps[i] = getBitmap(imageUris[i], 1920, 1080, this)
+                            }
+                            Instance().recognizeImages(bitmaps, completion)
+                        }
+                    }
+                }
             }
         }
 
@@ -188,7 +215,7 @@ class MainActivity : FragmentActivity(), Serializable {
                 var accessKey: String?
                 accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_MRZ_STRINGS)
                 if (accessKey != null && accessKey.isNotEmpty()) {
-                    accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_MRZ_STRINGS)
+                    accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_MRZ_STRINGS)!!
                         .replace("^", "").replace("\n", "")
                     Instance().rfidScenario().setMrz(accessKey)
                     Instance().rfidScenario().setPacePasswordType(eRFID_Password_Type.PPT_MRZ)
@@ -244,8 +271,9 @@ class MainActivity : FragmentActivity(), Serializable {
                 hideDialog()
                 when (result) {
                     is Result.Success -> {
-                        val map = DocReaderResultsJsonParser.parseCoreResults(result.component1())
-                        val results = map["docReaderResults"] as DocumentReaderResults
+                        val map = result.component1()
+                            ?.let { DocReaderResultsJsonParser.parseCoreResults(it) }
+                        val results = map?.get("docReaderResults") as DocumentReaderResults
                         ResultsActivity.results = results
                         startActivity(Intent(this, ResultsActivity::class.java))
                     }

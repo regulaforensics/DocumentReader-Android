@@ -26,7 +26,7 @@ import com.regula.documentreader.api.enums.LCID
 import com.regula.documentreader.api.enums.eCheckResult.CH_CHECK_OK
 import com.regula.documentreader.api.enums.eCheckResult.CH_CHECK_WAS_NOT_DONE
 import com.regula.documentreader.api.enums.eRFID_DataFile_Type
-import com.regula.documentreader.api.enums.eRFID_NotificationAndErrorCodes.*
+import com.regula.documentreader.api.enums.eRFID_ErrorCodes.*
 import com.regula.documentreader.api.enums.eRPRM_FieldVerificationResult.*
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.results.DocumentReaderValue

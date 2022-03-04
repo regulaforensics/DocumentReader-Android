@@ -1,12 +1,14 @@
 package com.regula.documentreader;
 
 import android.Manifest;
+import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -132,13 +134,31 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             //Image browsing intent processed successfully
             if (requestCode == REQUEST_BROWSE_PICTURE){
-                if (data.getData() != null) {
-                    Uri selectedImage = data.getData();
-                    Bitmap bmp = getBitmap(selectedImage, 1920, 1080);
+                ArrayList<Uri> imageUris = new ArrayList<>();
+                ClipData clipData = data.getClipData();
 
+                if (clipData == null) {
+                    Uri imageUri = data.getData();
+                    if (imageUri != null) {
+                        imageUris.add(imageUri);
+                    }
+                } else {
+                    for (int i = 0; i < clipData.getItemCount(); i++) {
+                        imageUris.add(clipData.getItemAt(i).getUri());
+                    }
+                }
+
+                if (imageUris.size() > 0) {
                     loadingDialog = showDialog("Processing image");
-
-                    DocumentReader.Instance().recognizeImage(bmp, completion);
+                    if (imageUris.size() == 1) {
+                        DocumentReader.Instance().recognizeImage(getBitmap(imageUris.get(0), 1920, 1080), completion);
+                    } else {
+                        Bitmap[] bitmaps = new Bitmap[imageUris.size()];
+                        for (int i = 0; i < bitmaps.length; i++) {
+                            bitmaps[i] = getBitmap(imageUris.get(i), 1920, 1080);
+                        }
+                        DocumentReader.Instance().recognizeImages(bitmaps, completion);
+                    }
                 }
             }
         }

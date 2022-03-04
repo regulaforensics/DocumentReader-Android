@@ -170,9 +170,9 @@ class DirectResultsActivity : AppCompatActivity() {
         try {
             when {
                 parameters contentEquals arrayOf(fieldType) -> output =
-                    results.getTextFieldByType(args[0]).value()!!.value!!
+                    results.getTextFieldByType(args[0])!!.value()!!.value!!
                 parameters contentEquals fieldType_lcid -> output =
-                    results.getTextFieldByType(args[0], args[1]).value()!!.value!!
+                    results.getTextFieldByType(args[0], args[1])!!.value()!!.value!!
                 parameters contentEquals fieldType_lcid_sourceType -> output =
                     results.getTextFieldValueByType(args[0], args[1], args[2])
                 parameters contentEquals fieldType_lcid_sourceType_original -> output =
