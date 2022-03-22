@@ -44,5 +44,6 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
+        <activity android:name=".OnlineProcessingActivity" />
     </application>
 </manifest>

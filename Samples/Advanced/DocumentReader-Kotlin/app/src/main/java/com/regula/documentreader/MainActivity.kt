@@ -29,6 +29,7 @@ import com.regula.documentreader.Helpers.Companion.colorString
 import com.regula.documentreader.Helpers.Companion.drawable
 import com.regula.documentreader.Helpers.Companion.getBitmap
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_GALLERY
+import com.regula.documentreader.Scan.Companion.ACTION_TYPE_ONLINE
 import com.regula.documentreader.SettingsActivity.Companion.functionality
 import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnabled
 import com.regula.documentreader.SettingsActivity.Companion.isRfidEnabled
@@ -304,6 +305,10 @@ class MainActivity : FragmentActivity(), Serializable {
         imageBrowsingIntentLauncher.launch(Intent.createChooser(intent, "Select Picture"))
     }
 
+    fun onlineProcessing() {
+        startActivity(Intent(this, OnlineProcessingActivity::class.java))
+    }
+
     fun recognizeImage() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
             != PackageManager.PERMISSION_GRANTED
@@ -341,6 +346,9 @@ class MainActivity : FragmentActivity(), Serializable {
             Helpers.setFunctionality(functionality)
         })
         rvData.add(Scan("Gallery (recognizeImage)", ACTION_TYPE_GALLERY))
+
+        rvData.add(Section("Custom"))
+        rvData.add(Scan("Online processing", ACTION_TYPE_ONLINE))
         rvData.add(Section("Custom camera frame"))
         rvData.add(Scan("Custom border width") {
             Instance().customization().edit().setCameraFrameBorderWidth(10).apply()
