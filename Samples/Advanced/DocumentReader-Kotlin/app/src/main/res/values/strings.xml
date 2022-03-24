@@ -44,6 +44,10 @@
     <string name="strResetAllAppSettingsConfirmation">This will reset all settings of the application</string>
     <string name="strResetAllAPISettingsConfirmation">This will reset all API settings</string>
     <string name="strCancel">Cancel</string>
-    <string name="strCamera">Camera</string>
-    <string name="strGallery">Gallery</string>
+    <string name="strSendRequest">Send Request</string>
+    <string name="strSelectImage">Select image</string>
+    <string-array name="select_image">
+        <item>Gallery</item>
+        <item>Camera Shot</item>
+    </string-array>
 </resources>

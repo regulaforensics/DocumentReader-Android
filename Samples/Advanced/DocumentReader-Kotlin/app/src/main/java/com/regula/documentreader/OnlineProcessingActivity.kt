@@ -3,26 +3,27 @@ package com.regula.documentreader
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.regula.documentreader.api.DocumentReader
-import com.regula.documentreader.api.enums.*
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.utils.Common
 import com.regula.documentreader.api.utils.JsonUtil
 import com.regula.documentreader.databinding.ActivityOnlineProcessingBinding
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
 
 
 class OnlineProcessingActivity : FragmentActivity() {
@@ -32,40 +33,95 @@ class OnlineProcessingActivity : FragmentActivity() {
     @Transient
     private var loadingDialog: AlertDialog? = null
 
+    private var currentBitmap: Bitmap? = null
+
+    private var latestTmpUri: Uri? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityOnlineProcessingBinding.inflate(layoutInflater)
         setContentView(binding.root)
         Helpers.opaqueStatusBar(binding.root)
 
-        binding.galleryBtn.setOnClickListener(OnClickListenerSerializable {
-            recognizeImage()
-        })
-        binding.camerasBtn.setOnClickListener {
-            dispatchTakePictureIntent1()
+        binding.requestBtn.setOnClickListener { sendRequest() }
+        binding.imageView.setOnClickListener { onCreatePickerDialog() }
+        binding.cancelBtn.setOnClickListener {
+            setImage(null)
         }
     }
 
-
-    private fun dispatchTakePictureIntent1() {
-
-        DocumentReader.Instance().processParams().scenario = Scenario.SCENARIO_CAPTURE;
-        DocumentReader.Instance().showScanner(this) { action, results, error ->
-
-            if (action == DocReaderAction.COMPLETE) {
-                // results.getGraphicFieldByType()
-                var imageResult = results?.getGraphicFieldImageByType(
-                    eGraphicFieldType.GF_DOCUMENT_IMAGE,
-                    eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
-                    0,
-                    eRPRM_Lights.RPRM_LIGHT_WHITE_FULL
-                )
-                val image = Common.toBase64(imageResult)
-                sendToWebApi(image);
+    private fun onCreatePickerDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setItems(
+            R.array.select_image
+        ) { _, which ->
+            if (which == 0) {
+                openImage()
+            } else {
+                launchCamera()
             }
-        };
+        }
+        builder.create().show()
     }
 
+    private fun openImage() {
+        requestStoragePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+    }
+
+    private fun launchCamera() {
+        requestSinglePermissionLauncher.launch(Manifest.permission.CAMERA)
+    }
+
+    private val requestSinglePermissionLauncher = registerForActivityResult(
+        ActivityResultContracts
+            .RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            takeImage()
+        } else {
+            Toast.makeText(
+                this@OnlineProcessingActivity,
+                "No permission to use the camera",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun takeImage() {
+        lifecycleScope.launchWhenStarted {
+            getTmpFileUri().let { uri ->
+                latestTmpUri = uri
+                takeImageResult.launch(uri)
+            }
+        }
+    }
+
+    private val takeImageResult =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
+            if (isSuccess) {
+                latestTmpUri?.let { uri ->
+                    setImage(
+                        Helpers.getBitmap(
+                            uri,
+                            1920, 1080, this
+                        )
+                    )
+                }
+            }
+        }
+
+    private fun getTmpFileUri(): Uri {
+        val tmpFile = File.createTempFile("tmp_image_file", ".jpg", cacheDir)
+            .apply {
+                deleteOnExit()
+            }
+
+        return FileProvider.getUriForFile(
+            applicationContext,
+            "${BuildConfig.APPLICATION_ID}.provider",
+            tmpFile
+        )
+    }
 
     private fun createImageBrowsingRequest() {
         val intent = Intent()
@@ -75,22 +131,23 @@ class OnlineProcessingActivity : FragmentActivity() {
         imageBrowsingIntentLauncher.launch(Intent.createChooser(intent, "Select Picture"))
     }
 
-    fun recognizeImage() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                Helpers.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
-            )
-        } else
+    private val requestStoragePermissionLauncher = registerForActivityResult(
+        ActivityResultContracts
+            .RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
             createImageBrowsingRequest()
+        } else {
+            Toast.makeText(
+                this@OnlineProcessingActivity,
+                "No permission to read storage",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
 
-    @Transient
-    val imageBrowsingIntentLauncher =
+    private val imageBrowsingIntentLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
                 it.data?.let { intent ->
@@ -108,28 +165,62 @@ class OnlineProcessingActivity : FragmentActivity() {
                     }
                     if (imageUris.size > 0) {
                         if (imageUris.size == 1) {
-                            val image = Common.toBase64(
+                            setImage(
                                 Helpers.getBitmap(
                                     imageUris[0],
                                     1920, 1080, this
                                 )
                             )
-                            sendToWebApi(image)
                         }
                     }
                 }
             }
         }
 
+    private fun setImage(bitmap: Bitmap?) {
+        currentBitmap = bitmap
+        binding.imageView.setImageBitmap(bitmap)
+        currentBitmap?.let {
+            binding.selectImageTv.visibility = View.GONE
+            binding.imageView.setBackgroundColor(getColor(android.R.color.transparent))
+        } ?: run {
+            cacheDir.deleteRecursively()
+            binding.imageView.setBackgroundColor(getColor(R.color.light_1))
+            binding.selectImageTv.visibility = View.VISIBLE
+        }
+    }
 
-    private fun sendToWebApi(image: String) {
+    private fun sendRequest() {
+        currentBitmap?.let {
+            sendToWebApi()
+        } ?: run {
+            Toast.makeText(
+                this@OnlineProcessingActivity,
+                "Please select an image",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun sendToWebApi() {
+        loadingDialog = showDialog("Preparation request")
+        Thread {
+            val image = Common.toBase64(currentBitmap)
+            val request = preparationRequest(image)
+            runOnUiThread {
+                hideDialog()
+                postRequest(request)
+            }
+        }.start()
+    }
+
+    private fun preparationRequest(image: String): String {
         val processParam = JSONObject()
             .put("scenario", "FullProcess")
             .put("doublePageSpread", true)
             .put("measureSystem", 0)
             .put("dateFormat", "dd.MM.yyyy")
             .put("alreadyCropped", false)
-
 
         val imageObject = JSONObject()
         JsonUtil.safePutKeyValue(imageObject, "image", image.replace("\n", ""))
@@ -146,26 +237,7 @@ class OnlineProcessingActivity : FragmentActivity() {
             .put("processParam", processParam)
             .put("List", listArray)
 
-        postRequest(output.toString())
-    }
-
-    override fun onPause() {
-        super.onPause()
-        hideDialog()
-    }
-
-    private fun showDialog(msg: String): AlertDialog {
-        val dialog = MaterialAlertDialogBuilder(this)
-        dialog.background = ResourcesCompat.getDrawable(resources, R.drawable.rounded, theme)
-        dialog.setTitle(msg)
-        dialog.setView(layoutInflater.inflate(R.layout.simple_dialog, binding.root, false))
-        dialog.setCancelable(false)
-        return dialog.show()
-    }
-
-    private fun hideDialog() {
-        loadingDialog?.dismiss()
-        loadingDialog = null
+        return output.toString()
     }
 
     private fun postRequest(jsonInputString: String) {
@@ -202,5 +274,24 @@ class OnlineProcessingActivity : FragmentActivity() {
                     }
                 }
             }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        hideDialog()
+    }
+
+    private fun showDialog(msg: String): AlertDialog {
+        val dialog = MaterialAlertDialogBuilder(this)
+        dialog.background = ResourcesCompat.getDrawable(resources, R.drawable.rounded, theme)
+        dialog.setTitle(msg)
+        dialog.setView(layoutInflater.inflate(R.layout.simple_dialog, binding.root, false))
+        dialog.setCancelable(false)
+        return dialog.show()
+    }
+
+    private fun hideDialog() {
+        loadingDialog?.dismiss()
+        loadingDialog = null
     }
 }
