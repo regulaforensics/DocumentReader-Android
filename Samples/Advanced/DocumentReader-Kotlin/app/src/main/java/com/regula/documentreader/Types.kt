@@ -48,6 +48,7 @@ class Scan(
         const val ACTION_TYPE_SCANNER = 0
         const val ACTION_TYPE_GALLERY = 1
         const val ACTION_TYPE_CUSTOM = 2
+        const val ACTION_TYPE_ONLINE = 3
     }
 }
 
