@@ -7,6 +7,8 @@ import android.content.pm.PackageManager
 import android.graphics.*
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.SpannableString
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
@@ -212,37 +214,36 @@ class MainActivity : FragmentActivity(), Serializable {
     private val completion = IDocumentReaderCompletion { action, results, error ->
         if (action == DocReaderAction.COMPLETE) {
             hideDialog()
-            if (isRfidEnabled && results != null && results.chipPage != 0) {
-                var accessKey: String?
-                accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_MRZ_STRINGS)
-                if (accessKey != null && accessKey.isNotEmpty()) {
-                    accessKey = results.getTextFieldValueByType(eVisualFieldType.FT_MRZ_STRINGS)!!
-                        .replace("^", "").replace("\n", "")
-                    Instance().rfidScenario().setMrz(accessKey)
-                    Instance().rfidScenario().setPacePasswordType(eRFID_Password_Type.PPT_MRZ)
+            if (Instance().functionality().isManualMultipageMode) {
+                if (results?.morePagesAvailable != 0) {
+                    Instance().startNewPage()
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        showScanner()
+                    }, 100)
+                    return@IDocumentReaderCompletion
                 } else {
-                    accessKey =
-                        results.getTextFieldValueByType(eVisualFieldType.FT_CARD_ACCESS_NUMBER)
-                    if (accessKey != null && accessKey.isNotEmpty()) {
-                        Instance().rfidScenario().setPassword(accessKey)
-                        Instance().rfidScenario().setPacePasswordType(eRFID_Password_Type.PPT_CAN)
-                    }
+                    Instance().functionality().edit().setManualMultipageMode(false).apply()
                 }
-                if (!useCustomRfidActivity)
+            }
+            if (isRfidEnabled && results?.chipPage != 0) {
+                if (useCustomRfidActivity) {
+                    MainActivity.results = results
+                    val rfidIntent = Intent(this@MainActivity, CustomRfidActivity::class.java)
+                    customRfidIntentLauncher.launch(rfidIntent)
+                } else
                     Instance().startRFIDReader(this) { rfidAction, results_RFIDReader, _ ->
                         if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL)
                             displayResults(results_RFIDReader!!)
                     }
-                else {
-                    MainActivity.results = results
-                    val rfidIntent = Intent(this@MainActivity, CustomRfidActivity::class.java)
-                    customRfidIntentLauncher.launch(rfidIntent)
-                }
             } else
                 displayResults(results!!)
         } else
-            if (action == DocReaderAction.CANCEL)
+            if (action == DocReaderAction.CANCEL) {
+                if (Instance().functionality().isManualMultipageMode)
+                    Instance().functionality().edit().setManualMultipageMode(false).apply()
+
                 Toast.makeText(this, "Scanning was cancelled", Toast.LENGTH_LONG).show()
+            }
             else if (action == DocReaderAction.ERROR)
                 Toast.makeText(this, "Error:$error", Toast.LENGTH_LONG).show()
     }
@@ -295,7 +296,7 @@ class MainActivity : FragmentActivity(), Serializable {
             }
     }
 
-    fun showScanner() = Instance().showScanner(this, completion)
+    fun showScanner(): Unit = Instance().showScanner(this, completion)
 
     private fun createImageBrowsingRequest() {
         val intent = Intent()
@@ -349,6 +350,9 @@ class MainActivity : FragmentActivity(), Serializable {
 
         rvData.add(Section("Custom"))
         rvData.add(Scan("Online processing", ACTION_TYPE_ONLINE))
+        rvData.add(Scan("Manual multipage mode") {
+            Instance().functionality().edit().setManualMultipageMode(true).apply()
+        })
         rvData.add(Section("Custom camera frame"))
         rvData.add(Scan("Custom border width") {
             Instance().customization().edit().setCameraFrameBorderWidth(10).apply()
