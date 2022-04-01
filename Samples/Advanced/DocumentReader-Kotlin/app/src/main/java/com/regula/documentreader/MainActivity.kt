@@ -31,6 +31,7 @@ import com.regula.documentreader.Helpers.Companion.colorString
 import com.regula.documentreader.Helpers.Companion.drawable
 import com.regula.documentreader.Helpers.Companion.getBitmap
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_GALLERY
+import com.regula.documentreader.Scan.Companion.ACTION_TYPE_MANUAL_MULTIPAGE_MODE
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_ONLINE
 import com.regula.documentreader.SettingsActivity.Companion.functionality
 import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnabled
@@ -350,7 +351,7 @@ class MainActivity : FragmentActivity(), Serializable {
 
         rvData.add(Section("Custom"))
         rvData.add(Scan("Online processing", ACTION_TYPE_ONLINE))
-        rvData.add(Scan("Manual multipage mode") {
+        rvData.add(Scan("Manual multipage mode", ACTION_TYPE_MANUAL_MULTIPAGE_MODE) {
             Instance().functionality().edit().setManualMultipageMode(true).apply()
         })
         rvData.add(Section("Custom camera frame"))
