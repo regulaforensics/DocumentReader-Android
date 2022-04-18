@@ -18,7 +18,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 
-import com.regula.common.Camera2Fragment;
 import com.regula.common.CameraCallbacks;
 import com.regula.common.CameraFragment;
 import com.regula.common.RegCameraFragment;
@@ -146,9 +145,11 @@ public class CustomRegActivity extends CaptureActivity3 implements CameraCallbac
             switch (action) {
                 case DocReaderAction.COMPLETE: //all done, no more frames required, results won't change
                     synchronized (lock) {
-                        isPauseRecognize = true;
+                        if (results != null
+                                && results.morePagesAvailable == 0)
+                            isPauseRecognize = true;
                     }
-                    if (results != null && results.morePagesAvailable == 1) { //more pages are available for this document
+                    if (results != null && results.morePagesAvailable != 0) { //more pages are available for this document
                         Toast.makeText(CustomRegActivity.this, "Page ready, flip", Toast.LENGTH_LONG).show();
 
                         //letting API know, that all frames will be from different page of the same document, merge same field types

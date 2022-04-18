@@ -29,6 +29,7 @@ import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.results.DocumentReaderScenario
+import com.regula.documentreader.custom.Camera2Activity
 import com.regula.documentreader.custom.CameraActivity
 import com.regula.documentreader.custom.CustomRegActivity
 import java.io.FileNotFoundException
@@ -58,6 +59,7 @@ class MainActivity : AppCompatActivity() {
         doRfidCb = findViewById(R.id.doRfidCb)
         sharedPreferences = getSharedPreferences(MY_SHARED_PREFS, MODE_PRIVATE)
         initView()
+        //DocumentReader.Instance().processParams().multipageProcessing = true
     }
 
     override fun onResume() {
@@ -415,6 +417,13 @@ class MainActivity : AppCompatActivity() {
         if (!DocumentReader.Instance().isReady) return
         val cameraIntent = Intent()
         cameraIntent.setClass(this@MainActivity, CustomRegActivity::class.java)
+        startActivity(cameraIntent)
+    }
+
+    fun clickOnShowCustomCamera2Activity(view: View?) {
+        if (!DocumentReader.Instance().isReady) return
+        val cameraIntent = Intent()
+        cameraIntent.setClass(this@MainActivity, Camera2Activity::class.java)
         startActivity(cameraIntent)
     }
 }

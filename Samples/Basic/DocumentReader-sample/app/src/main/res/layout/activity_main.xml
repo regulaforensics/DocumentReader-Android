@@ -126,6 +126,17 @@
             android:clickable="true"
             android:onClick="clickOnShowCustomCameraActivity"/>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:text="Show Custom Camera2 Activity"
+            android:textColor="@android:color/holo_blue_dark"
+            android:id="@+id/showCustomCamera2Activity"
+            android:layout_margin="4dp"
+            android:clickable="true"
+            android:onClick="clickOnShowCustomCamera2Activity"/>
+
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

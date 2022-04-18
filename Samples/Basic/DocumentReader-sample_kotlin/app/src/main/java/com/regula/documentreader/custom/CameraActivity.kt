@@ -7,7 +7,6 @@ import android.graphics.ImageFormat
 import android.hardware.Camera
 import android.hardware.Camera.CameraInfo
 import android.hardware.Camera.PreviewCallback
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -23,7 +22,6 @@ import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.eVisualFieldType
 import com.regula.documentreader.api.params.ImageInputParam
 import java.io.IOException
-import java.util.*
 
 class CameraActivity : AppCompatActivity(), PreviewCallback {
     private var mCameraId: Int = 0
@@ -100,8 +98,12 @@ class CameraActivity : AppCompatActivity(), PreviewCallback {
         ) { i, documentReaderResults, throwable ->
             when (i) {
                 DocReaderAction.COMPLETE -> {
-                    synchronized(lock) { isPauseRecognize = true }
-                    if (documentReaderResults?.morePagesAvailable == 1) { //more pages are available for this document
+                    synchronized(lock) {
+                        if (documentReaderResults != null
+                            && documentReaderResults.morePagesAvailable == 0)
+                        isPauseRecognize = true
+                    }
+                    if (documentReaderResults?.morePagesAvailable != 0) { //more pages are available for this document
                         Toast.makeText(
                             this@CameraActivity,
                             "Page ready, flip",

@@ -1,5 +1,7 @@
 package com.regula.documentreader;
 
+import static android.graphics.BitmapFactory.decodeStream;
+
 import android.Manifest;
 import android.content.ClipData;
 import android.content.ContentResolver;
@@ -10,12 +12,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
@@ -24,6 +22,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.regula.documentreader.api.DocumentReader;
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion;
@@ -36,14 +40,13 @@ import com.regula.documentreader.api.params.DocReaderConfig;
 import com.regula.documentreader.api.results.DocumentReaderResults;
 import com.regula.documentreader.api.results.DocumentReaderScenario;
 import com.regula.documentreader.api.results.DocumentReaderTextField;
+import com.regula.documentreader.custom.Camera2Activity;
 import com.regula.documentreader.custom.CameraActivity;
 import com.regula.documentreader.custom.CustomRegActivity;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-
-import static android.graphics.BitmapFactory.decodeStream;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -437,6 +440,15 @@ public class MainActivity extends AppCompatActivity {
 
         Intent cameraIntent = new Intent();
         cameraIntent.setClass(MainActivity.this, CustomRegActivity.class);
+        startActivity(cameraIntent);
+    }
+
+    public void clickOnShowCustomCamera2Activity(View view) {
+        if (!DocumentReader.Instance().isReady())
+            return;
+
+        Intent cameraIntent = new Intent();
+        cameraIntent.setClass(MainActivity.this, Camera2Activity.class);
         startActivity(cameraIntent);
     }
 }

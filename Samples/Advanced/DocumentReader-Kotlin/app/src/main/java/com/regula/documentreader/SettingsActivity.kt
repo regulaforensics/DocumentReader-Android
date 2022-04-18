@@ -26,6 +26,7 @@ import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnab
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.enums.DocReaderFrame.*
 import com.regula.documentreader.api.enums.MRZFormat.*
+import com.regula.documentreader.api.enums.eImageQualityCheckType
 import com.regula.documentreader.api.params.Functionality
 import com.regula.documentreader.api.params.ProcessParam
 import com.regula.documentreader.databinding.ActivitySettingsBinding
@@ -327,6 +328,30 @@ class APISettingsFragment : Fragment() {
                 { Instance().processParams().imageQA?.moireCheck },
                 { Instance().processParams().imageQA?.moireCheck = it })
         )
+        sectionsData.add(
+            BSMulti(
+                "Expected Pass",
+                "Expected Pass Options",
+                arrayListOf(
+                    BSItem("imageGlares", eImageQualityCheckType.IQC_IMAGE_GLARES),
+                    BSItem("imageFocus", eImageQualityCheckType.IQC_IMAGE_FOCUS),
+                    BSItem("imageResolution", eImageQualityCheckType.IQC_IMAGE_RESOLUTION),
+                    BSItem("imageColorness", eImageQualityCheckType.IQC_IMAGE_COLORNESS),
+                    BSItem("imagePerspective", eImageQualityCheckType.IQC_PERSPECTIVE),
+                    BSItem("imageBounds", eImageQualityCheckType.IQC_BOUNDS),
+                    BSItem("imageCapture", eImageQualityCheckType.IQC_SCREEN_CAPTURE),
+                    BSItem("portrait", eImageQualityCheckType.IQC_PORTRAIT),
+                    BSItem("handwritten", eImageQualityCheckType.IQC_HANDWRITTEN)
+                ),
+                {
+                    (Instance().processParams().imageQA?.expectedPass?.toMutableList()
+                        ?: mutableListOf()).toMutableListString()
+                },
+                {
+                    Instance().processParams().imageQA?.expectedPass =
+                        it.toTypedArray().toIntArray()
+                }
+            ))
         sectionsData.add(Section("Restrictions"))
         sectionsData.add(
             BS(

@@ -1,5 +1,7 @@
 package com.regula.documentreader.custom;
 
+import static android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -32,8 +34,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK;
-
 public class CameraActivity extends AppCompatActivity implements Camera.PreviewCallback {
 
     private static final String DEBUG = "DEBUG";
@@ -54,7 +54,7 @@ public class CameraActivity extends AppCompatActivity implements Camera.PreviewC
         setContentView(R.layout.activity_camera);
 
 //        DocumentReader.Instance().processParams().scenario = "FullProcess";
-//        DocumentReader.Instance().processParams().multipageProcessing = false;
+        //DocumentReader.Instance().processParams().multipageProcessing = false;
         //let API know, that all previous results should be disposed
         DocumentReader.Instance().startNewSession();
 
@@ -106,15 +106,17 @@ public class CameraActivity extends AppCompatActivity implements Camera.PreviewC
             switch (i) {
                 case DocReaderAction.COMPLETE: //all done, no more frames required, results won't change
                     synchronized (lock) {
-                        isPauseRecognize = true;
+                        if (documentReaderResults != null
+                                && documentReaderResults.morePagesAvailable == 0)
+                            isPauseRecognize = true;
                     }
                     if (documentReaderResults != null) {
-                        if (documentReaderResults.morePagesAvailable == 1) { //more pages are available for this document
+                        if (documentReaderResults.morePagesAvailable != 0) { //more pages are available for this document
                             Toast.makeText(CameraActivity.this, "Page ready, flip", Toast.LENGTH_LONG).show();
 
                             //letting API know, that all frames will be from different page of the same document, merge same field types
                             DocumentReader.Instance().startNewPage();
-    //                            mPreview.startCameraPreview();
+                            //mPreview.startCameraPreview();
                         } else { //no more pages available
                             AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
                             builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
