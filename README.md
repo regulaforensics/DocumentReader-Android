@@ -21,20 +21,17 @@ We have provided a simple application that demonstrates the ***API*** calls you 
         1. Go to the `Advanced` folder. There you will find the project written in Kotlin.
         1. Copy the license file to the project: `Advanced/DocumentReader-Kotlin/app/src/main/res/raw/`.
         1. Open the project in an IDE.
-        1. Change the application ID to the one you have specified during the registration at [client.regulaforensics.com](https://client.regulaforensics.com).
         1. Run the project.
     
     1. `Basic` folder contains the basic sample project with only main features. To build it, do the following steps:
         1. Go to the `Basic` folder. There you will two projects: one is written in Kotlin, another in Java.
         1. Copy the license file to the project: `Basic/DocumentReader-sample/app/src/main/res/raw/` or `Basic/DocumentReader-sample_kotlin/app/src/main/res/raw/`.
         1. Open the project in an IDE.
-        1. Change the application ID to the one you have specified during the registration at [client.regulaforensics.com](https://client.regulaforensics.com).
         1. Run the project.
 
 ## Troubleshooting license issues
 If you have issues with license verification when running the application, please verify that next is true:
 1. The OS, which you use, is specified in the license (Android).
-2. The application ID, which you use, is specified in the license.
 3. The license is valid (not expired).
 4. The date and time on the device, where you run the application, are valid.
 5. You use the latest release version of the Document Reader SDK.
