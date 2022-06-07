@@ -79,6 +79,14 @@
         android:id="@+id/scenariosList"
         android:choiceMode="singleChoice"/>
 
+    <Button
+        android:id="@+id/btnAddition"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Init by DeviceId" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

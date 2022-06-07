@@ -5,17 +5,17 @@ import static android.graphics.BitmapFactory.decodeStream;
 import android.Manifest;
 import android.content.ClipData;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_BROWSE_PICTURE = 11;
     private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 22;
+    private static final int PERMISSIONS_REQUEST_READ_PHONE_STATE = 33;
     private static final String MY_SHARED_PREFS = "MySharedPrefs";
     private static final String DO_RFID = "doRfid";
 
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private boolean doRfid;
     private AlertDialog loadingDialog;
+    private Button btnAddition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,51 +85,14 @@ public class MainActivity extends AppCompatActivity {
         docImageIv = findViewById(R.id.documentImageIv);
 
         scenarioLv = findViewById(R.id.scenariosList);
+        btnAddition = findViewById(R.id.btnAddition);
 
         doRfidCb = findViewById(R.id.doRfidCb);
 
         sharedPreferences = getSharedPreferences(MY_SHARED_PREFS, MODE_PRIVATE);
 
         initView();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if(!DocumentReader.Instance().isReady()) {
-            final AlertDialog initDialog = showDialog("Initializing");
-
-            //preparing database files, it will be downloaded from network only one time and stored on user device
-            DocumentReader.Instance().prepareDatabase(MainActivity.this, "Full", new IDocumentReaderPrepareCompletion() {
-                @Override
-                public void onPrepareProgressChanged(int progress) {
-                    initDialog.setTitle("Downloading database: " + progress + "%");
-                }
-
-                @Override
-                public void onPrepareCompleted(boolean status, DocumentReaderException error) {
-                    if (status) {
-                        initDialog.setTitle("Initializing");
-                        initializeReader(initDialog);
-                    } else {
-                        initDialog.dismiss();
-                        Toast.makeText(MainActivity.this, "Prepare DB failed:" + error, Toast.LENGTH_LONG).show();
-                    }
-                }
-            });
-        }
-    }
-
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        if(loadingDialog!=null){
-            loadingDialog.dismiss();
-            loadingDialog = null;
-        }
+        prepareDatabase();
     }
 
     @Override
@@ -181,6 +146,14 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Permission required, to browse images",Toast.LENGTH_LONG).show();
                 }
             } break;
+            case  PERMISSIONS_REQUEST_READ_PHONE_STATE: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    prepareDatabase();
+                } else {
+                    Toast.makeText(MainActivity.this, "Permission is required to init Document Reader",Toast.LENGTH_LONG).show();
+                }
+            }
         }
     }
 
@@ -226,6 +199,16 @@ public class MainActivity extends AppCompatActivity {
             adapter.notifyDataSetChanged();
 
         });
+        btnAddition.setOnClickListener(view -> {
+            // Manifest.permission.READ_PHONE_STATE is required if you are using a license by device Id
+            if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+                prepareDatabase();
+            } else {
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.READ_PHONE_STATE},
+                        PERMISSIONS_REQUEST_READ_PHONE_STATE);
+            }
+        });
     }
 
     private void initializeReader(AlertDialog initDialog) {
@@ -239,7 +222,13 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (!success) { //Initialization was not successful
-                Toast.makeText(MainActivity.this, "Init failed:" + error, Toast.LENGTH_LONG).show();
+                // If initialization is performed using a license by device Id
+                if(error != null && error.toString().contains("device")) {
+                    errorDialog(error.toString());
+                    btnAddition.setVisibility(View.VISIBLE);
+                } else {
+                    Toast.makeText(MainActivity.this, "Init failed:" + error, Toast.LENGTH_LONG).show();
+                }
                 return;
             }
 
@@ -309,7 +298,10 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     displayResults(results);
                 }
-            } else {
+            } else if (action == DocReaderAction.TIMEOUT) {
+                Toast.makeText(MainActivity.this, "Timeout",Toast.LENGTH_LONG).show();
+                displayResults(results);
+            } else  {
                 //something happened before all results were ready
                 if(action==DocReaderAction.CANCEL){
                     Toast.makeText(MainActivity.this, "Scanning was cancelled",Toast.LENGTH_LONG).show();
@@ -327,6 +319,21 @@ public class MainActivity extends AppCompatActivity {
         dialog.setView(dialogView);
         dialog.setCancelable(false);
         return dialog.show();
+    }
+
+    private void errorDialog(String msg) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+        dialog.setTitle("Init Failed");
+        dialog.setMessage(msg);
+        dialog.setPositiveButton("Ok", null);
+        dialog.setNeutralButton("Copy Id", (dialogInterface, i) -> {
+            String id = msg.substring(msg.lastIndexOf(" ") + 2, msg.length()-1);
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText("Copied Text", id);
+            clipboard.setPrimaryClip(clip);
+        });
+        dialog.setCancelable(false);
+        dialog.show();
     }
 
     //show received results on the UI
@@ -432,6 +439,31 @@ public class MainActivity extends AppCompatActivity {
         Intent cameraIntent = new Intent();
         cameraIntent.setClass(MainActivity.this, CameraActivity.class);
         startActivity(cameraIntent);
+    }
+
+    private void prepareDatabase() {
+        if (!DocumentReader.Instance().isReady()) {
+            final AlertDialog initDialog = showDialog("Initializing");
+
+            //preparing database files, it will be downloaded from network only one time and stored on user device
+            DocumentReader.Instance().prepareDatabase(MainActivity.this, "Full", new IDocumentReaderPrepareCompletion() {
+                @Override
+                public void onPrepareProgressChanged(int progress) {
+                    initDialog.setTitle("Downloading database: " + progress + "%");
+                }
+
+                @Override
+                public void onPrepareCompleted(boolean status, DocumentReaderException error) {
+                    if (status) {
+                        initDialog.setTitle("Initializing");
+                        initializeReader(initDialog);
+                    } else {
+                        initDialog.dismiss();
+                        Toast.makeText(MainActivity.this, "Prepare DB failed:" + error, Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        }
     }
 
     public void clickOnShowCustomCameraActivity(View view) {

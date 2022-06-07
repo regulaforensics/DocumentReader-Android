@@ -1,0 +1,30 @@
+{
+  "objects": [
+    {
+      "label": {
+        "text": "Text With Start & End Margins, Center Text Alignment, 25% Offset From Top",
+        "fontStyle": "normal",
+        "fontColor": "#FF000000",
+        "fontSize": 16,
+        "fontName": "Arial",
+        "alignment": "center",
+        "background": "#AAFFFFFF",
+        "borderRadius": 8,
+        "margin": {
+          "start": 24,
+          "end": 24
+        },
+        "padding": {
+          "start": 8,
+          "end": 8,
+          "top": 8,
+          "bottom": 8
+        },
+        "position": {
+          "v": 0.5
+        }
+      }
+    }
+  ],
+  "version": "1.0"
+}
