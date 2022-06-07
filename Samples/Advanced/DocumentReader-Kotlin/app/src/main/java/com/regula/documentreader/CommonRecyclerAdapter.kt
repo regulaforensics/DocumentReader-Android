@@ -112,7 +112,6 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
                 scan = base as Scan
                 binding.title.text = base.title
                 binding.root.setOnClickListener {
-                    if (scan.actionType == ACTION_TYPE_CUSTOM) return@setOnClickListener
 
                     Helpers.setCustomization(ParamsCustomization())
                     if (scan.resetFunctionality)

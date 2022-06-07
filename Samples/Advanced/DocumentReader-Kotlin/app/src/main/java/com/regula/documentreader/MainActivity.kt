@@ -1,6 +1,8 @@
 package com.regula.documentreader
 
 import android.Manifest
+import android.animation.ValueAnimator
+import android.animation.ValueAnimator.AnimatorUpdateListener
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -14,6 +16,7 @@ import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.view.*
+import android.view.animation.AccelerateInterpolator
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -30,6 +33,7 @@ import com.regula.documentreader.Helpers.Companion.PERMISSIONS_REQUEST_READ_EXTE
 import com.regula.documentreader.Helpers.Companion.colorString
 import com.regula.documentreader.Helpers.Companion.drawable
 import com.regula.documentreader.Helpers.Companion.getBitmap
+import com.regula.documentreader.Scan.Companion.ACTION_TYPE_CUSTOM
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_GALLERY
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_MANUAL_MULTIPAGE_MODE
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_ONLINE
@@ -37,23 +41,29 @@ import com.regula.documentreader.SettingsActivity.Companion.functionality
 import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnabled
 import com.regula.documentreader.SettingsActivity.Companion.isRfidEnabled
 import com.regula.documentreader.SettingsActivity.Companion.useCustomRfidActivity
-import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.FrameShapeType
-import com.regula.documentreader.api.enums.eRFID_Password_Type
-import com.regula.documentreader.api.enums.eVisualFieldType
+import com.regula.documentreader.api.enums.eRPRM_Lights
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
+import com.regula.documentreader.api.params.ImageInputData
 import com.regula.documentreader.api.parser.DocReaderResultsJsonParser
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.databinding.ActivityMainBinding
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.Serializable
+import java.text.SimpleDateFormat
+import java.util.*
+
 
 class MainActivity : FragmentActivity(), Serializable {
+    private var mTimerAnimator: ValueAnimator? = null
+    private var isAnimationStarted: Boolean = false
+
     @Transient
     private lateinit var binding: ActivityMainBinding
 
@@ -213,8 +223,15 @@ class MainActivity : FragmentActivity(), Serializable {
 
     @Transient
     private val completion = IDocumentReaderCompletion { action, results, error ->
+        if(!isAnimationStarted) {
+            mTimerAnimator?.let {
+                it.start()
+                isAnimationStarted = true;
+            }
+        }
         if (action == DocReaderAction.COMPLETE) {
             hideDialog()
+            cancelAnimation()
             if (Instance().functionality().isManualMultipageMode) {
                 if (results?.morePagesAvailable != 0) {
                     Instance().startNewPage()
@@ -244,9 +261,14 @@ class MainActivity : FragmentActivity(), Serializable {
                     Instance().functionality().edit().setManualMultipageMode(false).apply()
 
                 Toast.makeText(this, "Scanning was cancelled", Toast.LENGTH_LONG).show()
+                hideDialog()
+                cancelAnimation()
             }
-            else if (action == DocReaderAction.ERROR)
+            else if (action == DocReaderAction.ERROR) {
                 Toast.makeText(this, "Error:$error", Toast.LENGTH_LONG).show()
+                hideDialog()
+                cancelAnimation()
+            }
     }
 
     private fun displayResults(documentReaderResults: DocumentReaderResults) {
@@ -348,6 +370,9 @@ class MainActivity : FragmentActivity(), Serializable {
             Helpers.setFunctionality(functionality)
         })
         rvData.add(Scan("Gallery (recognizeImage)", ACTION_TYPE_GALLERY))
+        rvData.add(Scan("Recognize images with light type", ACTION_TYPE_CUSTOM) {
+            startRecognizeImageWithLight()
+        })
 
         rvData.add(Section("Custom"))
         rvData.add(Scan("Online processing", ACTION_TYPE_ONLINE))
@@ -472,6 +497,12 @@ class MainActivity : FragmentActivity(), Serializable {
             Instance().customization().edit().setCustomLabelStatus(status).apply()
             Instance().customization().edit().setCustomStatusPositionMultiplier(0.5f).apply()
         })
+        rvData.add(Scan("Custom Status & Images") {
+            Instance().customization().edit().setUiCustomizationLayer(getJsonFromAssets("layer.json")).apply()
+        })
+        rvData.add(Scan("Custom Status Animated") {
+            initAnimation()
+        })
         rvData.add(Section("Custom animations"))
         rvData.add(Scan("Help animation image") {
             Instance().customization().edit().setShowHelpAnimation(true).apply()
@@ -517,5 +548,73 @@ class MainActivity : FragmentActivity(), Serializable {
     companion object {
         var results: DocumentReaderResults? = null
         const val ENCRYPTED_RESULT_SERVICE = "https://api.regulaforensics.com/api/process"
+    }
+
+    private fun getJsonFromAssets(name: String): JSONObject? {
+        val inputStream = this@MainActivity.assets.open(name)
+        val jsonString = Scanner(inputStream).useDelimiter("\\A").next()
+        try {
+            return JSONObject(jsonString)
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
+    private fun cancelAnimation() {
+        mTimerAnimator?.let {
+            it.cancel()
+            isAnimationStarted = false
+            mTimerAnimator = null
+        }
+        Instance().customization().edit().setUiCustomizationLayer(null).apply()
+    }
+
+    private fun initAnimation() {
+        isAnimationStarted = false;
+        val jsonObject: JSONObject? = getJsonFromAssets("layer_animation.json")
+        updatePosition(jsonObject, 0.5f)
+        Instance().customization().edit().setUiCustomizationLayer(jsonObject).apply()
+        mTimerAnimator = ValueAnimator.ofFloat(0.5f, 1.5f)
+        mTimerAnimator?.let {
+            it.duration = 2500
+            it.interpolator = AccelerateInterpolator()
+            it.repeatMode = ValueAnimator.REVERSE
+            it.repeatCount = 20
+            it.addUpdateListener(AnimatorUpdateListener { animation ->
+                updatePosition(jsonObject, animation.animatedValue as Float)
+                Instance().customization().edit().setUiCustomizationLayer(jsonObject)
+                    .applyImmediately(this@MainActivity)
+            })
+        }
+    }
+
+    private fun updatePosition(jsonObject: JSONObject?, position: Float) {
+        jsonObject?.let {
+            val text = "Custom label that showing current time:" + SimpleDateFormat("HH:mm:ss")
+                .format(Date())
+            (it.getJSONArray("objects")[0] as JSONObject).getJSONObject("label")
+                .getJSONObject("position").put("v", position.toDouble())
+            (it.getJSONArray("objects")[0] as JSONObject).getJSONObject("label")
+                .put("text", text)
+        }
+    }
+
+    private fun startRecognizeImageWithLight() {
+        // For FULL_AUTH processing you need to do implementation in gradle com.regula.documentreader.core:fullauthrfid
+        // Set databaseID to 'FullAuth' in method prepareDatabase
+        //Instance().processParams().scenario = Scenario.SCENARIO_FULL_AUTH
+        val image1 = BitmapFactory.decodeResource(resources, R.drawable.white)
+        val image2 = BitmapFactory.decodeResource(resources, R.drawable.uv)
+        val image3 = BitmapFactory.decodeResource(resources, R.drawable.ir)
+        val imageData1 = ImageInputData(image1, eRPRM_Lights.RPRM_LIGHT_WHITE_FULL)
+        val imageData2 = ImageInputData(image2, eRPRM_Lights.RPRM_LIGHT_UV)
+        val imageData3 = ImageInputData(image3, eRPRM_Lights.RPRM_Light_IR_Full)
+        recognizeSerialImages(imageData1, imageData2, imageData3)
+    }
+
+    private fun recognizeSerialImages(vararg imageInputData: ImageInputData) {
+        loadingDialog = showDialog("Processing images")
+        Instance().recognizeImages(imageInputData, completion)
     }
 }
