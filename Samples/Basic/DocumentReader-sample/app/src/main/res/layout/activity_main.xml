@@ -1,157 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    android:layout_height="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
     android:padding="4dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:id="@+id/topInfoLayout"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/strSurnameAndGivenNames"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/strPortrait"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:id="@+id/nameTv"/>
-
-            <ImageView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/portrait"
-                android:id="@+id/portraitIv"/>
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:text="Document image:"
-        android:id="@+id/docImageLabel" />
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:id="@+id/documentImageIv"
-        android:src="@drawable/id"
-        android:scaleType="centerInside"/>
-
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:id="@+id/scenariosList"
-        android:choiceMode="singleChoice"/>
-
-    <Button
-        android:id="@+id/btnAddition"
-        android:layout_gravity="center"
-        android:visibility="gone"
+    <RelativeLayout
+        android:id="@+id/device_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Init by DeviceId" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:visibility="gone">
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:text="Use recognizeImage() method"
-            android:textColor="@android:color/holo_blue_dark"
-            android:id="@+id/recognizeImageLink"
-            android:layout_margin="4dp"
-            android:clickable="true"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:text="Use showScanner() method"
-            android:textColor="@android:color/holo_blue_dark"
-            android:id="@+id/showScannerLink"
-            android:layout_margin="4dp"
-            android:clickable="true"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:text="Show CameraActivity"
-            android:textColor="@android:color/holo_blue_dark"
-            android:id="@+id/showCameraActivity"
-            android:layout_margin="4dp"
-            android:clickable="true"
-            android:onClick="clickOnShowCameraActivity"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:text="Show Custom Camera Activity"
-            android:textColor="@android:color/holo_blue_dark"
-            android:id="@+id/showCustomCameraActivity"
-            android:layout_margin="4dp"
-            android:clickable="true"
-            android:onClick="clickOnShowCustomCameraActivity"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:text="Show Custom Camera2 Activity"
-            android:textColor="@android:color/holo_blue_dark"
-            android:id="@+id/showCustomCamera2Activity"
-            android:layout_margin="4dp"
-            android:clickable="true"
-            android:onClick="clickOnShowCustomCamera2Activity"/>
-
-        <CheckBox
+            android:id="@+id/tv_device"
+            android:layout_marginTop="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:text="Perform NFC chip reading"
-            android:id="@+id/doRfidCb"/>
+            android:text="Device name" />
 
-    </LinearLayout>
+        <EditText
+            android:id="@+id/ed_device"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_device"
+            android:layout_marginTop="10dp"
+            android:hint="Regula 0123" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/btn_connect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ed_device"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:text="Connect" />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible">
+
+    </FrameLayout>
+</RelativeLayout>

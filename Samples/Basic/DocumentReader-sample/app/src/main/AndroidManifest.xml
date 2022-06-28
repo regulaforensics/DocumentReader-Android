@@ -6,20 +6,17 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <!--Manifest.permission.READ_PHONE_STATE is required if you are using a license by device Id-->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/r_icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.Light">
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+
         <activity
-            android:name=".custom.Camera2Activity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar"/>
-        <activity
-            android:name=".MainActivity"
+            android:name=".StartActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -28,13 +25,33 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".DeviceActivity"
+            android:theme="@style/Theme.AppCompat.DayNight"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".custom.Camera2Activity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".custom.CustomRfidActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.DayNight"
+            android:screenOrientation="portrait" />
+
         <activity
             android:name=".custom.CameraActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".custom.CustomRegActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

@@ -10,7 +10,7 @@ import android.widget.ArrayAdapter
  * Created by Sergey Yakimchik on 10.09.21.
  * Copyright (c) 2021 Regula. All rights reserved.
  */
-internal class ScenarioAdapter constructor(context: Context, resource: Int, objects: List<String>) :
+class ScenarioAdapter constructor(context: Context, resource: Int, objects: List<String>) :
     ArrayAdapter<String?>(context, resource, objects) {
     private var selectedPosition: Int = 0
     public override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {

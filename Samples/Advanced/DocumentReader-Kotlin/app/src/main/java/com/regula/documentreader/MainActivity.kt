@@ -4,9 +4,13 @@ import android.Manifest
 import android.animation.ValueAnimator
 import android.animation.ValueAnimator.AnimatorUpdateListener
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -15,6 +19,9 @@ import android.text.SpannableString
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import android.view.HapticFeedbackConstants
+import android.view.View
+import android.widget.Toast
 import android.view.*
 import android.view.animation.AccelerateInterpolator
 import android.widget.*
@@ -37,6 +44,7 @@ import com.regula.documentreader.Scan.Companion.ACTION_TYPE_CUSTOM
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_GALLERY
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_MANUAL_MULTIPAGE_MODE
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_ONLINE
+import com.regula.documentreader.Scan.Companion.ACTION_TYPE_SCANNER
 import com.regula.documentreader.SettingsActivity.Companion.functionality
 import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnabled
 import com.regula.documentreader.SettingsActivity.Companion.isRfidEnabled
@@ -54,6 +62,7 @@ import com.regula.documentreader.api.parser.DocReaderResultsJsonParser
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.databinding.ActivityMainBinding
 import org.json.JSONException
+import com.regula.documentreader.util.LicenseUtil
 import org.json.JSONObject
 import java.io.Serializable
 import java.text.SimpleDateFormat
@@ -116,6 +125,10 @@ class MainActivity : FragmentActivity(), Serializable {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (LicenseUtil.readFileFromAssets("Regula", "regula.license", this) == null
+            && !isInitializedByBleDevice) showDialog(
+            this@MainActivity
+        )
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         Helpers.opaqueStatusBar(binding.root)
@@ -146,13 +159,13 @@ class MainActivity : FragmentActivity(), Serializable {
         if (Instance().isReady)
             return
 
-        initDialog = showDialog("Initializing")
-
-        val licInput = resources.openRawResource(R.raw.regula)
-        val license = ByteArray(licInput.available())
-        licInput.read(license)
-        Instance().prepareDatabase(this, "Full", getPrepareCompletion(license))
-        licInput.close()
+        val license = LicenseUtil.readFileFromAssets(
+            "Regula",
+            "regula.license",
+            this
+        )
+        license?.let { getPrepareCompletion(it)
+        }?.let { Instance().prepareDatabase(this, "Full", it) }
     }
 
     private fun getPrepareCompletion(license: ByteArray) =
@@ -319,7 +332,7 @@ class MainActivity : FragmentActivity(), Serializable {
             }
     }
 
-    fun showScanner(): Unit = Instance().showScanner(this, completion)
+    fun showScanner(): Unit = Instance().showScanner(this@MainActivity, completion)
 
     private fun createImageBrowsingRequest() {
         val intent = Intent()
@@ -372,6 +385,14 @@ class MainActivity : FragmentActivity(), Serializable {
         rvData.add(Scan("Gallery (recognizeImage)", ACTION_TYPE_GALLERY))
         rvData.add(Scan("Recognize images with light type", ACTION_TYPE_CUSTOM) {
             startRecognizeImageWithLight()
+        })
+
+        rvData.add(Section("Authenticator"))
+        rvData.add(Scan("use Authenticator", ACTION_TYPE_SCANNER) {
+            Instance().functionality().edit()
+                .setUseAuthenticator(true)
+                .setShowCameraSwitchButton(true)
+                .apply()
         })
 
         rvData.add(Section("Custom"))
@@ -516,6 +537,20 @@ class MainActivity : FragmentActivity(), Serializable {
             Instance().customization().edit()
                 .setMultipageAnimationBackImage(drawable(R.drawable.two, this)).apply()
         })
+        rvData.add(Scan("Custom Hologram animation") {
+            Instance().processParams().checkHologram = true;
+            // NOTE: for a runtime animation change take a look at `showScanner` completion handler.
+            Instance().customization().edit()
+                .setHologramAnimationImage(getDrawable(R.drawable.reg_nfc_full_id_big)).apply()
+            Instance().customization().edit()
+                .setHologramAnimationPositionMultiplier(0.4f).apply()
+            Instance().customization().edit()
+                .setHologramAnimationImageScaleType(ImageView.ScaleType.CENTER_INSIDE).apply()
+
+            val matrix = Matrix()
+            Instance().customization().edit()
+                .setHologramAnimationImageMatrix(matrix).apply()
+        })
         rvData.add(Section("Custom tint color"))
         rvData.add(Scan("Activity indicator") {
             Instance().customization().edit().setActivityIndicatorColor(colorString(Color.RED))
@@ -544,10 +579,17 @@ class MainActivity : FragmentActivity(), Serializable {
         rvData.add(Scan("", Scan.ACTION_TYPE_CUSTOM))
         return rvData
     }
-
-    companion object {
-        var results: DocumentReaderResults? = null
-        const val ENCRYPTED_RESULT_SERVICE = "https://api.regulaforensics.com/api/process"
+    private fun showDialog(context: Context) {
+        AlertDialog.Builder(context)
+            .setTitle("Error")
+            .setMessage("license in assets is missed")
+            .setPositiveButton(
+                getString(R.string.strAccessibilityCloseButton)
+            ) { dialog, which ->
+                finish()
+            }
+            .setCancelable(false)
+            .show()
     }
 
     private fun getJsonFromAssets(name: String): JSONObject? {
@@ -616,5 +658,10 @@ class MainActivity : FragmentActivity(), Serializable {
     private fun recognizeSerialImages(vararg imageInputData: ImageInputData) {
         loadingDialog = showDialog("Processing images")
         Instance().recognizeImages(imageInputData, completion)
+    }
+    companion object {
+        var results: DocumentReaderResults? = null
+        var isInitializedByBleDevice: Boolean = false
+        const val ENCRYPTED_RESULT_SERVICE = "https://api.regulaforensics.com/api/process"
     }
 }

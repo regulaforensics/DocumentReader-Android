@@ -15,6 +15,18 @@
         android:theme="@style/Theme.DocumentReaderSample_kotlin"
         tools:ignore="AllowBackup">
         <activity
+            android:name=".StartActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".DeviceActivity"
+            android:screenOrientation="portrait"/>
+        <activity
             android:name=".DirectResultsActivity"
             android:label="@string/title_activity_direct_results"
             android:screenOrientation="portrait"
@@ -34,10 +46,6 @@
             android:exported="true"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".CustomRfidActivity"
