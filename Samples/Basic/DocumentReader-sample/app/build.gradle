@@ -32,7 +32,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     implementation 'com.regula.btdevice:api:1.0+@aar'
-    implementation 'com.regula.documentreader.core:fullauthrfid:6.4.+@aar'
+    implementation 'com.regula.documentreader.core:fullrfid:6.4.+@aar' // use fullauthrfid core for 7310
     implementation('com.regula.documentreader:api:6.4.+@aar') {
         transitive = true;
     }
