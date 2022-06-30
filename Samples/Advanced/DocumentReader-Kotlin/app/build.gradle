@@ -46,9 +46,7 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation 'com.regula.documentreader.core:fullrfid:6.4.+@aar'
     //noinspection GradleDynamicVersion
-    implementation('com.regula.documentreader:api:6.4.+@aar') {
+    implementation('com.regula.documentreader:api:6.4.7275@aar') {
         transitive = true
     }
-
-    implementation 'com.github.kittinunf.fuel:fuel:2.3.1'
 }

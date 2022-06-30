@@ -7,10 +7,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Typeface
+import android.graphics.*
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -22,9 +19,8 @@ import android.text.style.StyleSpan
 import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.Toast
-import android.view.*
 import android.view.animation.AccelerateInterpolator
-import android.widget.*
+import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
@@ -43,7 +39,6 @@ import com.regula.documentreader.Helpers.Companion.getBitmap
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_CUSTOM
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_GALLERY
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_MANUAL_MULTIPAGE_MODE
-import com.regula.documentreader.Scan.Companion.ACTION_TYPE_ONLINE
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_SCANNER
 import com.regula.documentreader.SettingsActivity.Companion.functionality
 import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnabled
@@ -52,12 +47,11 @@ import com.regula.documentreader.SettingsActivity.Companion.useCustomRfidActivit
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
-import com.regula.documentreader.api.enums.DocReaderAction
-import com.regula.documentreader.api.enums.FrameShapeType
-import com.regula.documentreader.api.enums.eRPRM_Lights
+import com.regula.documentreader.api.enums.*
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
 import com.regula.documentreader.api.params.ImageInputData
+import com.regula.documentreader.api.params.OnlineProcessingConfiguration
 import com.regula.documentreader.api.parser.DocReaderResultsJsonParser
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.databinding.ActivityMainBinding
@@ -65,6 +59,7 @@ import org.json.JSONException
 import com.regula.documentreader.util.LicenseUtil
 import org.json.JSONObject
 import java.io.Serializable
+import java.net.HttpURLConnection
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -72,6 +67,7 @@ import java.util.*
 class MainActivity : FragmentActivity(), Serializable {
     private var mTimerAnimator: ValueAnimator? = null
     private var isAnimationStarted: Boolean = false
+    private var isInitFailed: Boolean = false
 
     @Transient
     private lateinit var binding: ActivityMainBinding
@@ -156,7 +152,7 @@ class MainActivity : FragmentActivity(), Serializable {
 
     override fun onResume() {
         super.onResume()
-        if (Instance().isReady)
+        if (Instance().isReady || isInitFailed)
             return
 
         val license = LicenseUtil.readFileFromAssets(
@@ -164,8 +160,14 @@ class MainActivity : FragmentActivity(), Serializable {
             "regula.license",
             this
         )
-        license?.let { getPrepareCompletion(it)
-        }?.let { Instance().prepareDatabase(this, "Full", it) }
+        license?.let {
+            getPrepareCompletion(it)
+        }?.let {
+            initDialog = showDialog("Initializing")
+            Instance().prepareDatabase(this, "Full", it)
+        } ?: run {
+            onInitFailed()
+        }
     }
 
     private fun getPrepareCompletion(license: ByteArray) =
@@ -183,12 +185,14 @@ class MainActivity : FragmentActivity(), Serializable {
 
                     if (success)
                         onInitComplete()
-                    else
+                    else {
                         Toast.makeText(
                             this@MainActivity,
                             "Init failed:$error_initializeReader",
                             Toast.LENGTH_LONG
                         ).show()
+                        onInitFailed()
+                    }
                 }
             }
         }
@@ -212,6 +216,14 @@ class MainActivity : FragmentActivity(), Serializable {
             Instance().processParams().scenario = scenarios[newVal] ?: ""
         }
 
+        binding.recyclerView.visibility = View.VISIBLE
+    }
+
+    private fun onInitFailed() {
+        isInitFailed = true;
+        binding.scenarioPicker.visibility = View.GONE
+        binding.selectScenario.visibility = View.GONE
+        binding.recyclerView.adapter = CommonRecyclerAdapter(getRvOnlineProcessingData(false))
         binding.recyclerView.visibility = View.VISIBLE
     }
 
@@ -242,6 +254,7 @@ class MainActivity : FragmentActivity(), Serializable {
                 isAnimationStarted = true;
             }
         }
+        Instance().functionality().edit().setOnlineProcessingConfiguration(null).apply()
         if (action == DocReaderAction.COMPLETE) {
             hideDialog()
             cancelAnimation()
@@ -342,10 +355,6 @@ class MainActivity : FragmentActivity(), Serializable {
         imageBrowsingIntentLauncher.launch(Intent.createChooser(intent, "Select Picture"))
     }
 
-    fun onlineProcessing() {
-        startActivity(Intent(this, OnlineProcessingActivity::class.java))
-    }
-
     fun recognizeImage() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
             != PackageManager.PERMISSION_GRANTED
@@ -376,6 +385,51 @@ class MainActivity : FragmentActivity(), Serializable {
         }
     }
 
+    private fun getRvOnlineProcessingData(isInit: Boolean): List<Base> {
+        val rvData = mutableListOf<Base>()
+        rvData.add(Section("Online processing"))
+        rvData.add(Scan("Manual online processing", resetFunctionality = true) {
+            val onlineProcessingConfiguration = OnlineProcessingConfiguration.Builder("https://api.regulaforensics.com")
+                .setMode(OnlineMode.MANUAL)
+                .setNetworkInterceptorListener { connection: HttpURLConnection ->
+                }
+                .build()
+            onlineProcessingConfiguration.processParam.scenario = Scenario.SCENARIO_FULL_PROCESS;
+
+            Instance().functionality().edit()
+                .setOnlineProcessingConfiguration(onlineProcessingConfiguration)
+                .setForcePagesCount(2)
+                .apply();
+        })
+        if(isInit) {
+            rvData.add(Scan("Auto online processing", resetFunctionality = true) {
+                val onlineProcessingConfiguration =
+                    OnlineProcessingConfiguration.Builder("https://api.regulaforensics.com")
+                        .setMode(OnlineMode.AUTO)
+                        .build()
+
+                onlineProcessingConfiguration.processParam.scenario =
+                    Scenario.SCENARIO_FULL_PROCESS;
+
+                Instance().functionality().edit()
+                    .setOnlineProcessingConfiguration(onlineProcessingConfiguration)
+                    .apply();
+            })
+        }
+        rvData.add(Scan("Gallery online processing", ACTION_TYPE_GALLERY) {
+            val onlineProcessingConfiguration = OnlineProcessingConfiguration.Builder("https://api.regulaforensics.com")
+                .setImageCompressionQuality(1f)
+                .build()
+
+            onlineProcessingConfiguration.processParam.scenario = Scenario.SCENARIO_FULL_PROCESS;
+
+            Instance().functionality().edit()
+                .setOnlineProcessingConfiguration(onlineProcessingConfiguration)
+                .apply();
+        })
+        return rvData;
+    }
+
     private fun getRvData(): List<Base> {
         val rvData = mutableListOf<Base>()
         rvData.add(Section("Default"))
@@ -396,10 +450,10 @@ class MainActivity : FragmentActivity(), Serializable {
         })
 
         rvData.add(Section("Custom"))
-        rvData.add(Scan("Online processing", ACTION_TYPE_ONLINE))
         rvData.add(Scan("Manual multipage mode", ACTION_TYPE_MANUAL_MULTIPAGE_MODE) {
             Instance().functionality().edit().setManualMultipageMode(true).apply()
         })
+        rvData.addAll(getRvOnlineProcessingData(true))
         rvData.add(Section("Custom camera frame"))
         rvData.add(Scan("Custom border width") {
             Instance().customization().edit().setCameraFrameBorderWidth(10).apply()
@@ -586,7 +640,7 @@ class MainActivity : FragmentActivity(), Serializable {
             .setPositiveButton(
                 getString(R.string.strAccessibilityCloseButton)
             ) { dialog, which ->
-                finish()
+                onInitFailed()
             }
             .setCancelable(false)
             .show()
