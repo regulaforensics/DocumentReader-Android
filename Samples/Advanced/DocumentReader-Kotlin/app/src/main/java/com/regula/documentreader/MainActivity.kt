@@ -254,8 +254,8 @@ class MainActivity : FragmentActivity(), Serializable {
                 isAnimationStarted = true;
             }
         }
-        Instance().functionality().edit().setOnlineProcessingConfiguration(null).apply()
         if (action == DocReaderAction.COMPLETE) {
+            Instance().functionality().edit().setOnlineProcessingConfiguration(null).apply()
             hideDialog()
             cancelAnimation()
             if (Instance().functionality().isManualMultipageMode) {
@@ -287,11 +287,13 @@ class MainActivity : FragmentActivity(), Serializable {
                     Instance().functionality().edit().setManualMultipageMode(false).apply()
 
                 Toast.makeText(this, "Scanning was cancelled", Toast.LENGTH_LONG).show()
+                Instance().functionality().edit().setOnlineProcessingConfiguration(null).apply()
                 hideDialog()
                 cancelAnimation()
             }
             else if (action == DocReaderAction.ERROR) {
                 Toast.makeText(this, "Error:$error", Toast.LENGTH_LONG).show()
+                Instance().functionality().edit().setOnlineProcessingConfiguration(null).apply()
                 hideDialog()
                 cancelAnimation()
             }
