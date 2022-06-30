@@ -90,7 +90,9 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
         showDialog("Preparing database");
 
         //preparing database files, it will be downloaded from network only one time and stored on user device
-        DocumentReader.Instance().prepareDatabase(BaseActivity.this, "FullAuth", new IDocumentReaderPrepareCompletion() {
+        DocumentReader.Instance().prepareDatabase(BaseActivity.this,
+                "FullAuth",  // if you use 7310, replace to FullAuth
+                new IDocumentReaderPrepareCompletion() {
             @Override
             public void onPrepareProgressChanged(int progress) {
                 setTitleDialog("Downloading database: " + progress + "%");
