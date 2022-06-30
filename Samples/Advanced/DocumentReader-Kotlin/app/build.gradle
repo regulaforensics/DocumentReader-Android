@@ -49,4 +49,5 @@ dependencies {
     implementation('com.regula.documentreader:api:6.4.7275@aar') {
         transitive = true
     }
+    implementation 'com.github.kittinunf.fuel:fuel:2.3.1'
 }
