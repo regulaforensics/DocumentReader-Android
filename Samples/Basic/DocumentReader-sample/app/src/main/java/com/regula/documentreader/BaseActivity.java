@@ -1,17 +1,13 @@
 package com.regula.documentreader;
 
-import static android.graphics.BitmapFactory.decodeStream;
-
 import static com.regula.documentreader.MainFragment.RFID_RESULT;
 import static com.regula.documentreader.SettingsFragment.RfidMode.CUSTOM;
 
 import android.Manifest;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
@@ -49,8 +45,8 @@ import com.regula.documentreader.custom.CameraActivity;
 import com.regula.documentreader.custom.CustomRegActivity;
 import com.regula.documentreader.custom.CustomRfidActivity;
 import com.regula.documentreader.util.CertificatesUtil;
+import com.regula.documentreader.util.Utils;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -77,6 +73,10 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
     public int rfidMode;
     public static DocumentReaderResults documentReaderResults;
 
+
+    protected abstract void initializeReader();
+    protected abstract void onPrepareDbCompleted();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,6 +90,31 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
             replaceFragment(mainFragment,false);
         }
         sharedPreferences = getSharedPreferences(MY_SHARED_PREFS, MODE_PRIVATE);
+
+        if (DocumentReader.Instance().isReady()) {
+            successfulInit();
+            return;
+        }
+
+        showDialog("Preparing database");
+
+        //preparing database files, it will be downloaded from network only one time and stored on user device
+        DocumentReader.Instance().prepareDatabase(BaseActivity.this, "FullAuth", new IDocumentReaderPrepareCompletion() {
+            @Override
+            public void onPrepareProgressChanged(int progress) {
+                setTitleDialog("Downloading database: " + progress + "%");
+            }
+
+            @Override
+            public void onPrepareCompleted(boolean status, DocumentReaderException error) {
+                if (status) {
+                    onPrepareDbCompleted();
+                } else {
+                    dismissDialog();
+                    Toast.makeText(BaseActivity.this, "Prepare DB failed:" + error, Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
     @Override
@@ -209,53 +234,18 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
                 mainFragment.displayResults(documentReaderResults);
         }
 
-        if (resultCode == RESULT_OK) {
-            //Image browsing intent processed successfully
-            if (requestCode == REQUEST_BROWSE_PICTURE) {
-                if (data.getData() != null) {
-                    Uri selectedImage = data.getData();
-                    Bitmap bmp = getBitmap(selectedImage, 1920, 1080);
-
-                    showDialog("Processing image");
-
-                    DocumentReader.Instance().recognizeImage(bmp, completion);
-                }
-            }
+        if (resultCode != RESULT_OK || requestCode != REQUEST_BROWSE_PICTURE || data.getData() == null) {
+            return;
         }
+
+        //Image browsing intent processed successfully
+        Uri selectedImage = data.getData();
+        Bitmap bmp = Utils.getBitmap(getContentResolver(), selectedImage, 1920, 1080);
+
+        showDialog("Processing image");
+
+        DocumentReader.Instance().recognizeImage(bmp, completion);
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (!DocumentReader.Instance().isReady()) {
-            showDialog("Initializing");
-
-            //preparing database files, it will be downloaded from network only one time and stored on user device
-            DocumentReader.Instance().prepareDatabase(BaseActivity.this, "FullAuth", new IDocumentReaderPrepareCompletion() {
-                @Override
-                public void onPrepareProgressChanged(int progress) {
-                    setTitleDialog("Downloading database: " + progress + "%");
-                }
-
-                @Override
-                public void onPrepareCompleted(boolean status, DocumentReaderException error) {
-                    if (status) {
-                        onPrepareDbCompleted();
-                    } else {
-                        dismissDialog();
-                        Toast.makeText(BaseActivity.this, "Prepare DB failed:" + error, Toast.LENGTH_LONG).show();
-                    }
-                }
-            });
-        } else {
-            successfulInit();
-        }
-    }
-
-    protected abstract void initializeReader();
-
-    protected abstract void onPrepareDbCompleted();
 
 
     protected final IDocumentReaderInitCompletion initCompletion = (result, error) -> {
@@ -370,56 +360,6 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_BROWSE_PICTURE);
-    }
-
-    // loads bitmap from uri
-    private Bitmap getBitmap(Uri selectedImage, int targetWidth, int targetHeight) {
-        ContentResolver resolver = this.getContentResolver();
-        InputStream is = null;
-        try {
-            is = resolver.openInputStream(selectedImage);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeStream(is, null, options);
-
-        //Re-reading the input stream to move it's pointer to start
-        try {
-            is = resolver.openInputStream(selectedImage);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, targetWidth, targetHeight);
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        return decodeStream(is, null, options);
-    }
-
-    // see https://developer.android.com/topic/performance/graphics/load-bitmap.html
-    private int calculateInSampleSize(BitmapFactory.Options options, int bitmapWidth, int bitmapHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > bitmapHeight || width > bitmapWidth) {
-
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) > bitmapHeight
-                    && (halfWidth / inSampleSize) > bitmapWidth) {
-                inSampleSize *= 2;
-            }
-        }
-
-        return inSampleSize;
     }
 
     @Override
