@@ -74,7 +74,7 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
         //preparing database files, it will be downloaded from network only one time and stored on user device
         DocumentReader.Instance().prepareDatabase(
             this@BaseActivity,
-            "FullAuth",
+            "Full", // if you use 7310, replace to FullAuth
             object : IDocumentReaderPrepareCompletion {
                 override fun onPrepareProgressChanged(progress: Int) {
                     setTitleDialog("Downloading database: $progress%")
