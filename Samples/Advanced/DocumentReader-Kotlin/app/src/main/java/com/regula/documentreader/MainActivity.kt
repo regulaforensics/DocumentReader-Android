@@ -7,10 +7,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Typeface
+import android.graphics.*
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -158,6 +155,8 @@ class MainActivity : FragmentActivity(), Serializable {
         super.onResume()
         if (Instance().isReady)
             return
+
+        initDialog = showDialog("Initializing")
 
         val license = LicenseUtil.readFileFromAssets(
             "Regula",

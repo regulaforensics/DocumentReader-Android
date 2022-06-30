@@ -30,6 +30,7 @@ import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.custom.*
 import com.regula.documentreader.custom.SettingsFragment.RfidMode.CUSTOM
 import com.regula.documentreader.custom.SettingsFragment.RfidMode.DEFAULT
+import com.regula.documentreader.util.Utils
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
@@ -45,6 +46,9 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
     var activeCameraMode = 0
     var rfidMode = 0
 
+    protected abstract fun initializeReader()
+    protected abstract fun onPrepareDbCompleted()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -56,6 +60,39 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
 
         }
         sharedPreferences = getSharedPreferences(MY_SHARED_PREFS, MODE_PRIVATE)
+
+        if (DocumentReader.Instance().isReady) {
+            successfulInit()
+            return
+        }
+
+        showDialog("Preparing database")
+
+        //preparing database files, it will be downloaded from network only one time and stored on user device
+        DocumentReader.Instance().prepareDatabase(
+            this@BaseActivity,
+            "FullAuth",
+            object : IDocumentReaderPrepareCompletion {
+                override fun onPrepareProgressChanged(progress: Int) {
+                    setTitleDialog("Downloading database: $progress%")
+                }
+
+                override fun onPrepareCompleted(
+                    status: Boolean,
+                    error: DocumentReaderException?
+                ) {
+                    if (status) {
+                        onPrepareDbCompleted()
+                    } else {
+                        dismissDialog()
+                        Toast.makeText(
+                            this@BaseActivity,
+                            "Prepare DB failed:$error",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            })
     }
 
     override fun showCameraActivity() {
@@ -141,17 +178,13 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
                 mainFragment!!.displayResults(documentReaderResults);
         }
 
-        if (resultCode == RESULT_OK) {
-            //Image browsing intent processed successfully
-            if (requestCode == REQUEST_BROWSE_PICTURE) {
-                if (data!!.data != null) {
-                    val selectedImage = data.data
-                    val bmp = getBitmap(selectedImage, 1920, 1080)
-                    showDialog("Processing image")
-                    DocumentReader.Instance().recognizeImage(bmp!!, completion)
-                }
-            }
-        }
+        //Image browsing intent processed successfully
+        if (resultCode != RESULT_OK || requestCode != REQUEST_BROWSE_PICTURE || data!!.data == null) return
+
+        val selectedImage = data.data
+        val bmp: Bitmap? = Utils.getBitmap(contentResolver, selectedImage, 1920, 1080)
+        showDialog("Processing image")
+        DocumentReader.Instance().recognizeImage(bmp!!, completion)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -171,43 +204,6 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
         return false
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (!DocumentReader.Instance().isReady) {
-            showDialog("Initializing")
-
-            //preparing database files, it will be downloaded from network only one time and stored on user device
-            DocumentReader.Instance().prepareDatabase(
-                this@BaseActivity,
-                "FullAuth",
-                object : IDocumentReaderPrepareCompletion {
-                    override fun onPrepareProgressChanged(progress: Int) {
-                        setTitleDialog("Downloading database: $progress%")
-                    }
-
-                    override fun onPrepareCompleted(
-                        status: Boolean,
-                        error: DocumentReaderException?
-                    ) {
-                        if (status) {
-                            onPrepareDbCompleted()
-                        } else {
-                            dismissDialog()
-                            Toast.makeText(
-                                this@BaseActivity,
-                                "Prepare DB failed:$error",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
-                })
-        } else {
-            successfulInit()
-        }
-    }
-
-    protected abstract fun initializeReader()
-    protected abstract fun onPrepareDbCompleted()
     protected val initCompletion =
         IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
             dismissDialog()
@@ -314,58 +310,6 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
             Intent.createChooser(intent, "Select Picture"),
             REQUEST_BROWSE_PICTURE
         )
-    }
-
-    // loads bitmap from uri
-    private fun getBitmap(selectedImage: Uri?, targetWidth: Int, targetHeight: Int): Bitmap? {
-        val resolver = this.contentResolver
-        var `is`: InputStream? = null
-        try {
-            `is` = resolver.openInputStream(selectedImage!!)
-        } catch (e: FileNotFoundException) {
-            e.printStackTrace()
-        }
-        val options = BitmapFactory.Options()
-        options.inJustDecodeBounds = true
-        BitmapFactory.decodeStream(`is`, null, options)
-
-        //Re-reading the input stream to move it's pointer to start
-        try {
-            `is` = resolver.openInputStream(selectedImage!!)
-        } catch (e: FileNotFoundException) {
-            e.printStackTrace()
-        }
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, targetWidth, targetHeight)
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false
-        return BitmapFactory.decodeStream(`is`, null, options)
-    }
-
-    // see https://developer.android.com/topic/performance/graphics/load-bitmap.html
-    private fun calculateInSampleSize(
-        options: BitmapFactory.Options,
-        bitmapWidth: Int,
-        bitmapHeight: Int
-    ): Int {
-        // Raw height and width of image
-        val height = options.outHeight
-        val width = options.outWidth
-        var inSampleSize = 1
-        if (height > bitmapHeight || width > bitmapWidth) {
-            val halfHeight = height / 2
-            val halfWidth = width / 2
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while (halfHeight / inSampleSize > bitmapHeight
-                && halfWidth / inSampleSize > bitmapWidth
-            ) {
-                inSampleSize *= 2
-            }
-        }
-        return inSampleSize
     }
 
     override fun onPause() {
