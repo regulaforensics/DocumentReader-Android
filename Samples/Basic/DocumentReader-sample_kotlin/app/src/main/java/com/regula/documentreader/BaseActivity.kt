@@ -21,15 +21,17 @@ import androidx.fragment.app.FragmentTransaction
 import com.regula.documentreader.MainFragment.Companion.RFID_RESULT
 import com.regula.documentreader.MainFragment.MainCallbacks
 import com.regula.documentreader.api.DocumentReader
-import com.regula.documentreader.api.completions.IDocumentReaderCompletion
-import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
-import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
+import com.regula.documentreader.api.completions.*
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.errors.DocumentReaderException
+import com.regula.documentreader.api.params.rfid.PKDCertificate
+import com.regula.documentreader.api.params.rfid.authorization.PAResourcesIssuer
+import com.regula.documentreader.api.params.rfid.authorization.TAChallenge
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.custom.*
 import com.regula.documentreader.custom.SettingsFragment.RfidMode.CUSTOM
 import com.regula.documentreader.custom.SettingsFragment.RfidMode.DEFAULT
+import com.regula.documentreader.util.CertificatesUtil
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
@@ -258,14 +260,37 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
                         }
                         DEFAULT -> {
                             DocumentReader.Instance().startRFIDReader(
-                                this@BaseActivity
-                            ) { rfidAction, results, error ->
+                                this@BaseActivity,
+                            { rfidAction, results, error ->
                                 if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
                                     mainFragment!!.displayResults(results)
                                 }
-                            }
+                            }, object : IRfidReaderRequest {
+                                override fun onRequestPACertificates(
+                                    bytes: ByteArray?,
+                                    paResourcesIssuer: PAResourcesIssuer?,
+                                    completion: IRfidPKDCertificateCompletion
+                                ) {
+                                    completion.onCertificatesReceived(CertificatesUtil.getRfidCertificates(assets, "Regula/certificates")?.toTypedArray())
+                                }
+
+                                override fun onRequestTACertificates(
+                                    s: String?,
+                                    completion: IRfidPKDCertificateCompletion
+                                ) {
+                                    completion.onCertificatesReceived(CertificatesUtil.getRfidTACertificates(assets)?.toTypedArray());
+                                }
+
+                                override fun onRequestTASignature(
+                                    taChallenge: TAChallenge?,
+                                    completion: IRfidTASignatureCompletion
+                                ) {
+                                    completion.onSignatureReceived(null)
+                                }
+                            })
                         }
                     }
+                    addRfidCertificates()
                 } else {
                     mainFragment!!.displayResults(results)
                 }
@@ -444,5 +469,13 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
                 : DocumentReaderResults? = null
         private const val TAG_UI_FRAGMENT = "ui_fragment"
         private const val TAG_SETTINGS_FRAGMENT = "settings_fragment"
+    }
+
+    fun addRfidCertificates() {
+        val certificates: MutableList<PKDCertificate> = ArrayList()
+        certificates.addAll(CertificatesUtil.getRfidCertificates(assets, "Regula/certificates"))
+        if (certificates.size > 0) {
+            DocumentReader.Instance().addPKDCertificates(certificates)
+        }
     }
 }
