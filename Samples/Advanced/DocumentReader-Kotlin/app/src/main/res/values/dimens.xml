@@ -1,0 +1,19 @@
+<resources>
+    <dimen name="round_big">12dp</dimen>
+    <dimen name="round_margin">5dp</dimen>
+    <dimen name="padding_horizontal">20dp</dimen>
+    <dimen name="rv_padding_vertical">15dp</dimen>
+    <dimen name="rv_padding_vertical_section">7dp</dimen>
+    <dimen name="padding_gap">5dp</dimen>
+    <dimen name="padding_gap_big">15dp</dimen>
+    <dimen name="stepper_height">35dp</dimen>
+    <dimen name="stepper_width">45dp</dimen>
+    <dimen name="stepper_sign">20sp</dimen>
+    <dimen name="custom_rfid_sign">22sp</dimen>
+    <dimen name="bs_item_height">60dp</dimen>
+    <dimen name="bs_margin_horizontal">5dp</dimen>
+    <dimen name="bs_margin_top">1dp</dimen>
+    <dimen name="round_normal">8dp</dimen>
+    <dimen name="round_small">5dp</dimen>
+    <dimen name="navBar">30dp</dimen>
+</resources>

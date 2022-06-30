@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="IconLauncherShape">
+        <ignore path="src/main/res/drawable/r_icon.png" />
+    </issue>
+    <issue id="IconLocation">
+        <ignore path="src/main/res/drawable/big_close.png" />
+        <ignore path="src/main/res/drawable/camera.png" />
+        <ignore path="src/main/res/drawable/capture.png" />
+        <ignore path="src/main/res/drawable/close.png" />
+        <ignore path="src/main/res/drawable/collapse.png" />
+        <ignore path="src/main/res/drawable/credit_card.png" />
+        <ignore path="src/main/res/drawable/expand.png" />
+        <ignore path="src/main/res/drawable/info_barcode.png" />
+        <ignore path="src/main/res/drawable/info_mrz.png" />
+        <ignore path="src/main/res/drawable/info_viz.png" />
+        <ignore path="src/main/res/drawable/light_off.png" />
+        <ignore path="src/main/res/drawable/light_off.png" />
+        <ignore path="src/main/res/drawable/light_off.png" />
+        <ignore path="src/main/res/drawable/light_off.png" />
+        <ignore path="src/main/res/drawable/light_on.png" />
+        <ignore path="src/main/res/drawable/one.png" />
+        <ignore path="src/main/res/drawable/r_icon.png" />
+        <ignore path="src/main/res/drawable/two.png" />
+        <ignore path="src/main/res/drawable/viewfinder.png" />
+    </issue>
+</lint>

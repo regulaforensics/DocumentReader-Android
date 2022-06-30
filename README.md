@@ -9,91 +9,36 @@ We have provided a simple application that demonstrates the ***API*** calls you 
 
 # Content
 * [How to build the demo application](#how-to-build-the-demo-application)
-* [How to add the SDK to the project](#how-to-add-the-sdk-to-the-project)
 * [Troubleshooting license issues](#troubleshooting-license-issues)
 * [Documentation](#documentation)
 * [Additional information](#additional-information)
 
 ## How to build the demo application
-1. Visit [licensing.regulaforensics.com](https://licensing.regulaforensics.com) to get a trial license (`regula.license` file). The license creation wizard will guide you through the necessary steps.
-
-**Note**: optionally, you can also download the documents database (`db.dat` file) to add it to the project manually and use the app without the Internet. Otherwise, it'll be downloaded from the Internet while the app is running.
-
-2. Download and install the latest [Android Studio](https://developer.android.com/studio/index.html).
-3. Download or clone current repository using the command `git clone https://github.com/regulaforensics/DocumentReader-Android.git`.
-4. Launch Android Studio and select _Open an existing Android Studio project_, then select _DocumentReader-sample_ or _DocumentReader-sample_kotlin_ project in the file browser.
-5. Download additional files proposed by Android Studio to build the project (e.g., build tools).
-6. Change the application ID in the `/app/build.gradle` file to the one you have specified during the registration at [licensing.regulaforensics.com](https://licensing.regulaforensics.com) (`com.regula.documentreader` is set by default).
-7. Copy the `regula.license` file to the `/app/src/main/res/raw` folder. If the database has been downloaded manually, place it to the `/app/src/main/assets/Regula` folder.
-8. Build and run the application.
-
-## How to add the SDK to the project
-Document Reader libraries are available in our [Maven](http://maven.regulaforensics.com/RegulaDocumentReader/com/regula/documentreader) repository.
-
-First of all, install **API** library, simply adding the following lines of code to the `build.gradle` file of your project:
-```
-implementation ('com.regula.documentreader:api:+aar'){
-    transitive = true
-}
-```
-
-And then add one of the [Core](https://docs.regulaforensics.com/android/core) libraries depend on the functionality that you wish and the license capabilities:
-* Install **barcode** library edition:
-```
-implementation 'com.regula.documentreader.barcode:core:+@aar'
-```
-
-* Install **barcodemrz** library edition:
-```
-implementation 'com.regula.documentreader.barcodemrz:core:+@aar'
-```
-
-* Install **bounds** library edition:
-```
-implementation 'com.regula.documentreader.bounds:core:+@aar'
-```
-
-* Install **doctype** library edition:
-```
-implementation 'com.regula.documentreader.doctype:core:+@aar'
-```
-
-* Install **full** library edition:
-```
-implementation 'com.regula.documentreader.full:core:+@aar'
-```
-
-* Install **fullrfid** library edition:
-```
-implementation 'com.regula.documentreader.fullrfid:core:+@aar'
-```
-
-* Install **mrz** library edition:
-```
-implementation 'com.regula.documentreader.mrz:core:+@aar'
-```
-
-* Install **mrzrfid** library edition:
-```
-implementation 'com.regula.documentreader.mrzrfid:core:+@aar'
-```
-
-* Install **ocrandmrz** library edition:
-```
-implementation 'com.regula.documentreader.ocrandmrz:core:+@aar'
-```
+1. Visit [client.regulaforensics.com](https://client.regulaforensics.com) to get a trial license (`regula.license` file). The license creation wizard will guide you through the necessary steps.
+1. Download or clone the current repository using the command `git clone https://github.com/regulaforensics/DocumentReader-Android.git`.
+1. Repository structure and steps to build the projects:
+    1. `Advanced` folder contains the advanced sample project with almost all available features. To build it, do the following steps:
+        1. Go to the `Advanced` folder. There you will find the project written in Kotlin.
+        1. Copy the license file to the project: `Advanced/DocumentReader-Kotlin/app/src/main/res/raw/`.
+        1. Open the project in an IDE.
+        1. Run the project.
+    
+    1. `Basic` folder contains the basic sample project with only main features. To build it, do the following steps:
+        1. Go to the `Basic` folder. There you will two projects: one is written in Kotlin, another in Java.
+        1. Copy the license file to the project: `Basic/DocumentReader-sample/app/src/main/res/raw/` or `Basic/DocumentReader-sample_kotlin/app/src/main/res/raw/`.
+        1. Open the project in an IDE.
+        1. Run the project.
 
 ## Troubleshooting license issues
 If you have issues with license verification when running the application, please verify that next is true:
 1. The OS, which you use, is specified in the license (Android).
-2. The application ID, which you use, is specified in the license.
 3. The license is valid (not expired).
 4. The date and time on the device, where you run the application, are valid.
 5. You use the latest release version of the Document Reader SDK.
 6. You placed the license into the project.
 
 ## Documentation
-The documentation on the SDK can be found [here](https://docs.regulaforensics.com/android).
+The documentation on the SDK can be found [here](https://docs.regulaforensics.com/develop/doc-reader-sdk/mobile?utm_source=github).
 
 ## Additional information
 If you have any technical questions or suggestions, feel free to [contact](mailto:android.support@regulaforensics.com) us or create an issue [here](https://github.com/regulaforensics/DocumentReader-Android/issues).

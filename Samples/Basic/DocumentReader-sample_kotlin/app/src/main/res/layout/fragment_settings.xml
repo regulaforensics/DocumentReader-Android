@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Scanner Mode:"
+            android:textColor="@color/blackText"
+            android:textSize="18sp" />
+
+        <RadioGroup
+            android:id="@+id/customCameraRg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/defaultScannerRb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Default scanner (showScanner())" />
+
+            <RadioButton
+                android:id="@+id/customCameraRb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Custom camera scanner (using Camera1)" />
+
+            <RadioButton
+                android:id="@+id/customCamera2Rb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Custom camera scanner (using Camera2)" />
+
+            <RadioButton
+                android:id="@+id/customRegCameraRb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Custom camera scanner (using Regula Activity)" />
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Rfid Mode:"
+            android:textColor="@color/blackText"
+            android:textSize="18sp" />
+
+        <RadioGroup
+            android:id="@+id/rfidRg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/defaultRfidReaderRb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Default rfid reader" />
+
+            <RadioButton
+                android:id="@+id/customRfidReaderRb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Custom rfid reader" />
+        </RadioGroup>
+
+    </LinearLayout>
+</LinearLayout>

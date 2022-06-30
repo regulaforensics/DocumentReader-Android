@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="blue">#4285F4</color>
+
+    <color name="light_1">#F1F1F1</color>
+    <color name="light_2">#DDDDDD</color>
+    <color name="light_3">#9F9F9F</color>
+
+    <color name="dark_1">#1A1A1A</color>
+    <color name="dark_2">#333333</color>
+    <color name="dark_3">#4D4D4D</color>
+
+    <color name="dark_blue">#18368E</color>
+
+    <color name="bs_light">@color/light_1</color>
+    <color name="bs_dark">#333333</color>
+
+    <color name="confirm_red">#FF3B30</color>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/alphaChanger">
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            app:layout_constraintTop_toTopOf="parent"
+            android:id="@+id/switcher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/padding_horizontal"
+            android:paddingTop="@dimen/rv_padding_vertical"
+            android:paddingEnd="10dp"
+            android:paddingBottom="@dimen/rv_padding_vertical" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
