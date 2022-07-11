@@ -1,7 +1,9 @@
 package com.regula.documentreader
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,6 +19,8 @@ import com.regula.documentreader.api.enums.eRPRM_Lights
 import com.regula.documentreader.api.enums.eRPRM_ResultType
 import com.regula.documentreader.api.enums.eVisualFieldType
 import com.regula.documentreader.api.results.DocumentReaderResults
+import com.regula.documentreader.util.BluetoothPermissionHelper.isPermissionsGranted
+import com.regula.documentreader.util.BluetoothPermissionHelper.requestBlePermissions
 
 class MainFragment : Fragment() {
 
@@ -24,6 +28,7 @@ class MainFragment : Fragment() {
     var showScanner: TextView? = null
     var recognizeImage: TextView? = null
     var recognizePdf: TextView? = null
+    var scanFingerprint: TextView? = null
 
     var portraitIv: ImageView? = null
     var docImageIv: ImageView? = null
@@ -56,6 +61,7 @@ class MainFragment : Fragment() {
         showScanner = root.findViewById(R.id.showScannerLink)
         recognizeImage = root.findViewById(R.id.recognizeImageLink)
         recognizePdf = root.findViewById(R.id.recognizePdfLink)
+        scanFingerprint = root.findViewById(R.id.fingerScannerLink)
 
         portraitIv = root.findViewById(R.id.portraitIv)
         docImageIv = root.findViewById(R.id.documentImageIv)
@@ -90,6 +96,41 @@ class MainFragment : Fragment() {
 
     fun initView() {
         recognizePdf!!.setOnClickListener { v: View? -> mCallbacks?.recognizePdf() }
+        scanFingerprint!!.setOnClickListener { v: View? ->
+//            BlePermissionUtils.askForPermissions(this.getActivity());
+            if (!this.requireActivity().packageManager
+                    .hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)
+            ) {
+                Toast.makeText(activity, "ble not supported", Toast.LENGTH_SHORT)
+                    .show()
+                return@setOnClickListener
+            }
+            if (!this.requireActivity().packageManager
+                    .hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
+            ) {
+                Toast.makeText(activity, "ble not supported", Toast.LENGTH_SHORT)
+                    .show()
+                return@setOnClickListener
+            }
+            requestBlePermissions(
+                this.activity,
+                PackageManager.PERMISSION_GRANTED
+            )
+            if (isPermissionsGranted(
+                    activity
+                )
+            ) {
+                val intent =
+                    Intent(activity, FingerScannerActivity::class.java)
+                startActivity(intent)
+            } else {
+                Toast.makeText(
+                    activity,
+                    "ble permission is not granted",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
         recognizeImage!!.setOnClickListener { view: View? ->
             if (!DocumentReader.Instance().documentReaderIsReady) return@setOnClickListener
             clearResults()

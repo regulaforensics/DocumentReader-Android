@@ -138,6 +138,16 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="@android:color/holo_blue_dark" />
 
+        <TextView
+            android:id="@+id/fingerScannerLink"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:clickable="true"
+            android:text="Scan fingerprint"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@android:color/holo_blue_dark" />
+
         <CheckBox
             android:id="@+id/doRfidCb"
             android:layout_width="wrap_content"

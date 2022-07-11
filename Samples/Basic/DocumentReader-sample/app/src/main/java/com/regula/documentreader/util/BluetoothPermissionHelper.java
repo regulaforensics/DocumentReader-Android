@@ -8,7 +8,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.os.Build;
 import android.provider.Settings;
+
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.regula.common.utils.PermissionUtil;
 
@@ -81,6 +86,37 @@ public class BluetoothPermissionHelper {
             return false;
 
         return activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
+    }
+
+    public static final String[] BLE_PERMISSIONS = new String[]{
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION
+    };
+
+    @RequiresApi(api = Build.VERSION_CODES.S)
+    public static final String[] ANDROID_12_BLE_PERMISSIONS = new String[]{
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT
+    };
+
+    public static boolean isPermissionsGranted(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            return ContextCompat.checkSelfPermission(activity,
+                    ANDROID_12_BLE_PERMISSIONS[0]) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(activity,
+                    ANDROID_12_BLE_PERMISSIONS[1]) == PackageManager.PERMISSION_GRANTED;
+        else
+            return ContextCompat.checkSelfPermission(activity,
+                    BLE_PERMISSIONS[0]) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(activity,
+                    BLE_PERMISSIONS[1]) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    public static void requestBlePermissions(Activity activity, int requestCode) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            ActivityCompat.requestPermissions(activity, ANDROID_12_BLE_PERMISSIONS, requestCode);
+        else
+            ActivityCompat.requestPermissions(activity, BLE_PERMISSIONS, requestCode);
     }
 }
 

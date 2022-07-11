@@ -3,7 +3,9 @@ package com.regula.documentreader;
 import static com.regula.documentreader.BaseActivity.DO_RFID;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,6 +16,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
@@ -24,6 +27,7 @@ import com.regula.documentreader.api.enums.eRPRM_ResultType;
 import com.regula.documentreader.api.enums.eVisualFieldType;
 import com.regula.documentreader.api.results.DocumentReaderGraphicField;
 import com.regula.documentreader.api.results.DocumentReaderResults;
+import com.regula.documentreader.util.BluetoothPermissionHelper;
 
 public class MainFragment extends Fragment {
 
@@ -31,6 +35,7 @@ public class MainFragment extends Fragment {
     private TextView showScanner;
     private TextView recognizeImage;
     private TextView recognizePdf;
+    private TextView scanFingerprint;
 
     private ImageView portraitIv;
     private ImageView docImageIv;
@@ -57,6 +62,7 @@ public class MainFragment extends Fragment {
         showScanner = root.findViewById(R.id.showScannerLink);
         recognizeImage = root.findViewById(R.id.recognizeImageLink);
         recognizePdf = root.findViewById(R.id.recognizePdfLink);
+        scanFingerprint = root.findViewById(R.id.fingerScannerLink);
 
         portraitIv = root.findViewById(R.id.portraitIv);
         docImageIv = root.findViewById(R.id.documentImageIv);
@@ -93,7 +99,25 @@ public class MainFragment extends Fragment {
 
     private void initView() {
         recognizePdf.setOnClickListener(v -> mCallbacks.recognizePdf());
+        scanFingerprint.setOnClickListener(v -> {
+            if (!this.getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)) {
+                Toast.makeText(getActivity(), "ble not supported", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
+            if (!this.getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+                Toast.makeText(getActivity(), "ble not supported", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            BluetoothPermissionHelper.requestBlePermissions(this.getActivity(), PackageManager.PERMISSION_GRANTED);
+            if (BluetoothPermissionHelper.isPermissionsGranted(getActivity())) {
+                Intent intent = new Intent(getActivity(), FingerScannerActivity.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(getActivity(), "ble permission is not granted", Toast.LENGTH_SHORT).show();
+            }
+        });
         recognizeImage.setOnClickListener(view -> {
             if (!DocumentReader.Instance().isReady())
                 return;
