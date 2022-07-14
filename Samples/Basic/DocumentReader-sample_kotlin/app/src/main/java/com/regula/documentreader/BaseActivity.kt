@@ -5,8 +5,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -31,7 +29,6 @@ import com.regula.documentreader.custom.*
 import com.regula.documentreader.custom.SettingsFragment.RfidMode.CUSTOM
 import com.regula.documentreader.custom.SettingsFragment.RfidMode.DEFAULT
 import com.regula.documentreader.util.Utils
-import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 import java.util.concurrent.Executors
@@ -71,7 +68,7 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
         //preparing database files, it will be downloaded from network only one time and stored on user device
         DocumentReader.Instance().prepareDatabase(
             this@BaseActivity,
-            "Full", // if you use 7310, replace to FullAuth
+            "Full",  // if you use 7310, replace to FullAuth
             object : IDocumentReaderPrepareCompletion {
                 override fun onPrepareProgressChanged(progress: Int) {
                     setTitleDialog("Downloading database: $progress%")
@@ -367,16 +364,33 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
     }
 
     open fun setScenarios() {
-        val scenarios = java.util.ArrayList<String>()
+        val scenarios = ArrayList<String>()
         for (scenario in DocumentReader.Instance().availableScenarios) {
             scenarios.add(scenario.name)
         }
-
         //setting default scenario
-        DocumentReader.Instance().processParams().scenario = scenarios[0]
+        if (DocumentReader.Instance().processParams().scenario.isEmpty()) DocumentReader.Instance()
+            .processParams().scenario =
+            scenarios[0]
+
+        val scenarioPosition: Int =
+            getScenarioPosition(scenarios, DocumentReader.Instance().processParams().scenario)
+        scenarioLv(DocumentReader.Instance().processParams().scenario)
         val adapter =
             ScenarioAdapter(this@BaseActivity, android.R.layout.simple_list_item_1, scenarios)
+        adapter.setSelectedPosition(scenarioPosition)
         mainFragment!!.setAdapter(adapter)
+    }
+
+    private fun getScenarioPosition(scenarios: List<String>, currentScenario: String): Int {
+        var selectedPosition = 0
+        for (i in scenarios.indices) {
+            if (scenarios[i] == currentScenario) {
+                selectedPosition = i
+                break
+            }
+        }
+        return selectedPosition
     }
 
     companion object {

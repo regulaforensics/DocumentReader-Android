@@ -42,6 +42,7 @@ import com.regula.documentreader.util.Utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 public abstract class BaseActivity extends AppCompatActivity implements MainFragment.MainCallbacks {
@@ -405,10 +406,25 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
         }
 
         //setting default scenario
-        DocumentReader.Instance().processParams().scenario = scenarios.get(0);
+        if (DocumentReader.Instance().processParams().scenario.isEmpty())
+            DocumentReader.Instance().processParams().scenario = scenarios.get(0);
 
+        int scenarioPosition = getScenarioPosition(scenarios, DocumentReader.Instance().processParams().scenario);
+        scenarioLv(DocumentReader.Instance().processParams().scenario);
         final ScenarioAdapter adapter = new ScenarioAdapter(BaseActivity.this, android.R.layout.simple_list_item_1, scenarios);
+        adapter.setSelectedPosition(scenarioPosition);
         mainFragment.setAdapter(adapter);
+    }
+
+    private int getScenarioPosition(List<String> scenarios, String currentScenario) {
+        int selectedPosition = 0;
+        for (int i = 0; i < scenarios.size(); i++) {
+            if (scenarios.get(i).equals(currentScenario)) {
+                selectedPosition = i;
+                break;
+            }
+        }
+        return selectedPosition;
     }
 
     @Override
