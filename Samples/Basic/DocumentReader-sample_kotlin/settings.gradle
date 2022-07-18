@@ -1,0 +1,15 @@
+import org.gradle.api.initialization.resolve.RepositoriesMode
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        google()
+        mavenCentral()
+        jcenter() // Warning: this repository is going to shut down soon
+        maven {
+            url = uri("https://maven.regulaforensics.com/RegulaDocumentReader")
+        }
+    }
+}
+include ':app'
+rootProject.name = "DocumentReader-Kotlin"

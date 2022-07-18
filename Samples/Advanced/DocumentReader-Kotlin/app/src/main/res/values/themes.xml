@@ -1,0 +1,53 @@
+<resources>
+
+    <style name="Theme.DocumentReaderSample_kotlin" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorAccent">@color/blue</item>
+
+        <item name="colorPrimary">@color/light_1</item>
+        <item name="colorPrimaryVariant">@color/light_2</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+
+        <item name="colorSecondary">@color/bs_light</item>
+        <item name="colorSecondaryVariant">@color/light_3</item>
+        <item name="colorOnSecondary">@android:color/black</item>
+
+        <item name="textAllCaps">false</item>
+        <item name="android:statusBarColor">?colorPrimary</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+
+        <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+    </style>
+
+    <style name="AppBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="colorAccent">@color/blue</item>
+    </style>
+
+    <style name="TabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="AlertDialogTheme" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="buttonBarPositiveButtonStyle">@style/ButtonStyleDefault</item>
+        <item name="buttonBarNegativeButtonStyle">@style/ButtonStyleDefault</item>
+    </style>
+
+    <style name="ButtonStyleDefault" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">?colorAccent</item>
+    </style>
+
+    <style name="ConfirmAlertDialogTheme" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="buttonBarPositiveButtonStyle">@style/ButtonStyleConfirm</item>
+        <item name="buttonBarNegativeButtonStyle">@style/ButtonStyleCancel</item>
+    </style>
+
+    <style name="ButtonStyleCancel" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">?colorSecondaryVariant</item>
+    </style>
+
+    <style name="ButtonStyleConfirm" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/confirm_red</item>
+    </style>
+
+</resources>

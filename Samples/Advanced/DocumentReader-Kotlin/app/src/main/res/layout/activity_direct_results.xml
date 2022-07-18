@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DirectResultsActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="?colorPrimary"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/backBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="@string/all_results"
+            android:textAllCaps="false"
+            android:textColor="?colorAccent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/helpBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="@string/help"
+            android:textAllCaps="false"
+            android:textColor="?colorAccent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <NumberPicker
+        android:id="@+id/resultsPicker"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center_horizontal"
+        android:descendantFocusability="blocksDescendants"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/header" />
+
+    <FrameLayout
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="@dimen/padding_gap"
+        app:layout_constraintBottom_toTopOf="@id/separator"
+        app:layout_constraintTop_toBottomOf="@+id/resultsPicker" />
+
+    <View
+        android:id="@+id/separator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?colorOnSecondary"
+        app:layout_constraintBottom_toTopOf="@id/footer" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/padding_gap_big"
+        android:paddingStart="@dimen/padding_gap_big"
+        android:paddingEnd="@dimen/padding_gap_big"
+        android:paddingBottom="@dimen/navBar"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/footerResultLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/result"
+            android:textColor="?colorOnSecondary"
+            android:paddingTop="@dimen/padding_gap"
+            android:paddingStart="@dimen/padding_gap"
+            android:paddingEnd="@dimen/padding_gap"
+            android:paddingBottom="@dimen/padding_gap"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/footerResult"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/box_outline"
+            android:textColor="?colorOnSecondary"
+            android:paddingTop="@dimen/padding_gap"
+            android:paddingStart="@dimen/padding_gap"
+            android:paddingEnd="@dimen/padding_gap"
+            android:paddingBottom="@dimen/padding_gap"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/footerResultLabel"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/footerCodeDefinitionLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="?colorOnSecondary"
+            android:paddingTop="@dimen/padding_gap"
+            android:paddingBottom="@dimen/padding_gap"
+            android:text="@string/code_definition"
+            app:layout_constraintTop_toBottomOf="@id/footerResult" />
+
+        <TextView
+            android:id="@+id/footerCodeDefinition"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded"
+            android:textColor="?colorOnSecondary"
+            android:paddingStart="@dimen/padding_gap_big"
+            android:paddingEnd="@dimen/padding_gap_big"
+            android:paddingTop="@dimen/rv_padding_vertical"
+            android:paddingBottom="@dimen/rv_padding_vertical"
+            app:layout_constraintTop_toBottomOf="@id/footerCodeDefinitionLabel" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
