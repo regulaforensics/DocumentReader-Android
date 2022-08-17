@@ -14,24 +14,27 @@ We have provided a simple application that demonstrates the ***API*** calls you 
 * [Additional information](#additional-information)
 
 ## How to build the demo application
-1. Visit [client.regulaforensics.com](https://client.regulaforensics.com) to get a trial license (`regula.license` file). The license creation wizard will guide you through the necessary steps.
+1. Visit [licensing.regulaforensics.com](https://licensing.regulaforensics.com) to get a trial license (`regula.license` file). The license creation wizard will guide you through the necessary steps.
 1. Download or clone the current repository using the command `git clone https://github.com/regulaforensics/DocumentReader-Android.git`.
 1. Repository structure and steps to build the projects:
     1. `Advanced` folder contains the advanced sample project with almost all available features. To build it, do the following steps:
         1. Go to the `Advanced` folder. There you will find the project written in Kotlin.
-        1. Copy the license file to the project: `Advanced/DocumentReader-Kotlin/app/src/main/res/raw/`.
+        1. Copy the license file to the project: `Advanced/DocumentReader-Kotlin/app/src/main/assets/Regula/`.
         1. Open the project in an IDE.
+        1. Change the application ID to the one you have specified during the registration at [licensing.regulaforensics.com](https://licensing.regulaforensics.com).
         1. Run the project.
     
     1. `Basic` folder contains the basic sample project with only main features. To build it, do the following steps:
         1. Go to the `Basic` folder. There you will two projects: one is written in Kotlin, another in Java.
-        1. Copy the license file to the project: `Basic/DocumentReader-sample/app/src/main/res/raw/` or `Basic/DocumentReader-sample_kotlin/app/src/main/res/raw/`.
+        1. Copy the license file to the project: `Basic/DocumentReader-sample/app/src/main/assets/Regula/` or `Basic/DocumentReader-sample_kotlin/app/src/main/assets/Regula/`.
         1. Open the project in an IDE.
+        1. Change the application ID to the one you have specified during the registration at [licensing.regulaforensics.com](https://licensing.regulaforensics.com).
         1. Run the project.
 
 ## Troubleshooting license issues
 If you have issues with license verification when running the application, please verify that next is true:
 1. The OS, which you use, is specified in the license (Android).
+2. The application ID, which you use, is specified in the license.
 3. The license is valid (not expired).
 4. The date and time on the device, where you run the application, are valid.
 5. You use the latest release version of the Document Reader SDK.
