@@ -1,0 +1,22 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url = uri("https://maven.regulaforensics.com/RegulaDocumentReader")
+        }
+        maven {
+            url = uri("https://maven.regulaforensics.com/RegulaDocumentReader/Beta")
+        }
+    }
+}
+rootProject.name = "OnlineProcessing-With-License-Kotlin"
+include ':app'

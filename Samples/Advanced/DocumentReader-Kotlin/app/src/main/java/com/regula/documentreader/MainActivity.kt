@@ -19,7 +19,6 @@ import android.text.style.StyleSpan
 import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.Toast
-import android.view.*
 import android.view.animation.AccelerateInterpolator
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -40,12 +39,10 @@ import com.regula.documentreader.Helpers.Companion.getBitmap
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_CUSTOM
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_GALLERY
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_MANUAL_MULTIPAGE_MODE
-import com.regula.documentreader.Scan.Companion.ACTION_TYPE_ONLINE
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_SCANNER
 import com.regula.documentreader.SettingsActivity.Companion.functionality
 import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnabled
 import com.regula.documentreader.SettingsActivity.Companion.isRfidEnabled
-import com.regula.documentreader.SettingsActivity.Companion.useCustomRfidActivity
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
@@ -55,7 +52,7 @@ import com.regula.documentreader.api.enums.eRPRM_Lights
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
 import com.regula.documentreader.api.params.ImageInputData
-import com.regula.documentreader.api.parser.DocReaderResultsJsonParser
+import com.regula.documentreader.api.internal.parser.DocReaderResultsJsonParser
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.databinding.ActivityMainBinding
 import org.json.JSONException
@@ -156,14 +153,15 @@ class MainActivity : FragmentActivity(), Serializable {
         if (Instance().isReady)
             return
 
-        initDialog = showDialog("Initializing")
-
         val license = LicenseUtil.readFileFromAssets(
             "Regula",
             "regula.license",
             this
         )
-        license?.let { getPrepareCompletion(it)
+
+        license?.let {
+            initDialog = showDialog("Initializing")
+            getPrepareCompletion(it)
         }?.let { Instance().prepareDatabase(this, "Full", it) }
     }
 
@@ -180,8 +178,7 @@ class MainActivity : FragmentActivity(), Serializable {
                         initDialog!!.dismiss()
                     Instance().customization().edit().setShowHelpAnimation(false).apply()
 
-                    if (success)
-                        onInitComplete()
+                    if (success) onInitComplete()
                     else
                         Toast.makeText(
                             this@MainActivity,
@@ -197,21 +194,28 @@ class MainActivity : FragmentActivity(), Serializable {
         val scenarios: Array<String?> = arrayOfNulls(Instance().availableScenarios.size)
         for ((i, scenario) in Instance().availableScenarios.withIndex())
             scenarios[i] = scenario.name
-        if (currentScenario.isEmpty()) {
-            currentScenario = scenarios[0] ?: ""
-            Instance().processParams().scenario = currentScenario
+        if (scenarios.isNotEmpty()) {
+            if (currentScenario.isEmpty()) {
+                currentScenario = scenarios[0] ?: ""
+                Instance().processParams().scenario = currentScenario
+            }
+            binding.scenarioPicker.visibility = View.VISIBLE
+            binding.scenarioPicker.maxValue = scenarios.size - 1
+            binding.scenarioPicker.wrapSelectorWheel = false
+            binding.scenarioPicker.displayedValues = scenarios
+            binding.scenarioPicker.value = scenarios.indexOf(currentScenario)
+            binding.scenarioPicker.setOnValueChangedListener { _, _, newVal ->
+                binding.scenarioPicker.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                Instance().processParams().scenario = scenarios[newVal] ?: ""
+            }
+            binding.recyclerView.visibility = View.VISIBLE
+        } else {
+            Toast.makeText(
+                this@MainActivity,
+                "Available scenarios list is empty",
+                Toast.LENGTH_SHORT
+            ).show()
         }
-        binding.scenarioPicker.visibility = View.VISIBLE
-        binding.scenarioPicker.maxValue = scenarios.size - 1
-        binding.scenarioPicker.wrapSelectorWheel = false
-        binding.scenarioPicker.displayedValues = scenarios
-        binding.scenarioPicker.value = scenarios.indexOf(currentScenario)
-        binding.scenarioPicker.setOnValueChangedListener { _, _, newVal ->
-            binding.scenarioPicker.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-            Instance().processParams().scenario = scenarios[newVal] ?: ""
-        }
-
-        binding.recyclerView.visibility = View.VISIBLE
     }
 
     override fun onPause() {
@@ -256,15 +260,10 @@ class MainActivity : FragmentActivity(), Serializable {
                 }
             }
             if (isRfidEnabled && results?.chipPage != 0) {
-                if (useCustomRfidActivity) {
-                    MainActivity.results = results
-                    val rfidIntent = Intent(this@MainActivity, CustomRfidActivity::class.java)
-                    customRfidIntentLauncher.launch(rfidIntent)
-                } else
-                    Instance().startRFIDReader(this) { rfidAction, results_RFIDReader, _ ->
-                        if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL)
-                            displayResults(results_RFIDReader!!)
-                    }
+                Instance().startRFIDReader(this) { rfidAction, results_RFIDReader, _ ->
+                    if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL)
+                        displayResults(results_RFIDReader!!)
+                }
             } else
                 displayResults(results!!)
         } else
@@ -341,10 +340,6 @@ class MainActivity : FragmentActivity(), Serializable {
         imageBrowsingIntentLauncher.launch(Intent.createChooser(intent, "Select Picture"))
     }
 
-    fun onlineProcessing() {
-        startActivity(Intent(this, OnlineProcessingActivity::class.java))
-    }
-
     fun recognizeImage() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
             != PackageManager.PERMISSION_GRANTED
@@ -395,7 +390,6 @@ class MainActivity : FragmentActivity(), Serializable {
         })
 
         rvData.add(Section("Custom"))
-        rvData.add(Scan("Online processing", ACTION_TYPE_ONLINE))
         rvData.add(Scan("Manual multipage mode", ACTION_TYPE_MANUAL_MULTIPAGE_MODE) {
             Instance().functionality().edit().setManualMultipageMode(true).apply()
         })

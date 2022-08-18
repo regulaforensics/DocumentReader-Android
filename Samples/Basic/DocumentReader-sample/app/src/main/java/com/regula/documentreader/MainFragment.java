@@ -5,7 +5,9 @@ import static com.regula.documentreader.BaseActivity.DO_RFID;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,17 +15,22 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
 import com.regula.documentreader.api.DocumentReader;
+import com.regula.documentreader.api.enums.eCheckResult;
 import com.regula.documentreader.api.enums.eGraphicFieldType;
 import com.regula.documentreader.api.enums.eRPRM_Lights;
 import com.regula.documentreader.api.enums.eRPRM_ResultType;
 import com.regula.documentreader.api.enums.eVisualFieldType;
 import com.regula.documentreader.api.results.DocumentReaderGraphicField;
 import com.regula.documentreader.api.results.DocumentReaderResults;
+import com.regula.documentreader.api.results.authenticity.DocumentReaderAuthenticityCheck;
+import com.regula.documentreader.api.results.authenticity.DocumentReaderAuthenticityElement;
+import com.regula.documentreader.api.results.authenticity.DocumentReaderIdentResult;
 
 public class MainFragment extends Fragment {
 
@@ -40,6 +47,10 @@ public class MainFragment extends Fragment {
     private CheckBox doRfidCb;
 
     private ListView scenarioLv;
+
+    private RelativeLayout authenticityLayout;
+    private ImageView authenticityResultImg;
+
     private volatile MainCallbacks mCallbacks;
     public static int RFID_RESULT = 100;
 
@@ -63,6 +74,9 @@ public class MainFragment extends Fragment {
         uvImageView = root.findViewById(R.id.uvImageView);
         irImageView = root.findViewById(R.id.irImageView);
 
+        authenticityLayout = root.findViewById(R.id.authenticityLayout);
+        authenticityResultImg = root.findViewById(R.id.authenticityResultImg);
+
         scenarioLv = root.findViewById(R.id.scenariosList);
 
         doRfidCb = root.findViewById(R.id.doRfidCb);
@@ -75,7 +89,9 @@ public class MainFragment extends Fragment {
     public void onResume() {//used to show scenarios after fragments transaction
         super.onResume();
         if (getActivity() != null && DocumentReader.Instance().isReady())
-            ((BaseActivity) getActivity()).setScenarios();
+
+            if (DocumentReader.Instance().availableScenarios.size() > 0)
+                ((BaseActivity) getActivity()).setScenarios();
     }
 
     @Override
@@ -105,7 +121,7 @@ public class MainFragment extends Fragment {
 
         showScanner.setOnClickListener(view -> {
             clearResults();
-            launchCamera(((BaseActivity) getActivity()).activeCameraMode);
+            mCallbacks.showScanner();
         });
 
         scenarioLv.setOnItemClickListener((adapterView, view, i, l) -> {
@@ -147,6 +163,26 @@ public class MainFragment extends Fragment {
                 irImageView.setImageBitmap(resizeBitmap(irDocumentReaderGraphicField.getBitmap()));
             }
         }
+
+        if (results != null) {
+            if (results.authenticityResult != null
+                    && DocumentReader.Instance().functionality().isUseAuthenticator()) {
+                authenticityLayout.setVisibility(View.VISIBLE);
+                authenticityResultImg.setImageResource(results.authenticityResult.getStatus() == eCheckResult.CH_CHECK_OK ? R.drawable.correct : R.drawable.incorrect);
+
+                for (DocumentReaderAuthenticityCheck check : results.authenticityResult.checks) {
+                    for (DocumentReaderAuthenticityElement element : check.elements) {
+                        if (element instanceof DocumentReaderIdentResult)  {
+                            Log.d("AuthenticityCheck", "Element status: " + (element.status == eCheckResult.CH_CHECK_OK ? "Ok" : "Error") + ", percent: " + ((DocumentReaderIdentResult)element).percentValue);
+                        } else {
+                            Log.d("AuthenticityCheck", "Element type: " + element.elementType + ", status: " + (element.status == eCheckResult.CH_CHECK_OK ? "Ok" : "Error"));
+                        }
+                    }
+                }
+            } else {
+                authenticityLayout.setVisibility(View.GONE);
+            }
+        }
     }
 
     private Bitmap resizeBitmap(Bitmap bitmap) {
@@ -157,10 +193,21 @@ public class MainFragment extends Fragment {
         return null;
     }
 
+    public void disableUiElements() {
+        recognizePdf.setClickable(false);
+        showScanner.setClickable(false);
+        recognizeImage.setClickable(false);
+
+        recognizePdf.setTextColor(Color.GRAY);
+        showScanner.setTextColor(Color.GRAY);
+        recognizeImage.setTextColor(Color.GRAY);
+    }
+
     private void clearResults() {
         nameTv.setText("");
         portraitIv.setImageResource(R.drawable.portrait);
         docImageIv.setImageResource(R.drawable.id);
+        authenticityLayout.setVisibility(View.GONE);
     }
 
     public void setAdapter(ScenarioAdapter adapter) {
@@ -185,38 +232,7 @@ public class MainFragment extends Fragment {
         }
     }
 
-    private void launchCamera(int activeCameraMode) {
-        switch (activeCameraMode) {
-            case CameraMode.SDK_SHOW_SCANNER:
-                mCallbacks.showScanner();
-                break;
-            case CameraMode.SHOW_CAMERA_ACTIVITY:
-                mCallbacks.showCameraActivity();
-                break;
-            case CameraMode.SHOW_CUSTOM_CAMERA_ACTIVITY:
-                mCallbacks.showCustomCameraActivity();
-                break;
-
-            case CameraMode.SHOW_CUSTOM_CAMERA_ACTIVITY2:
-                mCallbacks.showCustomCamera2Activity();
-                break;
-        }
-    }
-
-    private static class CameraMode {
-        public static final int SDK_SHOW_SCANNER = 0;
-        public static final int SHOW_CAMERA_ACTIVITY = 1;
-        public static final int SHOW_CUSTOM_CAMERA_ACTIVITY = 2;
-        public static final int SHOW_CUSTOM_CAMERA_ACTIVITY2 = 3;
-    }
-
     interface MainCallbacks {
-
-        void showCameraActivity();
-
-        void showCustomCameraActivity();
-
-        void showCustomCamera2Activity();
 
         void scenarioLv(String item);
 

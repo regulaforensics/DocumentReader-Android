@@ -1,7 +1,6 @@
 package com.regula.documentreader;
 
 import static com.regula.documentreader.MainFragment.RFID_RESULT;
-import static com.regula.documentreader.SettingsFragment.RfidMode.CUSTOM;
 
 import android.Manifest;
 import android.content.Intent;
@@ -10,8 +9,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -33,10 +30,6 @@ import com.regula.documentreader.api.enums.DocReaderAction;
 import com.regula.documentreader.api.errors.DocumentReaderException;
 import com.regula.documentreader.api.results.DocumentReaderResults;
 import com.regula.documentreader.api.results.DocumentReaderScenario;
-import com.regula.documentreader.custom.Camera2Activity;
-import com.regula.documentreader.custom.CameraActivity;
-import com.regula.documentreader.custom.CustomRegActivity;
-import com.regula.documentreader.custom.CustomRfidActivity;
 import com.regula.documentreader.util.Utils;
 
 import java.io.IOException;
@@ -58,10 +51,8 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
     private boolean doRfid;
     private AlertDialog loadingDialog;
     protected MainFragment mainFragment;
-    protected SettingsFragment settingsFragment;
     protected FrameLayout fragmentContainer;
 
-    public int activeCameraMode;
     public int rfidMode;
     public static DocumentReaderResults documentReaderResults;
 
@@ -109,54 +100,6 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
                 }
             }
         });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar_actions, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_settings) {
-            settingsFragment = (SettingsFragment) findFragmentByTag(TAG_SETTINGS_FRAGMENT);
-            if (settingsFragment == null) {
-                settingsFragment = new SettingsFragment();
-                replaceFragment(settingsFragment,true);
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public void showCameraActivity() {
-        if (!DocumentReader.Instance().isReady())
-            return;
-
-        Intent cameraIntent = new Intent();
-        cameraIntent.setClass(BaseActivity.this, CameraActivity.class);
-        startActivity(cameraIntent);
-    }
-
-    @Override
-    public void showCustomCameraActivity() {
-        if (!DocumentReader.Instance().isReady())
-            return;
-
-        Intent cameraIntent = new Intent();
-        cameraIntent.setClass(BaseActivity.this, CustomRegActivity.class);
-        startActivity(cameraIntent);
-    }
-
-    @Override
-    public void showCustomCamera2Activity() {
-        if (!DocumentReader.Instance().isReady())
-            return;
-
-        Intent cameraIntent = new Intent();
-        cameraIntent.setClass(BaseActivity.this, Camera2Activity.class);
-        startActivity(cameraIntent);
     }
 
     @Override
@@ -224,7 +167,7 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RFID_RESULT) {
-            if (documentReaderResults != null && rfidMode == CUSTOM)
+            if (documentReaderResults != null)
                 mainFragment.displayResults(documentReaderResults);
         }
 
@@ -246,6 +189,7 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
         dismissDialog();
 
         if (!result) { //Initialization was not successful
+            mainFragment.disableUiElements();
             Toast.makeText(BaseActivity.this, "Init failed:" + error, Toast.LENGTH_LONG).show();
             return;
         }
@@ -259,9 +203,17 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
 
         mainFragment.setDoRfid(DocumentReader.Instance().isRFIDAvailableForUse(), sharedPreferences);
         //getting current processing scenario and loading available scenarios to ListView
-        setScenarios();
+        if (DocumentReader.Instance().availableScenarios.size() > 0)
+            setScenarios();
+        else {
+            Toast.makeText(
+                    this,
+                    "Available scenarios list is empty",
+                    Toast.LENGTH_SHORT
+            ).show();
+            mainFragment.disableUiElements();
+        }
     }
-
 
     private void setupCustomization() {
         DocumentReader.Instance().customization().edit().setShowHelpAnimation(false).apply();
@@ -269,7 +221,6 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
 
     private void setupFunctionality() {
         DocumentReader.Instance().functionality().edit()
-                .setUseAuthenticator(true)
                 .setShowCameraSwitchButton(true)
                 .apply();
     }
@@ -278,16 +229,12 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
         @Override
         public void onCompleted(int action, DocumentReaderResults results, DocumentReaderException error) {
             //processing is finished, all results are ready
-            if (action == DocReaderAction.COMPLETE) {
+            if (action == DocReaderAction.COMPLETE || action == DocReaderAction.TIMEOUT) {
                 dismissDialog();
 
                 //Checking, if nfc chip reading should be performed
                 if (doRfid && results != null && results.chipPage != 0) {
                     //starting chip reading
-                    if (rfidMode == CUSTOM) {
-                        Intent rfidIntent = new Intent(BaseActivity.this, CustomRfidActivity.class);
-                        startActivityForResult(rfidIntent, RFID_RESULT);
-                    } else if (rfidMode == SettingsFragment.RfidMode.DEFAULT) {
                         DocumentReader.Instance().startRFIDReader(BaseActivity.this, new IDocumentReaderCompletion() {
                             @Override
                             public void onCompleted(int rfidAction, DocumentReaderResults results, DocumentReaderException error) {
@@ -296,7 +243,6 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
                                 }
                             }
                         });
-                    }
                 } else {
                     mainFragment.displayResults(results);
                 }
@@ -404,16 +350,17 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
         for (DocumentReaderScenario scenario : DocumentReader.Instance().availableScenarios) {
             scenarios.add(scenario.name);
         }
+        if (scenarios.size() > 0) {
+            //setting default scenario
+            if (DocumentReader.Instance().processParams().scenario.isEmpty())
+                DocumentReader.Instance().processParams().scenario = scenarios.get(0);
 
-        //setting default scenario
-        if (DocumentReader.Instance().processParams().scenario.isEmpty())
-            DocumentReader.Instance().processParams().scenario = scenarios.get(0);
-
-        int scenarioPosition = getScenarioPosition(scenarios, DocumentReader.Instance().processParams().scenario);
-        scenarioLv(DocumentReader.Instance().processParams().scenario);
-        final ScenarioAdapter adapter = new ScenarioAdapter(BaseActivity.this, android.R.layout.simple_list_item_1, scenarios);
-        adapter.setSelectedPosition(scenarioPosition);
-        mainFragment.setAdapter(adapter);
+            int scenarioPosition = getScenarioPosition(scenarios, DocumentReader.Instance().processParams().scenario);
+            scenarioLv(DocumentReader.Instance().processParams().scenario);
+            final ScenarioAdapter adapter = new ScenarioAdapter(BaseActivity.this, android.R.layout.simple_list_item_1, scenarios);
+            adapter.setSelectedPosition(scenarioPosition);
+            mainFragment.setAdapter(adapter);
+        }
     }
 
     private int getScenarioPosition(List<String> scenarios, String currentScenario) {

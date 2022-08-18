@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.regula.documentreader">
-
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -14,42 +13,15 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
         <activity
-            android:name=".StartActivity"
-            android:exported="true"
-            android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".DeviceActivity"
-            android:theme="@style/Theme.AppCompat.DayNight"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".custom.Camera2Activity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".custom.CustomRfidActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
-
-        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.DayNight"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".custom.CameraActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".custom.CustomRegActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

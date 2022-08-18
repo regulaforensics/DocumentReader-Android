@@ -26,7 +26,7 @@ We have provided a simple application that demonstrates the ***API*** calls you 
     
     1. `Basic` folder contains the basic sample project with only main features. To build it, do the following steps:
         1. Go to the `Basic` folder. There you will two projects: one is written in Kotlin, another in Java.
-        1. Copy the license file to the project: `Basic/DocumentReader-sample/app/src/main/assets/Regula/` or `Basic/DocumentReader-sample_kotlin/app/src/main/assets/Regula/`.
+        1. Copy the license file to the project: `Basic/DocumentReader-sample/app/src/main/res/raw/` or `Basic/DocumentReader-sample_kotlin/app/src/main/res/raw/`.
         1. Open the project in an IDE.
         1. Change the application ID to the one you have specified during the registration at [licensing.regulaforensics.com](https://licensing.regulaforensics.com).
         1. Run the project.

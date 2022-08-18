@@ -18,31 +18,24 @@ import java.util.Arrays;
  */
 
 public class LicenseUtil {
+    public static byte[] getLicense(Context context) {
+        if (context == null)
+            return null;
 
-    public static byte[] readFileFromAssets(String assetPackageName, String fileName, Context context) {
-        InputStream licInput;
+        InputStream licInput = context.getResources().openRawResource(R.raw.regula);
+        int available;
         try {
-            if (context.getAssets().list(assetPackageName) == null
-                    || !Arrays.asList(context.getAssets().list(assetPackageName)).contains(fileName)) {
-                Log.e("FileUtil", "asset: " + fileName + " is absent");
-                return null;
-            }
+            available = licInput.available();
         } catch (IOException e) {
-            e.printStackTrace();
+            return null;
+        }
+        byte[] license = new byte[available];
+        try {
+            licInput.read(license);
+        } catch (IOException e) {
+            return null;
         }
 
-        try {
-            licInput = context.getAssets().open(assetPackageName + "/" + fileName);
-            int available = licInput != null ? licInput.available() : 0;
-            if (available == 0)
-                return null;
-            final byte[] license = new byte[available];
-            licInput.read(license);
-            licInput.close();
-            return license;
-        } catch (Exception e) {
-            e.getMessage();
-        }
-        return null;
+        return license;
     }
 }

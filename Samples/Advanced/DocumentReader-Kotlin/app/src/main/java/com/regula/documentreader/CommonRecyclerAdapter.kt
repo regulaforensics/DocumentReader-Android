@@ -17,7 +17,6 @@ import com.regula.documentreader.Helpers.Companion.openLink
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_CUSTOM
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_GALLERY
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_MANUAL_MULTIPAGE_MODE
-import com.regula.documentreader.Scan.Companion.ACTION_TYPE_ONLINE
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_SCANNER
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.params.Functionality
@@ -121,7 +120,6 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
                     when (scan.actionType) {
                         ACTION_TYPE_SCANNER -> (context as MainActivity).showScanner()
                         ACTION_TYPE_GALLERY -> (context as MainActivity).recognizeImage()
-                        ACTION_TYPE_ONLINE -> (context as MainActivity).onlineProcessing()
                         ACTION_TYPE_CUSTOM -> {
                         }
                         ACTION_TYPE_MANUAL_MULTIPAGE_MODE -> {

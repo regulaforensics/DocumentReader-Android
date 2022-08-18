@@ -14,14 +14,14 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (LicenseUtil.readFileFromAssets("Regula", "regula.license", this) == null)
+        if (LicenseUtil.getLicense(this) == null)
             showDialog(this);
     }
 
     protected void initializeReader() {
         showDialog("Initializing");
 
-        byte[] license = LicenseUtil.readFileFromAssets("Regula", "regula.license", this);
+        byte[] license = LicenseUtil.getLicense( this);
 
         DocReaderConfig config = new DocReaderConfig(license);
         config.setLicenseUpdate(true);

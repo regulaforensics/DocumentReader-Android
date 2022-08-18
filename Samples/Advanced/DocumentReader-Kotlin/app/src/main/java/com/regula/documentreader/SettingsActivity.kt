@@ -99,7 +99,6 @@ class SettingsActivity : FragmentActivity() {
     private fun reset() {
         if (selectedTabIndex == 0) {
             isRfidEnabled = false
-            useCustomRfidActivity = false
             isDataEncryptionEnabled = false
             val adapter =
                 applicationSettingsFragment.binding.recyclerView.adapter as CommonRecyclerAdapter
@@ -117,7 +116,6 @@ class SettingsActivity : FragmentActivity() {
 
     companion object {
         var isRfidEnabled = false
-        var useCustomRfidActivity = false
         var functionality = Functionality()
         var isDataEncryptionEnabled = false
     }
@@ -136,12 +134,6 @@ class ApplicationSettingsFragment : Fragment() {
                 "Read RFID",
                 { SettingsActivity.isRfidEnabled },
                 { SettingsActivity.isRfidEnabled = it })
-        )
-        sectionsData.add(
-            Switch(
-                "Use custom RFID activity",
-                { SettingsActivity.useCustomRfidActivity },
-                { SettingsActivity.useCustomRfidActivity = it })
         )
         sectionsData.add(Section("Security"))
         sectionsData.add(

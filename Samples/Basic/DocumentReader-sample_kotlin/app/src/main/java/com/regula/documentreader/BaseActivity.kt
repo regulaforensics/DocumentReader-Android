@@ -6,8 +6,6 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -25,9 +23,7 @@ import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletio
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.results.DocumentReaderResults
-import com.regula.documentreader.custom.*
-import com.regula.documentreader.custom.SettingsFragment.RfidMode.CUSTOM
-import com.regula.documentreader.custom.SettingsFragment.RfidMode.DEFAULT
+
 import com.regula.documentreader.util.Utils
 import java.io.IOException
 import java.io.InputStream
@@ -39,8 +35,6 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
     private var loadingDialog: AlertDialog? = null
     protected var mainFragment: MainFragment? = null
     protected var fragmentContainer: FrameLayout? = null
-    protected var settingsFragment: SettingsFragment? = null
-    var activeCameraMode = 0
     var rfidMode = 0
 
     protected abstract fun initializeReader()
@@ -92,27 +86,6 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
             })
     }
 
-    override fun showCameraActivity() {
-        if (!DocumentReader.Instance().isReady) return
-        val cameraIntent = Intent()
-        cameraIntent.setClass(this@BaseActivity, CameraActivity::class.java)
-        startActivity(cameraIntent)
-    }
-
-    override fun showCustomCameraActivity() {
-        if (!DocumentReader.Instance().isReady) return
-        val cameraIntent = Intent()
-        cameraIntent.setClass(this@BaseActivity, CustomRegActivity::class.java)
-        startActivity(cameraIntent)
-    }
-
-    override fun showCustomCamera2Activity() {
-        if (!DocumentReader.Instance().isReady) return
-        val cameraIntent = Intent()
-        cameraIntent.setClass(this@BaseActivity, Camera2Activity::class.java)
-        startActivity(cameraIntent)
-    }
-
     override fun recognizePdf() {
         if (!DocumentReader.Instance().isReady) return
         showDialog("Processing pdf")
@@ -134,6 +107,7 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
             }
         }
     }
+
     override fun scenarioLv(item: String?) {
         if (!DocumentReader.Instance().isReady) return
 
@@ -171,8 +145,8 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == RFID_RESULT) {
-            if (documentReaderResults != null && rfidMode == CUSTOM)
-                mainFragment!!.displayResults(documentReaderResults);
+            if (documentReaderResults != null)
+                mainFragment!!.displayResults(documentReaderResults)
         }
 
         //Image browsing intent processed successfully
@@ -184,27 +158,11 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
         DocumentReader.Instance().recognizeImage(bmp!!, completion)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.toolbar_actions, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_settings) {
-            settingsFragment =
-                findFragmentByTag(BaseActivity.TAG_SETTINGS_FRAGMENT) as SettingsFragment?
-            if (settingsFragment == null) {
-                settingsFragment = SettingsFragment()
-                replaceFragment(settingsFragment!!, true)
-            }
-        }
-        return false
-    }
-
     protected val initCompletion =
         IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
             dismissDialog()
             if (!result) { //Initialization was not successful
+                mainFragment?.disableUiElements()
                 Toast.makeText(this@BaseActivity, "Init failed:$error", Toast.LENGTH_LONG).show()
                 return@IDocumentReaderInitCompletion
             }
@@ -220,7 +178,16 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
         )
         //mainFragment.setupUseCustomCamera();
         //getting current processing scenario and loading available scenarios to ListView
-        setScenarios()
+        if (DocumentReader.Instance().availableScenarios.isNotEmpty())
+            setScenarios()
+        else {
+            mainFragment?.disableUiElements()
+            Toast.makeText(
+                this@BaseActivity,
+                "Available scenarios list is empty",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun setupCustomization() {
@@ -229,7 +196,6 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
 
     private fun setupFunctionality() {
         DocumentReader.Instance().functionality().edit()
-            .setUseAuthenticator(true)
             .setShowCameraSwitchButton(true)
             .apply()
     }
@@ -237,26 +203,17 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
     private val completion =
         IDocumentReaderCompletion { action, results, error ->
             //processing is finished, all results are ready
-            if (action == DocReaderAction.COMPLETE) {
+            if (action == DocReaderAction.COMPLETE || action == DocReaderAction.TIMEOUT) {
                 dismissDialog()
 
                 //Checking, if nfc chip reading should be performed
                 if (doRfid && results != null && results.chipPage != 0) {
                     //starting chip reading
-                    when (rfidMode) {
-                        CUSTOM -> {
-                            val rfidIntent =
-                                Intent(this@BaseActivity, CustomRfidActivity::class.java)
-                            startActivityForResult(rfidIntent, RFID_RESULT)
-                        }
-                        DEFAULT -> {
-                            DocumentReader.Instance().startRFIDReader(
-                                this@BaseActivity
-                            ) { rfidAction, results, error ->
-                                if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
-                                    mainFragment!!.displayResults(results)
-                                }
-                            }
+                    DocumentReader.Instance().startRFIDReader(
+                        this@BaseActivity
+                    ) { rfidAction, results, error ->
+                        if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
+                            mainFragment!!.displayResults(results)
                         }
                     }
                 } else {
@@ -368,18 +325,20 @@ abstract class BaseActivity : AppCompatActivity(), MainCallbacks {
         for (scenario in DocumentReader.Instance().availableScenarios) {
             scenarios.add(scenario.name)
         }
-        //setting default scenario
-        if (DocumentReader.Instance().processParams().scenario.isEmpty()) DocumentReader.Instance()
-            .processParams().scenario =
-            scenarios[0]
 
-        val scenarioPosition: Int =
-            getScenarioPosition(scenarios, DocumentReader.Instance().processParams().scenario)
-        scenarioLv(DocumentReader.Instance().processParams().scenario)
-        val adapter =
-            ScenarioAdapter(this@BaseActivity, android.R.layout.simple_list_item_1, scenarios)
-        adapter.setSelectedPosition(scenarioPosition)
-        mainFragment!!.setAdapter(adapter)
+        if (scenarios.isNotEmpty()) {
+            //setting default scenario
+            if (DocumentReader.Instance().processParams().scenario.isEmpty())
+                DocumentReader.Instance().processParams().scenario = scenarios[0]
+
+            val scenarioPosition: Int =
+                getScenarioPosition(scenarios, DocumentReader.Instance().processParams().scenario)
+            scenarioLv(DocumentReader.Instance().processParams().scenario)
+            val adapter =
+                ScenarioAdapter(this@BaseActivity, android.R.layout.simple_list_item_1, scenarios)
+            adapter.setSelectedPosition(scenarioPosition)
+            mainFragment!!.setAdapter(adapter)
+        }
     }
 
     private fun getScenarioPosition(scenarios: List<String>, currentScenario: String): Int {

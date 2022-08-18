@@ -18,8 +18,8 @@ import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.regula.documentreader.api.results.DocumentReaderResults
-import com.regula.documentreader.api.utils.Common
-import com.regula.documentreader.api.utils.JsonUtil
+import com.regula.documentreader.api.internal.utils.Common
+import com.regula.documentreader.api.internal.utils.JsonUtil
 import com.regula.documentreader.databinding.ActivityOnlineProcessingBinding
 import org.json.JSONArray
 import org.json.JSONObject

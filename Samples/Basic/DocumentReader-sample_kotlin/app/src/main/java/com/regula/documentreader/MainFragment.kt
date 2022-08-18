@@ -3,7 +3,9 @@ package com.regula.documentreader
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,11 +14,10 @@ import android.widget.AdapterView.OnItemClickListener
 import androidx.fragment.app.Fragment
 import com.regula.documentreader.BaseActivity.Companion.DO_RFID
 import com.regula.documentreader.api.DocumentReader
-import com.regula.documentreader.api.enums.eGraphicFieldType
-import com.regula.documentreader.api.enums.eRPRM_Lights
-import com.regula.documentreader.api.enums.eRPRM_ResultType
-import com.regula.documentreader.api.enums.eVisualFieldType
+import com.regula.documentreader.api.enums.*
 import com.regula.documentreader.api.results.DocumentReaderResults
+import com.regula.documentreader.api.results.authenticity.DocumentReaderIdentResult
+
 
 class MainFragment : Fragment() {
 
@@ -34,16 +35,13 @@ class MainFragment : Fragment() {
 
     var scenarioLv: ListView? = null
 
+    private var authenticityLayout: RelativeLayout? = null
+    private var authenticityResultImg: ImageView? = null
+
     @Volatile
     var mCallbacks: MainCallbacks? = null
 
-    private var customCameraRg: RadioGroup? = null
-    private var customCameraRb: RadioButton? = null
-    private var customCamera2Rb: RadioButton? = null
-    private var customCameraRegRb: RadioButton? = null
-
     companion object {
-        var isCustomRfidSelected = false
         var RFID_RESULT = 100
     }
 
@@ -64,18 +62,17 @@ class MainFragment : Fragment() {
         scenarioLv = root.findViewById(R.id.scenariosList)
         doRfidCb = root.findViewById(R.id.doRfidCb)
 
-        customCameraRg = root.findViewById(R.id.customCameraRg)
-        customCameraRb = root.findViewById(R.id.customCameraRb)
-        customCamera2Rb = root.findViewById(R.id.customCamera2Rb)
-        customCameraRegRb = root.findViewById(R.id.customRegCameraRb)
-
+        authenticityLayout = root.findViewById(R.id.authenticityLayout);
+        authenticityResultImg = root.findViewById(R.id.authenticityResultImg);
         initView()
         return root
     }
 
     override fun onResume() { //used to show scenarios after fragments transaction
         super.onResume()
-        if (activity != null && DocumentReader.Instance().isReady) (activity as BaseActivity?)!!.setScenarios()
+        if (activity != null && DocumentReader.Instance().isReady
+            && DocumentReader.Instance().availableScenarios.isNotEmpty())
+            (activity as BaseActivity?)!!.setScenarios()
     }
 
     override fun onAttach(context: Context) {
@@ -91,13 +88,13 @@ class MainFragment : Fragment() {
     fun initView() {
         recognizePdf!!.setOnClickListener { v: View? -> mCallbacks?.recognizePdf() }
         recognizeImage!!.setOnClickListener { view: View? ->
-            if (!DocumentReader.Instance().documentReaderIsReady) return@setOnClickListener
+            if (!DocumentReader.Instance().isReady) return@setOnClickListener
             clearResults()
             mCallbacks?.recognizeImage()
         }
         showScanner!!.setOnClickListener { view: View? ->
             clearResults()
-            launchCamera((activity as BaseActivity?)!!.activeCameraMode)
+            mCallbacks!!.showScanner()
         }
         scenarioLv!!.onItemClickListener =
             OnItemClickListener { adapterView: AdapterView<*>, view: View?, i: Int, l: Long ->
@@ -106,6 +103,16 @@ class MainFragment : Fragment() {
                 adapter.setSelectedPosition(i)
                 adapter.notifyDataSetChanged()
             }
+    }
+
+    fun disableUiElements() {
+        recognizePdf!!.isClickable = false
+        showScanner!!.isClickable = false
+        recognizeImage!!.isClickable = false
+
+        recognizePdf!!.setTextColor(Color.GRAY)
+        showScanner!!.setTextColor(Color.GRAY)
+        recognizeImage!!.setTextColor(Color.GRAY)
     }
 
     fun displayResults(results: DocumentReaderResults?) {
@@ -156,6 +163,30 @@ class MainFragment : Fragment() {
                 irImageView!!.visibility = View.VISIBLE
                 irImageView!!.setImageBitmap(resizeBitmap(irDocumentReaderGraphicField.bitmap))
             }
+
+            if (results.authenticityResult != null
+                && DocumentReader.Instance().functionality().isUseAuthenticator
+            ) {
+                authenticityLayout!!.visibility = View.VISIBLE
+                authenticityResultImg!!.setImageResource(if (results.authenticityResult!!.status == eCheckResult.CH_CHECK_OK) R.drawable.correct else R.drawable.incorrect)
+                for (check in results.authenticityResult!!.checks) {
+                    for (element in check.elements) {
+                        if (element is DocumentReaderIdentResult) {
+                            Log.d(
+                                "AuthenticityCheck",
+                                "Element status: " + (if (element.status == eCheckResult.CH_CHECK_OK) "Ok" else "Error") + ", percent: " + element.percentValue
+                            )
+                        } else {
+                            Log.d(
+                                "AuthenticityCheck",
+                                "Element type: " + element.elementType + ", status: " + if (element.status == eCheckResult.CH_CHECK_OK) "Ok" else "Error"
+                            )
+                        }
+                    }
+                }
+            } else {
+                authenticityLayout!!.visibility = View.GONE
+            }
         }
     }
 
@@ -171,6 +202,7 @@ class MainFragment : Fragment() {
         nameTv!!.text = ""
         portraitIv!!.setImageResource(R.drawable.portrait)
         docImageIv!!.setImageResource(R.drawable.id)
+        authenticityLayout!!.visibility = View.GONE;
     }
 
     fun setAdapter(adapter: ScenarioAdapter?) {
@@ -193,28 +225,8 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun launchCamera(activeCameraMode: Int) {
-        when (activeCameraMode) {
-            CameraMode.SDK_SHOW_SCANNER -> mCallbacks!!.showScanner()
-            CameraMode.SHOW_CAMERA_ACTIVITY -> mCallbacks!!.showCameraActivity()
-            CameraMode.SHOW_CUSTOM_CAMERA_ACTIVITY -> mCallbacks!!.showCustomCameraActivity()
-            CameraMode.SHOW_CUSTOM_CAMERA_ACTIVITY2 -> mCallbacks!!.showCustomCamera2Activity()
-        }
-    }
-
-    private object CameraMode {
-        const val SDK_SHOW_SCANNER = 0
-        const val SHOW_CAMERA_ACTIVITY = 1
-        const val SHOW_CUSTOM_CAMERA_ACTIVITY = 2
-        const val SHOW_CUSTOM_CAMERA_ACTIVITY2 = 3
-    }
-
     interface MainCallbacks {
-        fun showCameraActivity()
-        fun showCustomCameraActivity()
-        fun showCustomCamera2Activity()
         fun recognizePdf()
-
         fun scenarioLv(item: String?)
         fun showScanner()
         fun recognizeImage()

@@ -11,25 +11,14 @@ import com.regula.documentreader.util.LicenseUtil
 class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (LicenseUtil.readFileFromAssets(
-                "Regula",
-                "regula.license",
-                this
-            ) == null
-        ) showLicenseMissedDialog(
-            this@MainActivity
-        )
+        if (LicenseUtil.getLicense(this) == null
+        ) showLicenseMissedDialog(this@MainActivity)
     }
 
     override fun initializeReader() {
+        val license = LicenseUtil.getLicense(this) ?: return
+
         showDialog("Initializing")
-
-
-        val license = LicenseUtil.readFileFromAssets(
-            "Regula",
-            "regula.license",
-            this
-        )
         val config = DocReaderConfig(license)
         config.isLicenseUpdate = true
 
