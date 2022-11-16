@@ -23,13 +23,12 @@ import com.regula.documentreader.Status.Companion.FAIL
 import com.regula.documentreader.Status.Companion.SUCCESS
 import com.regula.documentreader.Status.Companion.UNDEFINED
 import com.regula.documentreader.api.enums.LCID
-import com.regula.documentreader.api.enums.eCheckResult.CH_CHECK_OK
-import com.regula.documentreader.api.enums.eCheckResult.CH_CHECK_WAS_NOT_DONE
+import com.regula.documentreader.api.enums.eCheckResult.*
 import com.regula.documentreader.api.enums.eRFID_DataFile_Type
 import com.regula.documentreader.api.enums.eRFID_ErrorCodes.*
-import com.regula.documentreader.api.enums.eRPRM_FieldVerificationResult.*
+import com.regula.documentreader.api.results.DocumentReaderComparison
 import com.regula.documentreader.api.results.DocumentReaderResults
-import com.regula.documentreader.api.results.DocumentReaderValue
+import com.regula.documentreader.api.results.DocumentReaderValidity
 import com.regula.documentreader.databinding.ActivityResultsBinding
 import com.regula.documentreader.databinding.FragmentResultsBinding
 import com.regula.documentreader.databinding.FragmentRvBinding
@@ -143,7 +142,7 @@ class ResultsActivity : AppCompatActivity() {
         results.textResult?.fields?.forEach {
             val name = it.getFieldName(this)
             for (value in it.values) {
-                val valid = value.validity
+                val valid = getValidity(value.field.validityList, value.sourceType)
                 val item = Attribute(
                     name!!,
                     value.value,
@@ -174,6 +173,18 @@ class ResultsActivity : AppCompatActivity() {
         return pickerData
     }
 
+    private fun getValidity(
+        list: List<DocumentReaderValidity>,
+        type: Int?
+    ): Int {
+        for (validity in list) {
+            if (validity.sourceType == type)
+                return validity.status
+        }
+
+        return CH_CHECK_WAS_NOT_DONE;
+    }
+
     private fun initCompare(): List<GroupedAttributes> {
         var pickerData = mutableListOf<GroupedAttributes>()
 
@@ -190,13 +201,10 @@ class ResultsActivity : AppCompatActivity() {
         }
 
         for (field in results.textResult!!.fields)
-            for (value in field.values)
-                for ((keyType, result) in value.comparison)
-                    if (result == RCF_COMPARE_TRUE || result == RCF_COMPARE_FALSE)
+            for (comparison in field.comparisonList)
                         tryToAddValueToGroup(
                             field.getFieldName(this)!!,
-                            value,
-                            keyType,
+                            comparison,
                             pickerData
                         )
 
@@ -212,19 +220,18 @@ class ResultsActivity : AppCompatActivity() {
 
     private fun tryToAddValueToGroup(
         name: String,
-        value: DocumentReaderValue,
-        key: Int,
+        comparison: DocumentReaderComparison,
         groups: MutableList<GroupedAttributes>
     ) {
         for (index in groups.indices) {
             val group = groups[index]
             if (group.comparisonLHS == null || group.comparisonRHS == null) return
             val sourceEquality =
-                value.sourceType == group.comparisonLHS || value.sourceType == group.comparisonRHS
-            val targetEquality = key == group.comparisonLHS || key == group.comparisonRHS
+                comparison.sourceTypeRight == group.comparisonLHS || comparison.sourceTypeRight == group.comparisonRHS
+            val targetEquality = comparison.sourceTypeLeft == group.comparisonLHS || comparison.sourceTypeLeft == group.comparisonRHS
             if (sourceEquality && targetEquality) {
                 val item =
-                    Attribute(name, null, valid = RCF_COMPARE_TRUE, source = value.sourceType)
+                    Attribute(name, null, valid = comparison.status, source = comparison.sourceTypeLeft)
                 groups[index].items.add(item)
                 break
             }
@@ -240,16 +247,12 @@ class ResultsActivity : AppCompatActivity() {
         if (taking == 1) return elements.map { mutableListOf(it) }.toMutableList()
 
         val combinations = mutableListOf<MutableList<T>>()
-        var index = 0
-        while (index < elements.size) {
-            val element = elements[index]
-            repeat(index + 1) {
-                elements.removeFirst()
-            }
+        while (elements.size > 1) {
+            val element = elements[0]
+            elements.removeFirst()
             combinations += combinationsFrom(elements, taking - 1).map {
                 (mutableListOf(element) + it).toMutableList()
             }
-            index += 1
         }
 
         return combinations
@@ -423,9 +426,9 @@ class GroupFragment : Fragment() {
                 )
                 attribute.value != null -> {
                     var color = requireContext().themeColor(R.attr.colorOnSecondary)
-                    if (attribute.valid == RCF_VERIFIED)
+                    if (attribute.valid == CH_CHECK_OK)
                         color = Color.GREEN
-                    if (attribute.valid == RCF_NOT_VERIFIED)
+                    if (attribute.valid == CH_CHECK_ERROR)
                         color = Color.RED
                     sectionsData.add(
                         TextResult(
@@ -450,6 +453,15 @@ class GroupFragment : Fragment() {
                     if (attribute.checkResult == 0)
                         value = FAIL
                     else if (attribute.checkResult == 1)
+                        value = SUCCESS
+                    sectionsData.add(Status(attribute.name, value))
+                }
+                groupedAttributes.comparisonLHS != null
+                        && groupedAttributes.comparisonRHS != null -> {
+                    var value = UNDEFINED
+                    if (attribute.valid == CH_CHECK_ERROR)
+                        value = FAIL
+                    else if (attribute.valid == CH_CHECK_OK)
                         value = SUCCESS
                     sectionsData.add(Status(attribute.name, value))
                 }

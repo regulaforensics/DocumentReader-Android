@@ -12,31 +12,17 @@ import android.view.ViewGroup
 import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
 import androidx.fragment.app.Fragment
-import com.regula.documentreader.BaseActivity.Companion.DO_RFID
+import com.regula.documentreader.MainActivity.Companion.DO_RFID
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.enums.*
 import com.regula.documentreader.api.results.DocumentReaderResults
-import com.regula.documentreader.api.results.authenticity.DocumentReaderIdentResult
+import com.regula.documentreader.databinding.FragmentMainBinding
 
 
 class MainFragment : Fragment() {
 
-    var nameTv: TextView? = null
-    var showScanner: TextView? = null
-    var recognizeImage: TextView? = null
-    var recognizePdf: TextView? = null
-
-    var portraitIv: ImageView? = null
-    var docImageIv: ImageView? = null
-    var uvImageView: ImageView? = null
-    var irImageView: ImageView? = null
-
-    var doRfidCb: CheckBox? = null
-
-    var scenarioLv: ListView? = null
-
-    private var authenticityLayout: RelativeLayout? = null
-    private var authenticityResultImg: ImageView? = null
+    private var _binding: FragmentMainBinding? = null
+    private val binding get() = _binding!!
 
     @Volatile
     var mCallbacks: MainCallbacks? = null
@@ -47,32 +33,18 @@ class MainFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val root: View = inflater.inflate(R.layout.fragment_main, container, false)
-        nameTv = root.findViewById(R.id.nameTv)
-        showScanner = root.findViewById(R.id.showScannerLink)
-        recognizeImage = root.findViewById(R.id.recognizeImageLink)
-        recognizePdf = root.findViewById(R.id.recognizePdfLink)
-
-        portraitIv = root.findViewById(R.id.portraitIv)
-        docImageIv = root.findViewById(R.id.documentImageIv)
-        uvImageView = root.findViewById(R.id.uvImageView)
-        irImageView = root.findViewById(R.id.irImageView)
-        scenarioLv = root.findViewById(R.id.scenariosList)
-        doRfidCb = root.findViewById(R.id.doRfidCb)
-
-        authenticityLayout = root.findViewById(R.id.authenticityLayout);
-        authenticityResultImg = root.findViewById(R.id.authenticityResultImg);
+        savedInstanceState: Bundle?): View {
+        _binding = FragmentMainBinding.inflate(layoutInflater, container, false)
+        val view = binding.root
         initView()
-        return root
+        return view
     }
 
     override fun onResume() { //used to show scenarios after fragments transaction
         super.onResume()
         if (activity != null && DocumentReader.Instance().isReady
             && DocumentReader.Instance().availableScenarios.isNotEmpty())
-            (activity as BaseActivity?)!!.setScenarios()
+            (activity as MainActivity?)!!.setScenarios()
     }
 
     override fun onAttach(context: Context) {
@@ -85,19 +57,22 @@ class MainFragment : Fragment() {
         mCallbacks = null
     }
 
-    fun initView() {
-        recognizePdf!!.setOnClickListener { v: View? -> mCallbacks?.recognizePdf() }
-        recognizeImage!!.setOnClickListener { view: View? ->
+    private fun initView() {
+        binding.recognizePdfLink.setOnClickListener {
+            clearResults()
+            mCallbacks?.recognizePdf()
+        }
+        binding.recognizeImageLink.setOnClickListener {
             if (!DocumentReader.Instance().isReady) return@setOnClickListener
             clearResults()
             mCallbacks?.recognizeImage()
         }
-        showScanner!!.setOnClickListener { view: View? ->
+        binding.showScannerLink.setOnClickListener {
             clearResults()
             mCallbacks!!.showScanner()
         }
-        scenarioLv!!.onItemClickListener =
-            OnItemClickListener { adapterView: AdapterView<*>, view: View?, i: Int, l: Long ->
+        binding.scenariosList.onItemClickListener =
+            OnItemClickListener { adapterView: AdapterView<*>, _: View?, i: Int, _: Long ->
                 val adapter = adapterView.adapter as ScenarioAdapter
                 mCallbacks?.scenarioLv(adapter.getItem(i))
                 adapter.setSelectedPosition(i)
@@ -106,122 +81,65 @@ class MainFragment : Fragment() {
     }
 
     fun disableUiElements() {
-        recognizePdf!!.isClickable = false
-        showScanner!!.isClickable = false
-        recognizeImage!!.isClickable = false
+        binding.recognizePdfLink.isClickable = false
+        binding.showScannerLink.isClickable = false
+        binding.recognizeImageLink.isClickable = false
 
-        recognizePdf!!.setTextColor(Color.GRAY)
-        showScanner!!.setTextColor(Color.GRAY)
-        recognizeImage!!.setTextColor(Color.GRAY)
+        binding.recognizePdfLink.setTextColor(Color.GRAY)
+        binding.showScannerLink.setTextColor(Color.GRAY)
+        binding.recognizeImageLink.setTextColor(Color.GRAY)
     }
 
     fun displayResults(results: DocumentReaderResults?) {
         if (results != null) {
             val name = results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES)
             if (name != null) {
-                nameTv!!.text = name
+                binding.nameTv.text = name
             }
 
             // through all text fields
-            if (results.textResult != null) {
-                for (textField in results.textResult!!.fields) {
-                    val value = results.getTextFieldValueByType(textField.fieldType, textField.lcid)
-                }
-            }
-            val portrait = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
-            if (portrait != null) {
-                portraitIv!!.setImageBitmap(portrait)
-            }
-            var documentImage =
-                results.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE)
-            if (documentImage != null) {
-                val aspectRatio = documentImage.width.toDouble() / documentImage.height
-                    .toDouble()
-                documentImage = Bitmap.createScaledBitmap(
-                    documentImage,
-                    (480 * aspectRatio).toInt(), 480, false
-                )
-                docImageIv!!.setImageBitmap(documentImage)
+            results.textResult?.fields?.forEach {
+                val value = results.getTextFieldValueByType(it.fieldType, it.lcid)
+                Log.d("MainActivity", "Text Field: " + context?.let { it1 -> it.getFieldName(it1) } + " value: " + value);
             }
 
-            val uvDocumentReaderGraphicField = results.getGraphicFieldByType(
-                eGraphicFieldType.GF_DOCUMENT_IMAGE,
-                eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE, 0, eRPRM_Lights.RPRM_LIGHT_UV
-            )
-
-            if (uvDocumentReaderGraphicField != null) {
-                uvImageView!!.visibility = View.VISIBLE
-                uvImageView!!.setImageBitmap(resizeBitmap(uvDocumentReaderGraphicField.bitmap))
+            results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)?.let {
+                binding.portraitIv.setImageBitmap(it)
             }
-
-            val irDocumentReaderGraphicField = results.getGraphicFieldByType(
-                eGraphicFieldType.GF_DOCUMENT_IMAGE,
-                eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE, 0, eRPRM_Lights.RPRM_Light_IR_Full
-            )
-
-            if (irDocumentReaderGraphicField != null) {
-                irImageView!!.visibility = View.VISIBLE
-                irImageView!!.setImageBitmap(resizeBitmap(irDocumentReaderGraphicField.bitmap))
+            results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA)?.let {
+                binding.portraitIv.setImageBitmap(it)
             }
-
-            if (results.authenticityResult != null
-                && DocumentReader.Instance().functionality().isUseAuthenticator
-            ) {
-                authenticityLayout!!.visibility = View.VISIBLE
-                authenticityResultImg!!.setImageResource(if (results.authenticityResult!!.status == eCheckResult.CH_CHECK_OK) R.drawable.correct else R.drawable.incorrect)
-                for (check in results.authenticityResult!!.checks) {
-                    for (element in check.elements) {
-                        if (element is DocumentReaderIdentResult) {
-                            Log.d(
-                                "AuthenticityCheck",
-                                "Element status: " + (if (element.status == eCheckResult.CH_CHECK_OK) "Ok" else "Error") + ", percent: " + element.percentValue
-                            )
-                        } else {
-                            Log.d(
-                                "AuthenticityCheck",
-                                "Element type: " + element.elementType + ", status: " + if (element.status == eCheckResult.CH_CHECK_OK) "Ok" else "Error"
-                            )
-                        }
-                    }
-                }
-            } else {
-                authenticityLayout!!.visibility = View.GONE
+            results.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE)?.let {
+                val aspectRatio = it.width.toDouble() / it.height.toDouble()
+                val documentImage = Bitmap.createScaledBitmap(it, (480 * aspectRatio).toInt(), 480, false)
+                binding.documentImageIv.setImageBitmap(documentImage)
             }
         }
     }
 
-    private fun resizeBitmap(bitmap: Bitmap?): Bitmap? {
-        if (bitmap != null) {
-            val aspectRatio = bitmap.width.toDouble() / bitmap.height.toDouble()
-            return Bitmap.createScaledBitmap(bitmap, (480 * aspectRatio).toInt(), 480, false)
-        }
-        return null
-    }
-
-    fun clearResults() {
-        nameTv!!.text = ""
-        portraitIv!!.setImageResource(R.drawable.portrait)
-        docImageIv!!.setImageResource(R.drawable.id)
-        authenticityLayout!!.visibility = View.GONE;
+    private fun clearResults() {
+        binding.nameTv.text = ""
+        binding.portraitIv.setImageResource(R.drawable.portrait)
+        binding.documentImageIv.setImageResource(R.drawable.id)
     }
 
     fun setAdapter(adapter: ScenarioAdapter?) {
-        scenarioLv!!.adapter = adapter
+        binding.scenariosList.adapter = adapter
     }
 
     fun setDoRfid(rfidAvailable: Boolean, sharedPreferences: SharedPreferences) {
         val doRfid = sharedPreferences.getBoolean(DO_RFID, false)
-        doRfidCb!!.isChecked = doRfid
+        binding.doRfidCb.isChecked = doRfid
         mCallbacks?.setDoRFID(doRfid)
 
         if (rfidAvailable) {
-            doRfidCb!!.setOnCheckedChangeListener { compoundButton, checked ->
+            binding.doRfidCb.setOnCheckedChangeListener { compoundButton, checked ->
                 sharedPreferences.edit().putBoolean(DO_RFID, checked).apply()
                 mCallbacks?.setDoRFID(checked)
             }
 
         } else {
-            doRfidCb!!.visibility = View.GONE
+            binding.doRfidCb.visibility = View.GONE
         }
     }
 

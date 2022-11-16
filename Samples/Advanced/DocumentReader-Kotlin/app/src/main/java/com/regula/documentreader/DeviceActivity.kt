@@ -20,7 +20,7 @@ import com.regula.documentreader.api.ble.RegulaBleService
 import com.regula.documentreader.api.ble.callback.BleManagerCallback
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
 import com.regula.documentreader.api.errors.DocumentReaderException
-import com.regula.documentreader.api.params.Device7310Config
+import com.regula.documentreader.api.params.BleDeviceConfig
 import com.regula.documentreader.util.BluetoothUtil
 
 class DeviceActivity : AppCompatActivity() {
@@ -123,7 +123,7 @@ class DeviceActivity : AppCompatActivity() {
         showDialog("Initializing")
         if (bleManager != null) {
             DocumentReader.Instance()
-                .initializeReader(this@DeviceActivity, Device7310Config(bleManager), initCompletion)
+                .initializeReader(this@DeviceActivity, BleDeviceConfig(bleManager), initCompletion)
         } else {
             dismissDialog()
             Toast.makeText(this, "Error reading license from device", Toast.LENGTH_LONG).show()

@@ -3,6 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.regula.customcamera_kotlin">
 
+    <!--
+        Internet permission is require only for online license.
+        If you use offline license, you can remove this permission
+     -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"

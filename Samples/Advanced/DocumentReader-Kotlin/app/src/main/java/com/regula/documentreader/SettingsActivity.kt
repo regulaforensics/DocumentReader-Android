@@ -26,12 +26,18 @@ import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnab
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.enums.DocReaderFrame.*
 import com.regula.documentreader.api.enums.MRZFormat.*
+import com.regula.documentreader.api.enums.diDocType
+import com.regula.documentreader.api.enums.diDocType.*
 import com.regula.documentreader.api.enums.eImageQualityCheckType
+import com.regula.documentreader.api.enums.eImageQualityCheckType.IQC_IMAGE_GLARES
+import com.regula.documentreader.api.enums.eRPRM_Authenticity
 import com.regula.documentreader.api.params.Functionality
 import com.regula.documentreader.api.params.ProcessParam
+import com.regula.documentreader.api.results.DocumentReaderDocumentType
 import com.regula.documentreader.databinding.ActivitySettingsBinding
 import com.regula.documentreader.databinding.FragmentRvBinding
 import org.json.JSONObject
+import org.w3c.dom.DocumentType
 
 class SettingsActivity : FragmentActivity() {
     private lateinit var binding: ActivitySettingsBinding
@@ -277,6 +283,144 @@ class APISettingsFragment : Fragment() {
                 { Instance().processParams().fastDocDetect },
                 { Instance().processParams().fastDocDetect = it })
         )
+
+        sectionsData.add(
+            Switch(
+                "Disable perforation OCR",
+                { Instance().processParams().disablePerforationOCR },
+                { Instance().processParams().disablePerforationOCR = it })
+        )
+
+        sectionsData.add(
+            Switch(
+                "Respect image quality",
+                { Instance().processParams().respectImageQuality },
+                { Instance().processParams().respectImageQuality = it })
+        )
+
+        sectionsData.add(
+            Switch(
+                "Split names",
+                { Instance().processParams().splitNames },
+                { Instance().processParams().splitNames = it })
+        )
+
+        sectionsData.add(
+            BSMulti(
+                "Document group filter",
+                "List of specific eligible document types from DocumentType enum to recognize from",
+                arrayListOf(
+                    BSItem("Passport", dtPassport),
+                    BSItem("Identity card", dtIdentityCard),
+                    BSItem("Diplomatic passport", dtDiplomaticPassport),
+                    BSItem("Service passport", dtServicePassport),
+                    BSItem("Travel document", dtTravelDocument),
+                    BSItem("ID2 Visa", dtVisaID2),
+                    BSItem("ID3 Visa", dtVisaID3),
+                    BSItem("Registration certificate", dtRegistrationCertificate),
+                    BSItem("Driving license", dtDrivingLicense)
+                ),
+                {
+                    (Instance().processParams().documentGroupFilter?.toMutableList()
+                        ?: mutableListOf()).toMutableListString()
+                },
+                {
+                    Instance().processParams().documentGroupFilter =
+                        it.toTypedArray().toIntArray()
+                }
+            ))
+
+        sectionsData.add(
+            BSMulti(
+                "Authenticity",
+                "",
+                arrayListOf(
+                    BSItem("AXIAL_PROTECTION", eRPRM_Authenticity.AXIAL_PROTECTION),
+                    BSItem("IPI", eRPRM_Authenticity.IPI),
+                    BSItem("BARCODE_FORMAT_CHECK", eRPRM_Authenticity.BARCODE_FORMAT_CHECK),
+                    BSItem("HOLOGRAMS", eRPRM_Authenticity.HOLOGRAMS),
+                    BSItem("HOLOGRAMS_DETECTION", eRPRM_Authenticity.HOLOGRAMS_DETECTION),
+                    BSItem("IR_B900", eRPRM_Authenticity.IR_B900),
+                    BSItem("IR_VISIBILITY", eRPRM_Authenticity.IR_VISIBILITY),
+                    BSItem("KINEGRAM", eRPRM_Authenticity.KINEGRAM),
+                    BSItem("OCR_SECURITY_TEXT", eRPRM_Authenticity.OCR_SECURITY_TEXT),
+                    BSItem("PHOTO_AREA", eRPRM_Authenticity.PHOTO_AREA),
+                    BSItem("PHOTO_EMBED_TYPE", eRPRM_Authenticity.PHOTO_EMBED_TYPE),
+                    BSItem("PORTRAIT_COMPARISON", eRPRM_Authenticity.PORTRAIT_COMPARISON),
+                    BSItem("UV_FIBERS", eRPRM_Authenticity.UV_FIBERS),
+                    BSItem("UV_LUMINESCENCE", eRPRM_Authenticity.UV_LUMINESCENCE),
+                ),
+                {
+                    val auth = mutableListOf<String>()
+
+                    if(((Instance().processParams().processAuth?.and(eRPRM_Authenticity.AXIAL_PROTECTION))
+                            ?: 0) > 0
+                    ){
+                        auth.add(eRPRM_Authenticity.AXIAL_PROTECTION.toString())
+                    }
+                    if((Instance().processParams().processAuth?.and (eRPRM_Authenticity.IPI)?: 0) > 0
+                    ){
+                        auth.add(eRPRM_Authenticity.IPI.toString())
+                    }
+                    if((Instance().processParams().processAuth?.and (eRPRM_Authenticity.BARCODE_FORMAT_CHECK)?: 0) > 0){
+                        auth.add(eRPRM_Authenticity.BARCODE_FORMAT_CHECK.toString())
+                    }
+                    if((Instance().processParams().processAuth?.and (eRPRM_Authenticity.HOLOGRAMS)?: 0) > 0
+                    ){
+                        auth.add(eRPRM_Authenticity.HOLOGRAMS.toString())
+                    }
+                    if((Instance().processParams().processAuth?.and (eRPRM_Authenticity.HOLOGRAMS_DETECTION)?: 0) > 0
+                    ){
+                        auth.add(eRPRM_Authenticity.HOLOGRAMS_DETECTION.toString())
+                    }
+                    if((Instance().processParams().processAuth?.and (eRPRM_Authenticity.IR_B900)?: 0) > 0
+                    ){
+                        auth.add(eRPRM_Authenticity.IR_B900.toString())
+                    }
+                    if((Instance().processParams().processAuth?.and (eRPRM_Authenticity.IR_VISIBILITY)?: 0) > 0
+                    ){
+                        auth.add(eRPRM_Authenticity.IR_VISIBILITY.toString())
+                    }
+                    if((Instance().processParams().processAuth?.and (eRPRM_Authenticity.KINEGRAM)?: 0) > 0
+                    ){
+                        auth.add(eRPRM_Authenticity.KINEGRAM.toString())
+                    }
+                    if((Instance().processParams().processAuth?.and (eRPRM_Authenticity.OCR_SECURITY_TEXT)?: 0) > 0
+                    ){
+                        auth.add(eRPRM_Authenticity.OCR_SECURITY_TEXT.toString())
+                    }
+                    if((Instance().processParams().processAuth?.and (eRPRM_Authenticity.PHOTO_AREA)?: 0) > 0
+                    ){
+                        auth.add(eRPRM_Authenticity.PHOTO_AREA.toString())
+                    }
+                    if((Instance().processParams().processAuth?.and (eRPRM_Authenticity.PHOTO_EMBED_TYPE)?: 0) > 0
+                    ){
+                        auth.add(eRPRM_Authenticity.PHOTO_EMBED_TYPE.toString())
+                    }
+                    if((Instance().processParams().processAuth?.and (eRPRM_Authenticity.PORTRAIT_COMPARISON)?: 0) > 0
+                    ){
+                        auth.add(eRPRM_Authenticity.PORTRAIT_COMPARISON.toString())
+                    }
+                    if((Instance().processParams().processAuth?.and (eRPRM_Authenticity.UV_FIBERS)?: 0) > 0
+                    ){
+                        auth.add(eRPRM_Authenticity.UV_FIBERS.toString())
+                    }
+                    if((Instance().processParams().processAuth?.and (eRPRM_Authenticity.UV_LUMINESCENCE)?: 0) > 0
+                    ){
+                        auth.add(eRPRM_Authenticity.UV_LUMINESCENCE.toString())
+                    }
+
+                    return@BSMulti auth;
+                },
+                {
+                    var result = 0
+                    for(value in it){
+                        result += value.toInt()
+                    }
+                    Instance().processParams().processAuth = result
+                }
+            ))
+
         sectionsData.add(Section("Image QA"))
         sectionsData.add(
             Stepper(
@@ -344,6 +488,17 @@ class APISettingsFragment : Fragment() {
                         it.toTypedArray().toIntArray()
                 }
             ))
+
+        sectionsData.add(InputDouble("Max glaring part",
+            { Instance().processParams().imageQA.glaresCheckParams?.maxGlaringPart },
+            { Instance().processParams().imageQA.glaresCheckParams?.maxGlaringPart  = it }
+        ))
+
+        sectionsData.add(InputDouble("Image margin part",
+            { Instance().processParams().imageQA.glaresCheckParams?.imgMarginPart },
+            { Instance().processParams().imageQA.glaresCheckParams?.imgMarginPart  = it }
+        ))
+
         sectionsData.add(Section("Restrictions"))
         sectionsData.add(
             BS(

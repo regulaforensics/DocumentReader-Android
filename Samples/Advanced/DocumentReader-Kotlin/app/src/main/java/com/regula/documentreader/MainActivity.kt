@@ -172,7 +172,7 @@ class MainActivity : FragmentActivity(), Serializable {
             }
 
             override fun onPrepareCompleted(status: Boolean, error: DocumentReaderException?) {
-                Instance().initializeReader(this@MainActivity, DocReaderConfig(license, null as ByteArray?))
+                Instance().initializeReader(this@MainActivity, DocReaderConfig(license))
                 { success, error_initializeReader ->
                     if (initDialog!!.isShowing)
                         initDialog!!.dismiss()

@@ -4,6 +4,11 @@
     package="com.example.customrfid_kotlin">
 
     <uses-permission android:name="android.permission.NFC" />
+    <!--
+        Internet permission is require only for online license.
+        If you use offline license, you can remove this permission
+     -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"

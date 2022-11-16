@@ -17,5 +17,3 @@ The documentation on the SDK can be found [here](https://docs.regulaforensics.co
 
 ## Additional information
 If you have any technical questions or suggestions, feel free to [contact](mailto:android.support@regulaforensics.com) us or create an issue [here](https://github.com/regulaforensics/DocumentReader-Android/issues).
-
-To use our SDK in your own app you have to [purchase](https://pipedrivewebforms.com/form/5f1d771cbe4f844a1f78f8a06fbf94361841159) a commercial license.
