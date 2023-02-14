@@ -188,6 +188,9 @@ class ResultsActivity : AppCompatActivity() {
     private fun initCompare(): List<GroupedAttributes> {
         var pickerData = mutableListOf<GroupedAttributes>()
 
+        if(results.textResult == null)
+            return pickerData
+
         val values = results.textResult!!.fields.map { it.values }.flatten()
         val comparisonTypes = values.map { it.sourceType }.toSet()
 

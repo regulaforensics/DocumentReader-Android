@@ -1,0 +1,15 @@
+plugins {
+    id 'com.android.dynamic-feature'
+}
+android {
+    compileSdk 32
+
+    defaultConfig {
+        minSdk 21
+    }
+}
+
+dependencies {
+    implementation project(":app")
+    implementation 'com.regula.documentreader.core:fullrfid:6.7.+@aar'
+}

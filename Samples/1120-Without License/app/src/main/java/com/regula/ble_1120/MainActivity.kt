@@ -92,9 +92,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun initializeReader() {
+        val license = Utils.getLicense(this) ?: return
         showDialog("Initializing")
 
-        DocumentReader.Instance().initializeReader(this@MainActivity, DocReaderConfig(Utils.getLicense(this@MainActivity)), initCompletion)
+        DocumentReader.Instance().initializeReader(this@MainActivity, DocReaderConfig(license), initCompletion)
     }
 
     private val initCompletion =

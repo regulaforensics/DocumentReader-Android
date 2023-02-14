@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">FeatureDelivery</string>
+    <string name="title_dynamic_core">Regula CoreSDK</string>
+    <string name="loading">Loading</string>
+</resources>

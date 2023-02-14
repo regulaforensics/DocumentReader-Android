@@ -32,6 +32,7 @@ import com.regula.documentreader.api.enums.eImageQualityCheckType
 import com.regula.documentreader.api.enums.eImageQualityCheckType.IQC_IMAGE_GLARES
 import com.regula.documentreader.api.enums.eRPRM_Authenticity
 import com.regula.documentreader.api.params.Functionality
+import com.regula.documentreader.api.params.ImageQA
 import com.regula.documentreader.api.params.ProcessParam
 import com.regula.documentreader.api.results.DocumentReaderDocumentType
 import com.regula.documentreader.databinding.ActivitySettingsBinding
@@ -491,12 +492,16 @@ class APISettingsFragment : Fragment() {
 
         sectionsData.add(InputDouble("Max glaring part",
             { Instance().processParams().imageQA.glaresCheckParams?.maxGlaringPart },
-            { Instance().processParams().imageQA.glaresCheckParams?.maxGlaringPart  = it }
+            { Instance().processParams().imageQA.glaresCheckParams =
+                Instance().processParams().imageQA.glaresCheckParams ?: ImageQA.GlaresCheckParams()
+                Instance().processParams().imageQA.glaresCheckParams?.maxGlaringPart  = it }
         ))
 
         sectionsData.add(InputDouble("Image margin part",
             { Instance().processParams().imageQA.glaresCheckParams?.imgMarginPart },
-            { Instance().processParams().imageQA.glaresCheckParams?.imgMarginPart  = it }
+            {   Instance().processParams().imageQA.glaresCheckParams =
+                Instance().processParams().imageQA.glaresCheckParams ?: ImageQA.GlaresCheckParams()
+                Instance().processParams().imageQA.glaresCheckParams?.imgMarginPart = it }
         ))
 
         sectionsData.add(Section("Restrictions"))

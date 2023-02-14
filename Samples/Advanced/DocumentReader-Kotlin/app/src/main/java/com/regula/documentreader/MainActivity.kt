@@ -18,7 +18,6 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.view.HapticFeedbackConstants
 import android.view.View
-import android.widget.Toast
 import android.view.animation.AccelerateInterpolator
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -50,13 +49,13 @@ import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.FrameShapeType
 import com.regula.documentreader.api.enums.eRPRM_Lights
 import com.regula.documentreader.api.errors.DocumentReaderException
+import com.regula.documentreader.api.internal.parser.DocReaderResultsJsonParser
 import com.regula.documentreader.api.params.DocReaderConfig
 import com.regula.documentreader.api.params.ImageInputData
-import com.regula.documentreader.api.internal.parser.DocReaderResultsJsonParser
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.databinding.ActivityMainBinding
-import org.json.JSONException
 import com.regula.documentreader.util.LicenseUtil
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.Serializable
 import java.text.SimpleDateFormat
@@ -245,7 +244,8 @@ class MainActivity : FragmentActivity(), Serializable {
                 isAnimationStarted = true;
             }
         }
-        if (action == DocReaderAction.COMPLETE) {
+        if (action == DocReaderAction.COMPLETE
+            || action == DocReaderAction.TIMEOUT) {
             hideDialog()
             cancelAnimation()
             if (Instance().functionality().isManualMultipageMode) {

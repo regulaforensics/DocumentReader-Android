@@ -11,9 +11,9 @@
 1. Download or clone the current repository using the command `git clone https://github.com/regulaforensics/DocumentReader-Android.git`.
 2. Open the `Advanced/DocumentReader-Kotlin` project in an IDE.
 3. If you use any mobile device (except 7310):
-- visit [licensing.regulaforensics.com](https://licensing.regulaforensics.com) to get a trial license (`regula.license` file). The license creation wizard will guide you through the necessary steps.
+- visit our [Client Portal](https://client.regulaforensics.com/) to get a trial license (`regula.license` file). The license creation wizard will guide you through the necessary steps.
 - copy the license file to the project: `Advanced/DocumentReader-Kotlin/app/src/main/assets/Regula/`.
-4. Change the application ID to the one you have specified during the registration at [licensing.regulaforensics.com](https://licensing.regulaforensics.com).
+4. Change the application ID to the one you have specified during the registration at [Client Portal](https://client.regulaforensics.com/).
 5. Run the project.
 Note: Android Gradle plugin requires Java 11 to run
 
