@@ -1,19 +1,15 @@
 package com.example.customrfid_kotlin
 
-import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.widget.Button
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import com.example.customrfid_kotlin.databinding.ActivityMainBinding
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
@@ -25,20 +21,20 @@ import java.util.concurrent.Executors
 
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
+
     private var loadingDialog: AlertDialog? = null
-    private var startRfidReadingBtn: Button? = null
-    private var resultIv: ImageView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        showDialog("initializing");
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
         initByLicense()
 
-        resultIv = findViewById(R.id.resultIv)
-        startRfidReadingBtn = findViewById(R.id.startCustomRfidReadingBtn)
-
-        startRfidReadingBtn!!.setOnClickListener {
+        binding.startCustomRfidReadingBtn.setOnClickListener {
             showScanner()
         }
     }
@@ -82,40 +78,41 @@ class MainActivity : AppCompatActivity() {
                     documentImage,
                     (480 * aspectRatio).toInt(), 480, false
                 )
-                resultIv!!.setImageBitmap(documentImage)
+                binding.resultIv.setImageBitmap(documentImage)
             }
         }
     }
 
     private fun initByLicense() {
-        if (!DocumentReader.Instance().isReady) {
+        if (DocumentReader.Instance().isReady) return
+
+        showDialog("initializing")
+        Executors.newSingleThreadExecutor().execute {
             initializeReader()
         }
     }
 
     private fun initializeReader() {
-        Executors.newSingleThreadExecutor().execute {
-            try {
-                val licInput = resources.openRawResource(R.raw.regula)
-                val available = licInput.available()
-                val license = ByteArray(available)
-                licInput.read(license)
-                licInput.close()
-                val handler = Handler(Looper.getMainLooper())
-                handler.post {
-                    val docReaderConfig = DocReaderConfig(license)
-                    DocumentReader.Instance()
-                    DocumentReader.Instance()
-                        .initializeReader(this@MainActivity, docReaderConfig, initCompletion)
-                }
-            } catch (ex: Exception) {
-                ex.printStackTrace()
-                Toast.makeText(
-                    this,
-                    "init error: " + ex.localizedMessage,
-                    Toast.LENGTH_LONG
-                ).show()
+        try {
+            val licInput = resources.openRawResource(R.raw.regula)
+            val available = licInput.available()
+            val license = ByteArray(available)
+            licInput.read(license)
+            licInput.close()
+            val handler = Handler(Looper.getMainLooper())
+            handler.post {
+                val docReaderConfig = DocReaderConfig(license)
+                DocumentReader.Instance()
+                DocumentReader.Instance()
+                    .initializeReader(this@MainActivity, docReaderConfig, initCompletion)
             }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            Toast.makeText(
+                this,
+                "init error: " + ex.localizedMessage,
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -151,9 +148,8 @@ class MainActivity : AppCompatActivity() {
         }
 
     private fun dismissDialog() {
-        if (loadingDialog != null) {
-            loadingDialog!!.dismiss()
-        }
+        if (loadingDialog == null) return
+        loadingDialog?.dismiss()
     }
 
     private fun showDialog(msg: String?) {
@@ -168,7 +164,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun successfulInit() {
         DocumentReader.Instance().processParams().setScenario(Scenario.SCENARIO_MRZ)
-        startRfidReadingBtn!!.isEnabled = true
+        binding.startCustomRfidReadingBtn.isEnabled = true
     }
 
     companion object {

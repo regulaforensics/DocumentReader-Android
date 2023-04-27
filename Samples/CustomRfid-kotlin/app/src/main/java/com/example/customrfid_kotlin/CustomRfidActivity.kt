@@ -15,10 +15,9 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.customrfid_kotlin.databinding.ActivityCustomRfidBinding
 import com.regula.common.utils.RegulaLog
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.enums.DocReaderAction
@@ -27,13 +26,14 @@ import com.regula.documentreader.api.enums.eRFID_ErrorCodes
 import com.regula.documentreader.api.enums.eRFID_NotificationCodes
 import com.regula.documentreader.api.nfc.IsoDepTag
 
-
 class CustomRfidActivity : AppCompatActivity() {
     private var HANDLER = Handler(Looper.getMainLooper())
     private var nfcAdapter: NfcAdapter? = null
-    var rfidStatus: TextView? = null
-    var currentRfidDgTv: TextView? = null
-    var currentDataGroupLt: LinearLayout? = null
+
+    private var isRestartedReading = false
+
+    private lateinit var binding: ActivityCustomRfidBinding
+
     var retryRunnable = Runnable { retry() }
     private val nfcActionReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -47,10 +47,10 @@ class CustomRfidActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_custom_rfid)
-        currentDataGroupLt = findViewById(R.id.currentDataGroupLt)
-        currentRfidDgTv = findViewById(R.id.currentRfidDgTv)
-        rfidStatus = findViewById(R.id.rfidStatus)
+        binding = ActivityCustomRfidBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
         nfcAdapter ?: finish()
     }
@@ -147,9 +147,14 @@ class CustomRfidActivity : AppCompatActivity() {
         val isoDepTag = IsoDep.get(nfcTag) ?: return
         RegulaLog.d("IsoDep.get(nfcTag) successful")
 
-        Log.d(TAG, "Start read RFID")
-        rfidStatus?.setText(com.regula.documentreader.api.R.string.strReadingRFID)
-        rfidStatus?.setTextColor(ContextCompat.getColor(applicationContext, android.R.color.holo_orange_dark))
+        if (isRestartedReading) {
+            Log.d(TAG,  "Restart read RFID")
+        } else {
+            Log.d(TAG, "Start read RFID")
+        }
+
+        binding.rfidStatus.setText(com.regula.documentreader.api.R.string.strReadingRFID)
+        binding.rfidStatus.setTextColor(ContextCompat.getColor(applicationContext, android.R.color.holo_orange_dark))
         DocumentReader.Instance().readRFID(
             IsoDepTag(isoDepTag)
         ) { rfidAction, documentReaderResults, error ->
@@ -159,9 +164,9 @@ class CustomRfidActivity : AppCompatActivity() {
                     MainActivity.documentReaderResults = documentReaderResults
                     if (documentReaderResults?.rfidResult == eRFID_ErrorCodes.RFID_ERROR_NO_ERROR) {
                         setResult(RESULT_OK)
-                        rfidStatus?.text =
+                        binding.rfidStatus.text =
                             this@CustomRfidActivity.getString(com.regula.documentreader.api.R.string.RSDT_RFID_READING_FINISHED)
-                        rfidStatus?.setTextColor(ContextCompat.getColor(applicationContext, android.R.color.holo_green_dark))
+                        binding.rfidStatus.setTextColor(ContextCompat.getColor(applicationContext, android.R.color.holo_green_dark))
                         HANDLER.postDelayed({ finish() }, 2500)
                     } else {
                         val builder =
@@ -169,14 +174,15 @@ class CustomRfidActivity : AppCompatActivity() {
                                     ${getString(com.regula.documentreader.api.R.string.RFID_Error_Failed)}
                                     ${eRFID_ErrorCodes.getTranslation(this@CustomRfidActivity, documentReaderResults?.rfidResult ?: 0)}
                                """.trimIndent()
-                        rfidStatus?.text = builder
-                        rfidStatus?.setTextColor(ContextCompat.getColor(applicationContext, android.R.color.holo_red_dark))
+                        binding.rfidStatus.text = builder
+                        binding.rfidStatus.setTextColor(ContextCompat.getColor(applicationContext, android.R.color.holo_red_dark))
                         HANDLER.postDelayed(
                             {
                                 documentReaderResults?.let {
                                     if (isRestartRfidErrorCode(it.rfidResult)) {
                                         retry()
                                     } else {
+                                        Log.e(TAG, "Error result: ${eRFID_ErrorCodes.getTranslation(this@CustomRfidActivity, documentReaderResults?.rfidResult ?: 0)}")
                                         setResult(RESULT_CANCELED)
                                         finish()
                                     }
@@ -185,13 +191,13 @@ class CustomRfidActivity : AppCompatActivity() {
                             resources.getInteger(com.regula.documentreader.api.R.integer.reg_rfid_activity_error_timeout).toLong()
                         )
                     }
-                    currentDataGroupLt?.visibility = View.GONE
+                    binding.currentDataGroupLt.visibility = View.GONE
                 }
                 DocReaderAction.NOTIFICATION -> {
                     HANDLER.post {
-                        if (currentDataGroupLt?.visibility == View.GONE) {
-                            currentDataGroupLt?.visibility = View.VISIBLE
-                            rfidStatus?.setTextColor(ContextCompat.getColor(applicationContext, android.R.color.holo_orange_light))
+                        if (binding.currentDataGroupLt.visibility == View.GONE) {
+                            binding.currentDataGroupLt.visibility = View.VISIBLE
+                            binding.rfidStatus.setTextColor(ContextCompat.getColor(applicationContext, android.R.color.holo_orange_light))
                         }
                     }
                     documentReaderResults?.documentReaderNotification?.let {
@@ -202,9 +208,9 @@ class CustomRfidActivity : AppCompatActivity() {
                     val builder = """${getString(com.regula.documentreader.api.R.string.RFID_Error_Failed)}
                                 """.trimIndent() + eRFID_ErrorCodes.getTranslation(this@CustomRfidActivity, documentReaderResults?.rfidResult ?: 0
                                 )
-                    rfidStatus?.text = builder
-                    rfidStatus?.setTextColor(ContextCompat.getColor(applicationContext, android.R.color.holo_red_dark))
-                    currentDataGroupLt?.visibility = View.GONE
+                    binding.rfidStatus.text = builder
+                    binding.rfidStatus.setTextColor(ContextCompat.getColor(applicationContext, android.R.color.holo_red_dark))
+                    binding.currentDataGroupLt.visibility = View.GONE
                     Log.e(TAG, "Error: $error")
                 }
             }
@@ -217,7 +223,7 @@ class CustomRfidActivity : AppCompatActivity() {
         when (hiword) {
             eRFID_NotificationCodes.RFID_NOTIFICATION_PCSC_READING_DATAGROUP -> if (value == 0) {
                 HANDLER.post {
-                    currentRfidDgTv?.text = String.format(
+                    binding.currentRfidDgTv.text = String.format(
                         getString(com.regula.documentreader.api.R.string.strReadingRFIDDG),
                         eRFID_DataFile_Type.getTranslation(
                             applicationContext, loword
@@ -228,9 +234,13 @@ class CustomRfidActivity : AppCompatActivity() {
         }
     }
 
-    fun retry() {
-        rfidStatus?.setText(com.regula.documentreader.api.R.string.strPlacePhoneOnDoc)
-        rfidStatus?.setTextColor(ContextCompat.getColor(applicationContext, android.R.color.black))
+    private fun retry() {
+        isRestartedReading = true
+
+        Log.d(TAG, "Try read again")
+
+        binding.rfidStatus.setText(com.regula.documentreader.api.R.string.strPlacePhoneOnDoc)
+        binding.rfidStatus.setTextColor(ContextCompat.getColor(applicationContext, android.R.color.black))
     }
 
     fun skipReadRfid(view: View?) {
