@@ -117,20 +117,27 @@ class MainActivity : AppCompatActivity() {
             ) {
                 val pkdCertificatesList: MutableList<PKDCertificate> = ArrayList()
 
-                val frdCert = CertificatesUtil.getRfidTaCertificate(
+                val cert1 = CertificatesUtil.getRfidTaCertificate(
                     assets,
-                    "FRDVREG05.cvCert",
-                    "FRDVREG05.pkcs8"
+                    "FRCVCA_CC.cvCert",
+                    "FRCVCA_CC.pkcs8"
                 )
 
-                val frisCert = CertificatesUtil.getRfidTaCertificate(
+                val cert2 = CertificatesUtil.getRfidTaCertificate(
                     assets,
-                    "FRISLDS1RREG05.cvCert",
-                    "FRISLDS1RREG05.pkcs8"
+                    "FRDV_CC.cvCert",
+                    "FRDV_CC.pkcs8"
                 )
 
-                pkdCertificatesList.add(frdCert)
-                pkdCertificatesList.add(frisCert)
+                val cert3 = CertificatesUtil.getRfidTaCertificate(
+                    assets,
+                    "FRIS_CC.cvCert",
+                    "FRIS_CC.pkcs8"
+                )
+
+                pkdCertificatesList.add(cert1)
+                pkdCertificatesList.add(cert2)
+                pkdCertificatesList.add(cert3)
 
                 completion.onCertificatesReceived(pkdCertificatesList.toTypedArray())
             }
