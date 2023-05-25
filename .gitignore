@@ -1,3 +1,1 @@
-
-*.apk
-Samples/DocumentReader-sample/app/ocrandmrz/release/output.json
+.idea/
