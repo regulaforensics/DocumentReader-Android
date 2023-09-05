@@ -15,6 +15,7 @@ import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
+import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.enums.eGraphicFieldType
@@ -45,7 +46,8 @@ class MainActivity : AppCompatActivity() {
             binding.surnameTv.text = "Surname:"
             binding.nameTv.text = "Name:"
             binding.resultIv.setImageBitmap(null)
-            DocumentReader.Instance().showScanner(this, completion)
+            val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_PROCESS).build()
+            DocumentReader.Instance().showScanner(this, scannerConfig, completion)
         }
         binding.loadBtn.setOnClickListener {
             loadAndLaunchModule(coreModule)
@@ -176,10 +178,7 @@ class MainActivity : AppCompatActivity() {
             dismissDialog()
 
             if (result) {
-                if (DocumentReader.Instance().availableScenarios.size > 0) {
-                    DocumentReader.Instance().processParams()
-                        .setScenario(Scenario.SCENARIO_FULL_PROCESS)
-                } else {
+                if (DocumentReader.Instance().availableScenarios.size == 0) {
                     Toast.makeText(
                         this@MainActivity,
                         "Available scenarios list is empty",

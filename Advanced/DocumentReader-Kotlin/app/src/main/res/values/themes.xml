@@ -33,6 +33,16 @@
         <item name="buttonBarNegativeButtonStyle">@style/ButtonStyleDefault</item>
     </style>
 
+    <style name="PrimaryButton" parent="Theme.AppCompat">
+        <item name="android:background">@drawable/button_background</item>
+        <item name="background">@drawable/button_background</item>
+        <item name="android:textColor">#E8F6F6</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:minHeight">20dp</item>
+    </style>
+
     <style name="ButtonStyleDefault" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="android:textColor">?colorAccent</item>
     </style>

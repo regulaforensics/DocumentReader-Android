@@ -1,0 +1,91 @@
+{
+  "objects": [
+    {
+      "button": {
+        "title": "Switch Camera",
+        "tag": 1006,
+        "alignment": "center",
+        "margin": {
+          "end": 10
+        },
+        "position": {
+          "v": 1.6
+        }
+      }
+    },
+    {
+      "button": {
+        "title": "Frame",
+        "alignment": "center",
+        "tag": 1004,
+        "margin": {
+          "start": 10
+        },
+        "position": {
+          "v": 1.6
+        }
+      }
+    },
+    {
+      "button": {
+        "title": "Close",
+        "tag": 1001,
+        "style": "PrimaryButton",
+        "fontColor": "#FFFFFFFF",
+        "alignment": "center",
+        "margin": {
+          "bottom": 20,
+          "end": 12
+        },
+        "size": {
+          "width": 80,
+          "height": 30
+        },
+        "image": {
+          "name": "ic_close",
+          "placement": "start",
+          "padding": 5
+        }
+      }
+    },
+    {
+      "button": {
+        "title": "Torch",
+        "tag": 1002,
+        "style": "PrimaryButton",
+        "fontColor": "#FFFFFFFF",
+        "alignment": "center",
+        "margin": {
+          "start": 12,
+          "bottom": 20
+        },
+        "size": {
+          "width": 80,
+          "height": 30
+        }
+      }
+    },
+    {
+      "button": {
+        "title": "Capture",
+        "tag": 1003,
+        "style": "PrimaryButton",
+        "fontColor": "#FFFFFFFF",
+        "alignment": "center",
+        "margin": {
+          "bottom": 20
+        },
+        "padding": {
+          "start": 10,
+          "end": 10,
+          "top": 10,
+          "bottom": 10
+        },
+        "position": {
+          "h": 1
+        }
+      }
+    }
+  ],
+  "version": "1.0"
+}

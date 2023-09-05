@@ -11,6 +11,7 @@ import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
+import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.*
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
@@ -35,7 +36,8 @@ class MainActivity : AppCompatActivity() {
             binding.surnameTv.text = "Surname:"
             binding.nameTv.text = "Name:"
             binding.resultIv.setImageBitmap(null)
-            DocumentReader.Instance().showScanner(this, completion)
+
+            showScanner()
         }
     }
 
@@ -71,11 +73,7 @@ class MainActivity : AppCompatActivity() {
             dismissDialog()
 
             if (result) {
-                if (DocumentReader.Instance().availableScenarios.size > 0) {
-                    setupOnlineProcessing()
-                    DocumentReader.Instance().processParams()
-                        .setScenario(Scenario.SCENARIO_FULL_PROCESS)
-                } else {
+                if (DocumentReader.Instance().availableScenarios.size == 0) {
                     Toast.makeText(
                         this@MainActivity,
                         "Available scenarios list is empty",
@@ -107,16 +105,19 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    private fun setupOnlineProcessing() {
+    private fun showScanner() {
+        DocumentReader.Instance().functionality().edit()
+            .setForcePagesCount(2)
+            .apply();
+
         val onlineProcessingConfiguration = OnlineProcessingConfig.Builder(OnlineMode.AUTO)
             .setUrl(Constants.BASE_URL)
             .build()
         onlineProcessingConfiguration.processParam.scenario = Scenario.SCENARIO_FULL_PROCESS;
 
-        DocumentReader.Instance().functionality().edit()
-            .setOnlineProcessingConfiguration(onlineProcessingConfiguration)
-            .setForcePagesCount(2)
-            .apply();
+        val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_PROCESS, onlineProcessingConfiguration).build()
+
+        DocumentReader.Instance().showScanner(this, scannerConfig, completion)
     }
 
     private fun dismissDialog() {

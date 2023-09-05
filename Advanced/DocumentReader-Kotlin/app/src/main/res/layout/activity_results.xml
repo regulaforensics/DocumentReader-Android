@@ -78,7 +78,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/overAllResult"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/reg_fail" />
+            app:tint="@color/confirm_red"
+            app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.tabs.TabLayout

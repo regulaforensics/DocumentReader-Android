@@ -15,7 +15,10 @@ import com.regula.demo.databinding.ActivityMainBinding
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.ble.BLEWrapper
 import com.regula.documentreader.api.ble.RegulaBleService
+import com.regula.documentreader.api.config.ScannerConfig
+import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.enums.*
+import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.results.authenticity.DocumentReaderIdentResult
 
@@ -35,17 +38,24 @@ class MainActivity : AppCompatActivity() {
 
         binding.showScannerBtn.setOnClickListener {
             resetViews()
-            DocumentReader.Instance().showScanner(this) { action, results, error ->
+            val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_AUTH).build()
+            DocumentReader.Instance().showScanner(this, scannerConfig) { action, results, error ->
                 if (action == DocReaderAction.COMPLETE) {
                     showAuthenticityResults(results)
                     //Checking, if nfc chip reading should be performed
                     if (results?.chipPage != 0) {
                         //starting chip reading
-                        DocumentReader.Instance().startRFIDReader(this@MainActivity) { rfidAction, rfidResults, _ ->
-                            if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
-                                showGraphicFieldImage(rfidResults)
+                        DocumentReader.Instance().startRFIDReader(this@MainActivity, object: IRfidReaderCompletion() {
+                            override fun onCompleted(
+                                rfidAction: Int,
+                                rfidResults: DocumentReaderResults?,
+                                rfidRrror: DocumentReaderException?
+                            ) {
+                                if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
+                                    showGraphicFieldImage(rfidResults)
+                                }
                             }
-                        }
+                        })
                     }
                     Log.d(this@MainActivity.localClassName, "completion raw result: " + results?.rawResult)
                 } else {

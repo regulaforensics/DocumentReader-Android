@@ -53,7 +53,7 @@ class ResultsActivity : AppCompatActivity() {
         }
 
         if (results.status.overallStatus == CH_CHECK_OK)
-            binding.overAllResultImage.setImageResource(R.drawable.reg_ok)
+            binding.overAllResultImage.setImageResource(android.R.drawable.ic_menu_add)
         if (results.status.overallStatus == CH_CHECK_WAS_NOT_DONE)
             binding.overAllResultImage.setImageResource(android.R.drawable.ic_menu_help)
 

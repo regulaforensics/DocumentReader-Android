@@ -103,7 +103,6 @@ class MainActivity : AppCompatActivity() {
             dismissDialog()
             if (result) {
                 btnConnect?.isEnabled = true
-                DocumentReader.Instance().processParams().setScenario(Scenario.SCENARIO_FULL_AUTH)
             } else {
                 Toast.makeText(this@MainActivity, "Init failed:$error", Toast.LENGTH_LONG).show()
                 return@IDocumentReaderInitCompletion

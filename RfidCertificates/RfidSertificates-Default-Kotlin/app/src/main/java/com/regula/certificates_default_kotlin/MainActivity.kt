@@ -14,6 +14,8 @@ import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
+import com.regula.documentreader.api.config.ScannerConfig
+import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.enums.eCheckResult
@@ -40,7 +42,10 @@ class MainActivity : AppCompatActivity() {
 
         binding.showScannerBtn.setOnClickListener {
             clearResults()
-            Instance().showScanner(this, completion)
+
+            val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_MRZ).build()
+
+            Instance().showScanner(this, scannerConfig, completion)
         }
     }
 
@@ -89,17 +94,23 @@ class MainActivity : AppCompatActivity() {
 
     private fun readRfid() {
         Instance().startRFIDReader(
-            this
-        ) { rfidAction, results, error ->
-            if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
-                results?.let {
-                    displayResults(it)
+            this, object: IRfidReaderCompletion() {
+                override fun onCompleted(
+                    rfidAction: Int,
+                    results: DocumentReaderResults?,
+                    error: DocumentReaderException?
+                ) {
+                    if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
+                        results?.let {
+                            displayResults(it)
+                        }
+                    } else if (rfidAction == DocReaderAction.ERROR) {
+                        Toast.makeText(this@MainActivity, error!!.message, Toast.LENGTH_SHORT)
+                            .show()
+                    }
                 }
-            } else if (rfidAction == DocReaderAction.ERROR) {
-                Toast.makeText(this, error!!.message, Toast.LENGTH_SHORT)
-                    .show()
             }
-        }
+        )
     }
 
     private fun displayResults(documentReaderResults: DocumentReaderResults) {
@@ -141,10 +152,6 @@ class MainActivity : AppCompatActivity() {
                     addRfidCertificates()
                 else Toast.makeText(this, "rfid is not available for use", Toast.LENGTH_SHORT)
                     .show()
-
-                Instance().processParams()
-                    .setScenario(Scenario.SCENARIO_MRZ)
-
             } else {
                 Toast.makeText(this@MainActivity, "Init failed:$error", Toast.LENGTH_LONG).show()
                 return@IDocumentReaderInitCompletion

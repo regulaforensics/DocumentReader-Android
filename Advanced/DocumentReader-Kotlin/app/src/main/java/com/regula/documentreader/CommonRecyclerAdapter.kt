@@ -354,8 +354,8 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
                 val status = base as Status
                 binding.title.text = status.title.uppercase(Locale.ROOT)
                 when (status.value) {
-                    0 -> binding.value.setImageResource(R.drawable.reg_ok)
-                    1 -> binding.value.setImageResource(R.drawable.reg_fail)
+                    0 -> binding.value.setImageResource(android.R.drawable.ic_menu_add)
+                    1 -> binding.value.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
                     2 -> binding.value.setImageResource(android.R.drawable.ic_menu_help)
                 }
             }

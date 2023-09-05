@@ -17,6 +17,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
+import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.enums.eGraphicFieldType
@@ -47,8 +48,10 @@ class MainActivity : AppCompatActivity() {
 
         showScannerBtn!!.setOnClickListener {
             resetViews()
+
+            val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_PROCESS).build()
             DocumentReader.Instance().showScanner(
-                this
+                this, scannerConfig
             ) { action, results, error ->
                 if (action == DocReaderAction.COMPLETE || action == DocReaderAction.TIMEOUT) {
                     processResults(results)
@@ -141,8 +144,6 @@ class MainActivity : AppCompatActivity() {
         IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
             dismissDialog()
             if (result) {
-                DocumentReader.Instance().processParams()
-                    .setScenario(Scenario.SCENARIO_FULL_PROCESS)
                 DocumentReader.Instance().processParams().shouldReturnPackageForReprocess = true;
             } else {
                 Toast.makeText(this@MainActivity, "Init failed:$error", Toast.LENGTH_LONG).show()

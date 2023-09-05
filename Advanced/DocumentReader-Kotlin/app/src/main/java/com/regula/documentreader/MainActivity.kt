@@ -16,6 +16,7 @@ import android.text.SpannableString
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.View
 import android.view.animation.AccelerateInterpolator
@@ -45,13 +46,22 @@ import com.regula.documentreader.SettingsActivity.Companion.isRfidEnabled
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
+import com.regula.documentreader.api.config.RecognizeConfig
+import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.FrameShapeType
+import com.regula.documentreader.api.enums.Scenario
+import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
+import com.regula.documentreader.api.enums.eRFID_DataFile_Type
+import com.regula.documentreader.api.enums.eRFID_NotificationCodes
 import com.regula.documentreader.api.enums.eRPRM_Lights
+import com.regula.documentreader.api.errors.DocReaderRfidException
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.internal.parser.DocReaderResultsJsonParser
 import com.regula.documentreader.api.params.DocReaderConfig
+import com.regula.documentreader.api.params.FaceApiParams
 import com.regula.documentreader.api.params.ImageInputData
+import com.regula.documentreader.api.results.DocumentReaderNotification
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.databinding.ActivityMainBinding
 import com.regula.documentreader.util.LicenseUtil
@@ -65,6 +75,7 @@ import java.util.*
 class MainActivity : FragmentActivity(), Serializable {
     private var mTimerAnimator: ValueAnimator? = null
     private var isAnimationStarted: Boolean = false
+    private var currentScenario: String = ""
 
     @Transient
     private lateinit var binding: ActivityMainBinding
@@ -96,14 +107,16 @@ class MainActivity : FragmentActivity(), Serializable {
                         loadingDialog = showDialog("Processing image")
                         if (imageUris.size == 1) {
                             getBitmap(imageUris[0], 1920, 1080, this)?.let { bitmap ->
-                                Instance().recognizeImage(bitmap, completion)
+                                val recognizeConfig = RecognizeConfig.Builder(currentScenario).setBitmap(bitmap).build()
+                                Instance().recognize(recognizeConfig, completion)
                             }
                         } else {
                             val bitmaps = arrayOfNulls<Bitmap>(imageUris.size)
                             for (i in bitmaps.indices) {
                                 bitmaps[i] = getBitmap(imageUris[i], 1920, 1080, this)
                             }
-                            Instance().recognizeImages(bitmaps, completion)
+                            val recognizeConfig = RecognizeConfig.Builder(currentScenario).setBitmaps(bitmaps).build()
+                            Instance().recognize(recognizeConfig, completion)
                         }
                     }
                 }
@@ -189,14 +202,13 @@ class MainActivity : FragmentActivity(), Serializable {
         }
 
     private fun onInitComplete() {
-        var currentScenario = Instance().processParams().scenario
+        currentScenario = Instance().processParams().scenario
         val scenarios: Array<String?> = arrayOfNulls(Instance().availableScenarios.size)
         for ((i, scenario) in Instance().availableScenarios.withIndex())
             scenarios[i] = scenario.name
         if (scenarios.isNotEmpty()) {
             if (currentScenario.isEmpty()) {
                 currentScenario = scenarios[0] ?: ""
-                Instance().processParams().scenario = currentScenario
             }
             binding.scenarioPicker.visibility = View.VISIBLE
             binding.scenarioPicker.maxValue = scenarios.size - 1
@@ -205,7 +217,7 @@ class MainActivity : FragmentActivity(), Serializable {
             binding.scenarioPicker.value = scenarios.indexOf(currentScenario)
             binding.scenarioPicker.setOnValueChangedListener { _, _, newVal ->
                 binding.scenarioPicker.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-                Instance().processParams().scenario = scenarios[newVal] ?: ""
+                currentScenario = scenarios[newVal] ?: ""
             }
             binding.recyclerView.visibility = View.VISIBLE
         } else {
@@ -218,8 +230,8 @@ class MainActivity : FragmentActivity(), Serializable {
 
         Instance().setLocalizationCallback { stringId ->
             if(stringId == "strLookingDocument")
-                return@setLocalizationCallback SettingsActivity.customString;
-            return@setLocalizationCallback null;
+                return@setLocalizationCallback SettingsActivity.customString
+            return@setLocalizationCallback null
         }
     }
 
@@ -247,7 +259,7 @@ class MainActivity : FragmentActivity(), Serializable {
         if(!isAnimationStarted) {
             mTimerAnimator?.let {
                 it.start()
-                isAnimationStarted = true;
+                isAnimationStarted = true
             }
         }
         if (action == DocReaderAction.COMPLETE
@@ -266,10 +278,28 @@ class MainActivity : FragmentActivity(), Serializable {
                 }
             }
             if (isRfidEnabled && results?.chipPage != 0) {
-                Instance().startRFIDReader(this) { rfidAction, results_RFIDReader, _ ->
-                    if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL)
-                        displayResults(results_RFIDReader!!)
-                }
+                Instance().startRFIDReader(this, object: IRfidReaderCompletion() {
+                    override fun onChipDetected() {
+                        Log.d("Rfid", "Chip detected")
+                    }
+
+                    override fun onProgress(notification: DocumentReaderNotification) {
+                        rfidProgress(notification.code, notification.value)
+                    }
+
+                    override fun onRetryReadChip(exception: DocReaderRfidException) {
+                        Log.d("Rfid", "Retry with error: " + exception.errorCode)
+                    }
+
+                    override fun onCompleted(
+                        rfidAction: Int,
+                        results_RFIDReader: DocumentReaderResults?,
+                        error: DocumentReaderException?
+                    ) {
+                        if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL)
+                            displayResults(results_RFIDReader!!)
+                    }
+                })
             } else
                 displayResults(results!!)
         } else
@@ -336,7 +366,10 @@ class MainActivity : FragmentActivity(), Serializable {
             }
     }
 
-    fun showScanner(): Unit = Instance().showScanner(this@MainActivity, completion)
+    fun showScanner() {
+        val scannerConfig = ScannerConfig.Builder(currentScenario).build()
+        Instance().showScanner(this@MainActivity, scannerConfig, completion)
+    }
 
     private fun createImageBrowsingRequest() {
         val intent = Intent()
@@ -517,9 +550,22 @@ class MainActivity : FragmentActivity(), Serializable {
             Instance().customization().edit().setCustomLabelStatus(status).apply()
             Instance().customization().edit().setCustomStatusPositionMultiplier(0.5f).apply()
         })
-        rvData.add(Scan("Custom Status & Images") {
+        rvData.add(Scan("Custom Status & Images & Buttons") {
             Instance().customization().edit().setUiCustomizationLayer(getJsonFromAssets("layer.json")).apply()
         })
+        rvData.add(Scan("Custom Buttons") {
+            Instance().functionality().edit()
+                .setShowCloseButton(false)
+                .setShowTorchButton(false)
+                .apply()
+
+            Instance().customization().edit()
+                .setUiCustomizationLayer(getJsonFromAssets("buttons.json"))
+                .apply()
+        })
+        Instance().setOnClickListener {
+            println("Button tag: " + it.tag)
+        }
         rvData.add(Scan("Custom Status Animated") {
             initAnimation()
         })
@@ -537,7 +583,7 @@ class MainActivity : FragmentActivity(), Serializable {
                 .setMultipageAnimationBackImage(drawable(R.drawable.two, this)).apply()
         })
         rvData.add(Scan("Custom Hologram animation") {
-            Instance().processParams().checkHologram = true;
+            Instance().processParams().checkHologram = true
             // NOTE: for a runtime animation change take a look at `showScanner` completion handler.
             Instance().customization().edit()
                 .setHologramAnimationImage(getDrawable(R.drawable.reg_nfc_full_id_big)).apply()
@@ -571,13 +617,42 @@ class MainActivity : FragmentActivity(), Serializable {
             Instance().customization().edit().setBackgroundMaskAlpha(0.8f).apply()
         })
         rvData.add(Scan("Custom background image") {
+            val matrix = Matrix()
             Instance().customization().edit()
-                .setBorderBackgroundImage(drawable(R.drawable.viewfinder, this)).apply()
+                .setBorderBackgroundImage(drawable(R.drawable.viewfinder, this))
+                .setBorderBackgroundImageScaleType(ImageView.ScaleType.MATRIX)
+                .setBorderBackgroundImageMatrix(matrix)
+                .apply()
+        })
+
+        rvData.add(Section("Addition"))
+        rvData.add(Scan("Build-in Face SDK integration", ACTION_TYPE_CUSTOM) {
+            setUseFaceApi()
         })
         // whitespace at the bottom of the list for better look and convenience
-        rvData.add(Scan("", Scan.ACTION_TYPE_CUSTOM))
+        rvData.add(Scan("", ACTION_TYPE_CUSTOM))
         return rvData
     }
+
+    private fun setUseFaceApi() {
+        val faceApiParams = FaceApiParams()
+        faceApiParams.url = "url"
+        faceApiParams.mode = "match"
+        faceApiParams.threshold = 90
+        faceApiParams.proxy = "proxy"
+        faceApiParams.proxyUserPwd = "user_pwd"
+        faceApiParams.proxyType = 1
+
+        val search = FaceApiParams.Search()
+        search.limit = 100
+        search.threshold = 0.9f
+        search.groupIds = intArrayOf(1, 2, 3)
+
+        faceApiParams.search = search
+
+        Instance().processParams().faceApiParams = faceApiParams
+    }
+
     private fun showDialog(context: Context) {
         AlertDialog.Builder(context)
             .setTitle("Error")
@@ -612,7 +687,7 @@ class MainActivity : FragmentActivity(), Serializable {
     }
 
     private fun initAnimation() {
-        isAnimationStarted = false;
+        isAnimationStarted = false
         val jsonObject: JSONObject? = getJsonFromAssets("layer_animation.json")
         updatePosition(jsonObject, 0.5f)
         Instance().customization().edit().setUiCustomizationLayer(jsonObject).apply()
@@ -644,7 +719,6 @@ class MainActivity : FragmentActivity(), Serializable {
     private fun startRecognizeImageWithLight() {
         // For FULL_AUTH processing you need to do implementation in gradle com.regula.documentreader.core:fullauthrfid
         // Set databaseID to 'FullAuth' in method prepareDatabase
-        //Instance().processParams().scenario = Scenario.SCENARIO_FULL_AUTH
         val image1 = BitmapFactory.decodeResource(resources, R.drawable.white)
         val image2 = BitmapFactory.decodeResource(resources, R.drawable.uv)
         val image3 = BitmapFactory.decodeResource(resources, R.drawable.ir)
@@ -656,11 +730,27 @@ class MainActivity : FragmentActivity(), Serializable {
 
     private fun recognizeSerialImages(vararg imageInputData: ImageInputData) {
         loadingDialog = showDialog("Processing images")
-        Instance().recognizeImages(imageInputData, completion)
+        val recognizeConfig = RecognizeConfig.Builder(Scenario.SCENARIO_FULL_AUTH).setImageInputData(imageInputData).build()
+        Instance().recognize(recognizeConfig, completion)
     }
+
     companion object {
         var results: DocumentReaderResults? = null
         var isInitializedByBleDevice: Boolean = false
         const val ENCRYPTED_RESULT_SERVICE = "https://api.regulaforensics.com/api/process"
+    }
+
+    fun rfidProgress(code: Int, value: Int) {
+        val hiword = code and -0x10000
+        val loword = code and 0x0000FFFF
+        when (hiword) {
+            eRFID_NotificationCodes.RFID_NOTIFICATION_PCSC_READING_DATAGROUP -> if (value == 0) {
+                Log.d("Rfid", "Current group: " + String.format(
+                    getString(com.regula.documentreader.api.R.string.strReadingRFIDDG),
+                    eRFID_DataFile_Type.getTranslation(
+                        applicationContext, loword
+                    )))
+            }
+        }
     }
 }

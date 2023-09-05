@@ -13,6 +13,7 @@ import com.example.customrfid_kotlin.databinding.ActivityMainBinding
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
+import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.*
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
@@ -64,7 +65,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showScanner() {
-        DocumentReader.Instance().showScanner(this,completion)
+        val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_MRZ).build()
+        DocumentReader.Instance().showScanner(this, scannerConfig, completion)
     }
 
     private fun displayResults(results: DocumentReaderResults?) {
@@ -163,7 +165,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun successfulInit() {
-        DocumentReader.Instance().processParams().setScenario(Scenario.SCENARIO_MRZ)
         binding.startCustomRfidReadingBtn.isEnabled = true
     }
 

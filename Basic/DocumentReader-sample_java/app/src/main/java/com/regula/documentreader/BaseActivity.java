@@ -14,6 +14,7 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -26,8 +27,15 @@ import com.regula.documentreader.api.DocumentReader;
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion;
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion;
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion;
+import com.regula.documentreader.api.config.RecognizeConfig;
+import com.regula.documentreader.api.config.ScannerConfig;
 import com.regula.documentreader.api.enums.DocReaderAction;
+import com.regula.documentreader.api.enums.Scenario;
+import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion;
+import com.regula.documentreader.api.enums.DocReaderAction;
+import com.regula.documentreader.api.errors.DocReaderRfidException;
 import com.regula.documentreader.api.errors.DocumentReaderException;
+import com.regula.documentreader.api.results.DocumentReaderNotification;
 import com.regula.documentreader.api.results.DocumentReaderResults;
 import com.regula.documentreader.api.results.DocumentReaderScenario;
 import com.regula.documentreader.util.Utils;
@@ -53,6 +61,8 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
     protected MainFragment mainFragment;
     protected FrameLayout fragmentContainer;
 
+    @Scenario.Scenarios
+    public String currentScenario;
     public int rfidMode;
     public static DocumentReaderResults documentReaderResults;
 
@@ -106,16 +116,16 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
     public void scenarioLv(String item) {
         if (!DocumentReader.Instance().isReady())
             return;
-
-        //setting selected scenario to DocumentReader params
-        DocumentReader.Instance().processParams().scenario = item;
+        currentScenario = item;
     }
 
     @Override
     public void showScanner() {
         if (!DocumentReader.Instance().isReady())
             return;
-        DocumentReader.Instance().showScanner(BaseActivity.this, completion);
+
+        ScannerConfig scannerConfig = new ScannerConfig.Builder(currentScenario).build();
+        DocumentReader.Instance().showScanner(BaseActivity.this, scannerConfig, completion);
     }
 
     @Override
@@ -153,7 +163,9 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
             }
 
             byte[] finalBuffer = buffer;
-            runOnUiThread(() -> DocumentReader.Instance().recognizeImage(finalBuffer, completion));
+
+            RecognizeConfig recognizeConfig = new RecognizeConfig.Builder(currentScenario).setData(finalBuffer).build();
+            runOnUiThread(() -> DocumentReader.Instance().recognize(recognizeConfig, completion));
         });
     }
 
@@ -181,7 +193,8 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
 
         showDialog("Processing image");
 
-        DocumentReader.Instance().recognizeImage(bmp, completion);
+        RecognizeConfig recognizeConfig = new RecognizeConfig.Builder(currentScenario).setBitmap(bmp).build();
+        DocumentReader.Instance().recognize(recognizeConfig, completion);
     }
 
 
@@ -235,9 +248,9 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
                 //Checking, if nfc chip reading should be performed
                 if (doRfid && results != null && results.chipPage != 0) {
                     //starting chip reading
-                        DocumentReader.Instance().startRFIDReader(BaseActivity.this, new IDocumentReaderCompletion() {
+                        DocumentReader.Instance().startRFIDReader(BaseActivity.this, new IRfidReaderCompletion() {
                             @Override
-                            public void onCompleted(int rfidAction, DocumentReaderResults results, DocumentReaderException error) {
+                            public void onCompleted(int rfidAction, @Nullable DocumentReaderResults documentReaderResults, @Nullable DocumentReaderException e) {
                                 if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
                                     mainFragment.displayResults(results);
                                 }
@@ -352,11 +365,11 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
         }
         if (scenarios.size() > 0) {
             //setting default scenario
-            if (DocumentReader.Instance().processParams().scenario.isEmpty())
-                DocumentReader.Instance().processParams().scenario = scenarios.get(0);
+            if (currentScenario == null || currentScenario.isEmpty())
+                currentScenario = scenarios.get(0);
 
-            int scenarioPosition = getScenarioPosition(scenarios, DocumentReader.Instance().processParams().scenario);
-            scenarioLv(DocumentReader.Instance().processParams().scenario);
+            int scenarioPosition = getScenarioPosition(scenarios, currentScenario);
+            scenarioLv(currentScenario);
             final ScenarioAdapter adapter = new ScenarioAdapter(BaseActivity.this, android.R.layout.simple_list_item_1, scenarios);
             adapter.setSelectedPosition(scenarioPosition);
             mainFragment.setAdapter(adapter);

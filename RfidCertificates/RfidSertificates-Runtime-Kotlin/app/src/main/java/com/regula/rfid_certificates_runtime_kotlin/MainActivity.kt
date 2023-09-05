@@ -8,9 +8,15 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.regula.documentreader.api.DocumentReader
 
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.completions.*
+import com.regula.documentreader.api.config.ScannerConfig
+import com.regula.documentreader.api.completions.rfid.IRfidPKDCertificateCompletion
+import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
+import com.regula.documentreader.api.completions.rfid.IRfidReaderRequest
+import com.regula.documentreader.api.completions.rfid.IRfidTASignatureCompletion
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.enums.eGraphicFieldType
@@ -37,7 +43,9 @@ class MainActivity : AppCompatActivity() {
         initializeReader()
         binding.showScannerBtn.setOnClickListener {
             clearResults()
-            Instance().showScanner(this, completion)
+
+            val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_MRZ).build()
+            Instance().showScanner(this, scannerConfig, completion)
         }
     }
 
@@ -86,7 +94,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readRfid() {
-        Instance().startRFIDReader(this, object : IDocumentReaderCompletion {
+        Instance().startRFIDReader(this, object : IRfidReaderCompletion() {
             override fun onCompleted(
                 rfidAction: Int,
                 results: DocumentReaderResults?,
@@ -196,8 +204,6 @@ class MainActivity : AppCompatActivity() {
         IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
             dismissDialog()
             if (result) {
-                Instance().processParams()
-                    .setScenario(Scenario.SCENARIO_MRZ)
                 setupDgGroups()
             } else {
                 Toast.makeText(this@MainActivity, "Init failed:$error", Toast.LENGTH_LONG).show()

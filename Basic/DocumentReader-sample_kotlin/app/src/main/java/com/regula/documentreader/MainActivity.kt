@@ -6,8 +6,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -21,17 +21,21 @@ import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
+import com.regula.documentreader.api.config.RecognizeConfig
+import com.regula.documentreader.api.config.ScannerConfig
+import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.enums.DocReaderAction
+import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.databinding.ActivityMainBinding
-
 import com.regula.documentreader.util.Utils
 import java.io.IOException
 import java.io.InputStream
 import java.util.concurrent.Executors
 
+@SuppressLint("WrongConstant")
 class MainActivity : AppCompatActivity(), MainCallbacks {
     var sharedPreferences: SharedPreferences? = null
     private var doRfid = false
@@ -39,6 +43,11 @@ class MainActivity : AppCompatActivity(), MainCallbacks {
     private lateinit var mainFragment: MainFragment
 
     private lateinit var binding: ActivityMainBinding
+
+    @Scenario.Scenarios
+    private var currentScenario: String = ""
+
+    private val useLivePortrait = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,7 +129,11 @@ class MainActivity : AppCompatActivity(), MainCallbacks {
             }
             val finalBuffer = buffer
             runOnUiThread {
-                DocumentReader.Instance().recognizeImage(finalBuffer!!, completion)
+                finalBuffer?.let {
+                    val recognizeConfig =
+                        RecognizeConfig.Builder(currentScenario).setData(it).build()
+                    DocumentReader.Instance().recognize(recognizeConfig, completion)
+                }
             }
         }
     }
@@ -129,12 +142,14 @@ class MainActivity : AppCompatActivity(), MainCallbacks {
         if (!DocumentReader.Instance().isReady) return
 
         //setting selected scenario to DocumentReader params
-        DocumentReader.Instance().processParams().scenario = item!!
+        currentScenario = item!!
     }
 
     override fun showScanner() {
         if (!DocumentReader.Instance().isReady) return
-        DocumentReader.Instance().showScanner(this@MainActivity, completion)
+
+        val scannerConfig = ScannerConfig.Builder(currentScenario).build()
+        DocumentReader.Instance().showScanner(this@MainActivity, scannerConfig, completion)
     }
 
     override fun recognizeImage() {
@@ -172,7 +187,13 @@ class MainActivity : AppCompatActivity(), MainCallbacks {
         val selectedImage = data.data
         val bmp: Bitmap? = Utils.getBitmap(contentResolver, selectedImage, 1920, 1080)
         showDialog("Processing image")
-        DocumentReader.Instance().recognizeImage(bmp!!, completion)
+        bmp?.let {
+            val recognizeConfig = if (useLivePortrait)
+                RecognizeConfig.Builder(currentScenario).setLivePortrait((getDrawable(R.drawable.live_portrait) as BitmapDrawable).bitmap).setBitmap(it).build()
+            else
+                RecognizeConfig.Builder(currentScenario).setBitmap(it).build()
+            DocumentReader.Instance().recognize(recognizeConfig, completion)
+        }
     }
 
     protected val initCompletion =
@@ -230,14 +251,20 @@ class MainActivity : AppCompatActivity(), MainCallbacks {
 
                 //Checking, if nfc chip reading should be performed
                 if (doRfid && results != null && results.chipPage != 0) {
+
                     //starting chip reading
-                    DocumentReader.Instance().startRFIDReader(
-                        this@MainActivity
-                    ) { rfidAction, results, _ ->
-                        if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
-                            mainFragment.displayResults(results)
-                        }
-                    }
+                    DocumentReader.Instance()
+                        .startRFIDReader(this@MainActivity, object : IRfidReaderCompletion() {
+                            override fun onCompleted(
+                                rfidAction: Int,
+                                documentReaderResults: DocumentReaderResults?,
+                                e: DocumentReaderException?
+                            ) {
+                                if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
+                                    mainFragment.displayResults(results)
+                                }
+                            }
+                        })
                 } else {
                     mainFragment.displayResults(results)
                 }
@@ -350,12 +377,12 @@ class MainActivity : AppCompatActivity(), MainCallbacks {
 
         if (scenarios.isNotEmpty()) {
             //setting default scenario
-            if (DocumentReader.Instance().processParams().scenario.isEmpty())
-                DocumentReader.Instance().processParams().scenario = scenarios[0]
+            if (currentScenario.isEmpty())
+                currentScenario = scenarios[0]
 
             val scenarioPosition: Int =
-                getScenarioPosition(scenarios, DocumentReader.Instance().processParams().scenario)
-            scenarioLv(DocumentReader.Instance().processParams().scenario)
+                getScenarioPosition(scenarios, currentScenario)
+            scenarioLv(currentScenario)
             val adapter =
                 ScenarioAdapter(this@MainActivity, android.R.layout.simple_list_item_1, scenarios)
             adapter.setSelectedPosition(scenarioPosition)

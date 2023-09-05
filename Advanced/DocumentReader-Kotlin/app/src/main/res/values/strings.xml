@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">DocumentReader-Kotlin</string>
+    <string name="app_name">DocReader-Advanced</string>
     <string name="help">Help</string>
     <string name="regula_document_reader">Regula Document Reader</string>
     <string name="settings">Settings</string>

@@ -1,18 +1,18 @@
 package com.regula.fingerprint_kotlin
 
-import android.Manifest
-import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
-import android.os.*
-import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
+import androidx.appcompat.app.AppCompatActivity
 import com.regula.fingerprint_kotlin.BluetoothReaderHelper.calcCheckSum
 import com.regula.fingerprint_kotlin.BluetoothReaderHelper.getFingerprintImage
 import com.regula.fingerprint_kotlin.BluetoothReaderHelper.memcpy
@@ -23,8 +23,9 @@ import com.regula.fingerprint_kotlin.util.Constants.CMD_GETIMAGE
 import com.regula.fingerprint_kotlin.util.Constants.IMG288
 import com.regula.fingerprint_kotlin.util.Constants.MESSAGE_STATE_CHANGE
 import com.regula.fingerprint_kotlin.util.Constants.TOAST
-
-import java.io.*
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -48,10 +49,16 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         if (!mBluetoothAdapter!!.isEnabled) {
-            val enableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            startActivityForResult(enableIntent, 2)
+            if (isPermissionsGranted(this)) {
+                val enableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                startActivityForResult(enableIntent, 2)
+            }
         } else {
-            if (mChatService == null) setup()
+            if (mChatService == null)
+                mChatService = BluetoothReaderService(
+                    this,
+                    mHandler
+                ) // Initialize the BluetoothChatService to perform bluetooth connections
         }
     }
 
@@ -63,14 +70,17 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show()
             finish()
         }
+        setup()
     }
 
     @Synchronized
     public override fun onResume() {
         super.onResume()
-        if (mChatService != null) {
-            if (mChatService!!.state == Constants.STATE_NONE) {
-                mChatService!!.start()
+        if (isPermissionsGranted(this)) {
+            if (mChatService != null) {
+                if (mChatService!!.state == Constants.STATE_NONE) {
+                    mChatService!!.start()
+                }
             }
         }
     }
@@ -79,19 +89,17 @@ class MainActivity : AppCompatActivity() {
         val captureFinger = findViewById<Button>(R.id.captureFingerBtn)
         fingerprintImage = findViewById(R.id.capturedFingerIv)
         captureFinger.setOnClickListener { v: View? ->
-            imgSize = IMG288
-            mUpImageSize = 0
-            sendCommand(CMD_GETIMAGE, null, 0)
+            if(mChatService != null) {
+                imgSize = IMG288
+                mUpImageSize = 0
+                sendCommand(CMD_GETIMAGE, null, 0)
+            }
         }
         val connectToScanner = findViewById<Button>(R.id.connectBtn)
         connectToScanner.setOnClickListener { v: View? ->
             if (checkPermissions())
                 connectBluetooth()
         }
-        mChatService = BluetoothReaderService(
-            this,
-            mHandler
-        ) // Initialize the BluetoothChatService to perform bluetooth connections
     }
 
     private val mHandler: Handler = object : Handler(Looper.getMainLooper()) {
@@ -238,6 +246,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun connectBluetooth() {
+        if (mChatService == null)
+            mChatService = BluetoothReaderService(
+                this,
+                mHandler
+            ) // Initialize the BluetoothChatService to perform bluetooth connections
         val address = "8C:DE:52:CD:F9:8B"
         BluetoothReaderHelper.connectBluetooth(address, mBluetoothAdapter!!, mChatService!!)
     }
@@ -257,6 +270,11 @@ class MainActivity : AppCompatActivity() {
             PackageManager.PERMISSION_GRANTED
         )
         return if (isPermissionsGranted(this)) {
+            if (!mBluetoothAdapter!!.isEnabled) {
+                val enableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                startActivityForResult(enableIntent, 2)
+                return false;
+            }
             true
         } else {
             Toast.makeText(

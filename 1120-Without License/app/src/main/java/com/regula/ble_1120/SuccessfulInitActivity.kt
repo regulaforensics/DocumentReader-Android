@@ -8,10 +8,14 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.regula.documentreader.api.DocumentReader
+import com.regula.documentreader.api.config.ScannerConfig
+import com.regula.documentreader.api.enums.*
+import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.eGraphicFieldType
 import com.regula.documentreader.api.enums.eRPRM_Lights
 import com.regula.documentreader.api.enums.eRPRM_ResultType
+import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.results.DocumentReaderResults
 
 class SuccessfulInitActivity : AppCompatActivity() {
@@ -26,21 +30,27 @@ class SuccessfulInitActivity : AppCompatActivity() {
         if (!DocumentReader.Instance().isReady)
             showScannerBtn!!.isEnabled = false
         showScannerBtn!!.setOnClickListener {
+            val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_AUTH).build()
             DocumentReader.Instance().showScanner(
-                this
+                this, scannerConfig
             ) { action, results, error ->
                 if (action == DocReaderAction.COMPLETE) {
                     showUvImage(results)
                     //Checking, if nfc chip reading should be performed
                     if (results!!.chipPage != 0) {
                         //starting chip reading
-                        DocumentReader.Instance().startRFIDReader(
-                            this@SuccessfulInitActivity
-                        ) { rfidAction, results, error ->
-                            if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
-                                showGraphicFieldImage(results)
+                        DocumentReader.Instance().startRFIDReader(this@SuccessfulInitActivity, object : IRfidReaderCompletion() {
+                            override fun onCompleted(
+                                rfidAction: Int,
+                                results: DocumentReaderResults?,
+                                error: DocumentReaderException?
+                            ) {
+                                if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
+                                    showGraphicFieldImage(results)
+                                }
                             }
-                        }
+
+                        })
                     }
                     Log.d(
                         this@SuccessfulInitActivity.localClassName,

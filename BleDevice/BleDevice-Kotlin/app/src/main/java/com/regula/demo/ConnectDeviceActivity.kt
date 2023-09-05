@@ -98,8 +98,6 @@ class ConnectDeviceActivity : AppCompatActivity() {
             dismissDialog()
             if (result) {
                 setupFunctionality()
-                setupProcessParams();
-
                 startActivity(Intent(this@ConnectDeviceActivity, MainActivity::class.java))
             } else {
                 Toast.makeText(this@ConnectDeviceActivity, "Init failed:$error", Toast.LENGTH_LONG).show()
@@ -110,10 +108,6 @@ class ConnectDeviceActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     private fun setupFunctionality() {
         DocumentReader.Instance().functionality().edit().setUseAuthenticator(true).apply()
-    }
-
-    private fun setupProcessParams() {
-        DocumentReader.Instance().processParams().setScenario(Scenario.SCENARIO_FULL_AUTH)
     }
 
     private fun startBluetoothService() {
