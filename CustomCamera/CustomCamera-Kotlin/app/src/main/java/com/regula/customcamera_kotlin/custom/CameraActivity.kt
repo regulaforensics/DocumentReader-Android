@@ -97,7 +97,7 @@ class CameraActivity : AppCompatActivity(), PreviewCallback {
             params
         ) { i, documentReaderResults, throwable ->
             when (i) {
-                DocReaderAction.COMPLETE -> {
+                DocReaderAction.COMPLETE or DocReaderAction.TIMEOUT -> {
                     synchronized(lock) {
                         if (documentReaderResults != null
                             && documentReaderResults.morePagesAvailable == 0)
