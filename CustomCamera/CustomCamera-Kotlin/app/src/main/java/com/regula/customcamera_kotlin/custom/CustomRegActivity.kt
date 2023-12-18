@@ -139,7 +139,7 @@ class CustomRegActivity : CaptureActivity3(), CameraCallbacks {
             frame, params
         ) { action: Int, results: DocumentReaderResults?, error: DocumentReaderException? ->
             when (action) {
-                DocReaderAction.COMPLETE -> {
+                DocReaderAction.COMPLETE or DocReaderAction.TIMEOUT -> {
                     synchronized(lock) { isPauseRecognize = true }
                     if (results != null && results.morePagesAvailable == 1) { //more pages are available for this document
                         Toast.makeText(

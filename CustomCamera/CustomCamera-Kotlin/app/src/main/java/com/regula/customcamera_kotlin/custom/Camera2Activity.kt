@@ -102,7 +102,7 @@ open class Camera2Activity : AppCompatActivity(), OnImageAvailableListener {
 
     private val completion = IDocumentReaderCompletion { i: Int, documentReaderResults: DocumentReaderResults?, throwable: DocumentReaderException? ->
         when (i) {
-            DocReaderAction.COMPLETE -> {
+            DocReaderAction.COMPLETE or DocReaderAction.TIMEOUT -> {
                 if (documentReaderResults != null
                     && documentReaderResults.morePagesAvailable == 0
                 )
