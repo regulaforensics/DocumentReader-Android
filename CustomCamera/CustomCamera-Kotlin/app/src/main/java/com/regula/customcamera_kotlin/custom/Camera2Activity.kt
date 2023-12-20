@@ -102,14 +102,11 @@ open class Camera2Activity : AppCompatActivity(), OnImageAvailableListener {
 
     private val completion = IDocumentReaderCompletion { i: Int, documentReaderResults: DocumentReaderResults?, throwable: DocumentReaderException? ->
         when (i) {
-            DocReaderAction.COMPLETE or DocReaderAction.TIMEOUT -> {
-                if (documentReaderResults != null
-                    && documentReaderResults.morePagesAvailable == 0
-                )
+            DocReaderAction.COMPLETE, DocReaderAction.TIMEOUT -> {
+                documentReaderResults?.let { docReaderResults ->
                     recognitionFinished = true
 
-                if (documentReaderResults != null) {
-                    if (documentReaderResults.morePagesAvailable != 0) { //more pages are available for this document
+                    if (docReaderResults.morePagesAvailable != 0 && DocumentReader.Instance().processParams().multipageProcessing == true) { //more pages are available for this document
                         Toast.makeText(
                             this@Camera2Activity,
                             "Page ready, flip",
@@ -118,7 +115,7 @@ open class Camera2Activity : AppCompatActivity(), OnImageAvailableListener {
                         //letting API know, that all frames will be from different page of the same document, merge same field types
                         DocumentReader.Instance().startNewPage()
                     } else { //no more pages available
-                        startDialog(documentReaderResults)
+                        startDialog(docReaderResults)
                     }
                 }
             }
@@ -153,6 +150,7 @@ open class Camera2Activity : AppCompatActivity(), OnImageAvailableListener {
         builder.setTitle("Processing finished")
         //getting text field value from results
         builder.setMessage(documentReaderResults.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES))
+
         builder.show()
     }
 
