@@ -82,68 +82,68 @@ class CameraActivity : AppCompatActivity(), PreviewCallback {
 
     override fun onPreviewFrame(data: ByteArray, camera: Camera) {
         //Filling the params with appropriate values
-        val params: ImageInputParam = ImageInputParam(
-            mParams!!.getPreviewSize().width,
-            mParams!!.getPreviewSize().height,
-            mParams!!.getPreviewFormat()
-        )
-        if (!recognitionFinished || isPauseRecognize) {
-            //if already completed - ignore, results won't change
-            return
-        }
-        recognitionFinished = false
-        DocumentReader.Instance().recognizeVideoFrame(
-            data,
-            params
-        ) { i, documentReaderResults, throwable ->
-            when (i) {
-                DocReaderAction.COMPLETE or DocReaderAction.TIMEOUT -> {
-                    synchronized(lock) {
-                        if (documentReaderResults != null
-                            && documentReaderResults.morePagesAvailable == 0)
-                        isPauseRecognize = true
+        mParams?.let {
+            val params: ImageInputParam = ImageInputParam(
+                it.previewSize.width,
+                it.previewSize.height,
+                it.previewFormat
+            ).apply { rotation = cameraOrientation }
+            if (!recognitionFinished || isPauseRecognize) {
+                //if already completed - ignore, results won't change
+                return
+            }
+            recognitionFinished = false
+            DocumentReader.Instance().recognizeVideoFrame(
+                data,
+                params
+            ) { i, documentReaderResults, throwable ->
+                when (i) {
+                    DocReaderAction.COMPLETE, DocReaderAction.TIMEOUT -> {
+                        documentReaderResults?.let { docReaderResults ->
+                            isPauseRecognize = true
+
+                            if (docReaderResults.morePagesAvailable != 0 && DocumentReader.Instance().processParams().multipageProcessing == true) { //more pages are available for this document
+                                Toast.makeText(
+                                    this@CameraActivity,
+                                    "Page ready, flip",
+                                    Toast.LENGTH_LONG
+                                ).show()
+
+                                //letting API know, that all frames will be from different page of the same document, merge same field types
+                                DocumentReader.Instance().startNewPage()
+                                //                            mPreview.startCameraPreview();
+                            } else { //no more pages available
+                                val builder: AlertDialog.Builder =
+                                    AlertDialog.Builder(this@CameraActivity)
+                                builder.setPositiveButton(
+                                    "Ok"
+                                ) { dialogInterface, _ ->
+                                    DocumentReader.Instance().startNewSession()
+                                    dialogInterface.dismiss()
+                                    isPauseRecognize = false
+                                }
+                                builder.setTitle("Processing finished")
+                                //getting text field value from results
+                                builder.setMessage(
+                                    docReaderResults.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES)
+                                )
+
+                                builder.show()
+                            }
+                        }
                     }
-                    if (documentReaderResults?.morePagesAvailable != 0) { //more pages are available for this document
+                    DocReaderAction.ERROR -> {
+                        isPauseRecognize = true
                         Toast.makeText(
                             this@CameraActivity,
-                            "Page ready, flip",
+                            "Error: " + (if (throwable != null) throwable.message else ""),
                             Toast.LENGTH_LONG
                         ).show()
-
-                        //letting API know, that all frames will be from different page of the same document, merge same field types
-                        DocumentReader.Instance().startNewPage()
-                        //                            mPreview.startCameraPreview();
-                    } else { //no more pages available
-                        val builder: AlertDialog.Builder =
-                            AlertDialog.Builder(this@CameraActivity)
-                        builder.setPositiveButton(
-                            "Ok"
-                        ) { dialogInterface, i ->
-                            DocumentReader.Instance().startNewSession()
-                            dialogInterface.dismiss()
-                            synchronized(lock) { isPauseRecognize = false }
-                        }
-                        builder.setTitle("Processing finished")
-                        //getting text field value from results
-                        builder.setMessage(
-                            documentReaderResults?.getTextFieldValueByType(
-                                eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES
-                            )
-                        )
-                        builder.show()
                     }
                 }
-                DocReaderAction.ERROR -> {
-                    isPauseRecognize = true
-                    Toast.makeText(
-                        this@CameraActivity,
-                        "Error: " + (if (throwable != null) throwable.message else ""),
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
+                recognitionFinished = true
             }
-            recognitionFinished = true
-        }
+        } ?: return
     }
 
     private fun getCameraInstance(id: Int): Camera? {
@@ -157,7 +157,7 @@ class CameraActivity : AppCompatActivity(), PreviewCallback {
                 Camera.getCameraInfo(i, info)
                 if (info.facing == CameraInfo.CAMERA_FACING_BACK) {
                     id = i
-                    synchronized(lock, { mCameraId = i })
+                    mCameraId = i
                     break
                 }
             }
@@ -193,18 +193,16 @@ class CameraActivity : AppCompatActivity(), PreviewCallback {
     }
 
     private fun releaseCameraAndPreview() {
-        synchronized(lock) {
-            if (mCamera != null) {
-                mCamera!!.setPreviewCallback(null)
-                mCamera!!.stopPreview()
-                mCamera!!.release()
-                mCamera = null
-            }
-            if (mPreview != null) {
-                mPreview!!.holder.removeCallback(mPreview)
-                mPreview!!.destroyDrawingCache()
-                mPreview!!.mCamera = null
-            }
+        if (mCamera != null) {
+            mCamera!!.setPreviewCallback(null)
+            mCamera!!.stopPreview()
+            mCamera!!.release()
+            mCamera = null
+        }
+        if (mPreview != null) {
+            mPreview!!.holder.removeCallback(mPreview)
+            mPreview!!.destroyDrawingCache()
+            mPreview!!.mCamera = null
         }
     }
 
@@ -288,10 +286,8 @@ class CameraActivity : AppCompatActivity(), PreviewCallback {
          */
         override fun surfaceDestroyed(holder: SurfaceHolder) {
             Log.d(DEBUG, "surfaceDestroyed")
-            if (mCamera != null) {
-                mCamera!!.stopPreview()
-                synchronized(lock, { isPreviewReady = false })
-            }
+            mCamera?.stopPreview()
+            isPreviewReady = false
         }
 
         /**
@@ -319,19 +315,19 @@ class CameraActivity : AppCompatActivity(), PreviewCallback {
                             Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
                         )
                 ) {
-                    mParams!!.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)
+                    mParams?.focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
                 }
-                mParams!!.setPreviewFormat(ImageFormat.NV21)
+                mParams?.previewFormat = ImageFormat.NV21
 
                 // Preview size must exist.
-                if (mPreviewSize != null) {
-                    mParams!!.setPreviewSize(mPreviewSize!!.width, mPreviewSize!!.height)
-                    mParams!!.setPictureSize(mPictureSize!!.width, mPictureSize!!.height)
+                mPreviewSize?.let {
+                    mParams?.setPreviewSize(it.width, it.height)
+                    mParams?.setPictureSize(it.width, it.height)
                     val info = CameraInfo()
                     Camera.getCameraInfo(mCameraId, info)
                     val params: ViewGroup.LayoutParams = previewParent!!.getLayoutParams()
                     val frameRatio: Double =
-                        mPreviewSize!!.width.toDouble() / mPreviewSize!!.height.toDouble()
+                        it.width.toDouble() / it.height.toDouble()
                     val displayRatio: Double = h.toDouble() / w.toDouble()
                     if (frameRatio > displayRatio) {
                         params.height = (w * frameRatio).toInt()
@@ -343,20 +339,18 @@ class CameraActivity : AppCompatActivity(), PreviewCallback {
                         params.width = w
                         params.height = h
                     }
-                    previewParent!!.setLayoutParams(params)
-                    synchronized(lock) {
-                        previewSize = mPreviewSize
-                        cameraOrientation = getCorrectCameraOrientation(info)
-                        previewFormat = ImageFormat.NV21
-                    }
+                    previewParent?.layoutParams = params
+                    previewSize = mPreviewSize
+                    cameraOrientation = getCorrectCameraOrientation(info)
+                    previewFormat = ImageFormat.NV21
                 }
-                mCamera!!.stopPreview()
-                mCamera!!.setParameters(mParams)
-                mCamera!!.setDisplayOrientation(cameraOrientation)
-                mCamera!!.setPreviewDisplay(holder)
-                mCamera!!.setPreviewCallback(callback)
-                synchronized(lock, { isPreviewReady = true })
-                mCamera!!.startPreview()
+                mCamera?.stopPreview()
+                mCamera?.setParameters(mParams)
+                mCamera?.setDisplayOrientation(cameraOrientation)
+                mCamera?.setPreviewDisplay(holder)
+                mCamera?.setPreviewCallback(callback)
+                isPreviewReady = true
+                mCamera?.startPreview()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -369,8 +363,8 @@ class CameraActivity : AppCompatActivity(), PreviewCallback {
          */
         override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
             // Source: http://stackoverflow.com/questions/7942378/android-camera-will-not-work-startpreview-fails
-            val width: Int = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec)
-            val height: Int = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec)
+            val width: Int = resolveSize(suggestedMinimumWidth, widthMeasureSpec)
+            val height: Int = resolveSize(suggestedMinimumHeight, heightMeasureSpec)
             setMeasuredDimension(width, height)
         }
 
@@ -485,7 +479,6 @@ class CameraActivity : AppCompatActivity(), PreviewCallback {
 
     companion object {
         private const val DEBUG: String = "DEBUG"
-        private val lock: Any = Any()
         private const val PERMISSIONS_CAMERA: Int = 1100
     }
 }
