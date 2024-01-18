@@ -20,6 +20,7 @@ import com.regula.customcamera_kotlin.R
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.enums.DocReaderAction
+import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.enums.eVisualFieldType
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.results.DocumentReaderResults
@@ -33,6 +34,9 @@ open class Camera2Activity : AppCompatActivity(), OnImageAvailableListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera2)
+        DocumentReader.Instance().processParams().scenario = Scenario.SCENARIO_OCR
+        DocumentReader.Instance().startNewSession()
+        DocumentReader.Instance().processParams().multipageProcessing = true
         if ((ContextCompat.checkSelfPermission(this@Camera2Activity, Manifest.permission.CAMERA)
                     != PackageManager.PERMISSION_GRANTED)
         ) {
@@ -102,23 +106,20 @@ open class Camera2Activity : AppCompatActivity(), OnImageAvailableListener {
 
     private val completion = IDocumentReaderCompletion { i: Int, documentReaderResults: DocumentReaderResults?, throwable: DocumentReaderException? ->
         when (i) {
-            DocReaderAction.COMPLETE or DocReaderAction.TIMEOUT -> {
-                if (documentReaderResults != null
-                    && documentReaderResults.morePagesAvailable == 0
-                )
-                    recognitionFinished = true
-
-                if (documentReaderResults != null) {
-                    if (documentReaderResults.morePagesAvailable != 0) { //more pages are available for this document
+            DocReaderAction.COMPLETE, DocReaderAction.TIMEOUT -> {
+                documentReaderResults?.let { docReaderResults ->
+                    if (docReaderResults.morePagesAvailable != 0 && DocumentReader.Instance().processParams().multipageProcessing == true) { //more pages are available for this document
+                        recognitionFinished = false
                         Toast.makeText(
                             this@Camera2Activity,
-                            "Page ready, flip",
+                            "Provide next page",
                             Toast.LENGTH_LONG
                         ).show()
                         //letting API know, that all frames will be from different page of the same document, merge same field types
                         DocumentReader.Instance().startNewPage()
                     } else { //no more pages available
-                        startDialog(documentReaderResults)
+                        recognitionFinished = true
+                        startDialog(docReaderResults)
                     }
                 }
             }
@@ -153,6 +154,7 @@ open class Camera2Activity : AppCompatActivity(), OnImageAvailableListener {
         builder.setTitle("Processing finished")
         //getting text field value from results
         builder.setMessage(documentReaderResults.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES))
+
         builder.show()
     }
 
