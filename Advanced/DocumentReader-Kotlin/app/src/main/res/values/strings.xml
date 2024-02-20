@@ -27,6 +27,7 @@
     <string name="value">value</string>
     <string name="comparison_value">comparison value</string>
     <string name="rfid">RFID</string>
+    <string name="auth">Auth</string>
     <string name="ic_menu_info_details">ic_menu_info_details</string>
     <string name="help_image">help image</string>
     <string name="mrz">MRZ</string>

@@ -1,347 +1,166 @@
 package com.regula.documentreader
 
-import android.Manifest
-import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
+import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.widget.AdapterView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
-import com.regula.documentreader.MainFragment.Companion.RFID_RESULT
-import com.regula.documentreader.MainFragment.MainCallbacks
+import androidx.lifecycle.ViewModelProvider
 import com.regula.documentreader.api.DocumentReader
-import com.regula.documentreader.api.completions.IDocumentReaderCompletion
-import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
-import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
-import com.regula.documentreader.api.config.RecognizeConfig
-import com.regula.documentreader.api.config.ScannerConfig
-import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
-import com.regula.documentreader.api.enums.DocReaderAction
-import com.regula.documentreader.api.enums.Scenario
-import com.regula.documentreader.api.errors.DocumentReaderException
-import com.regula.documentreader.api.params.DocReaderConfig
+import com.regula.documentreader.api.enums.eGraphicFieldType
+import com.regula.documentreader.api.enums.eRPRM_ResultType
+import com.regula.documentreader.api.enums.eVisualFieldType
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.databinding.ActivityMainBinding
 import com.regula.documentreader.util.Utils
-import java.io.IOException
-import java.io.InputStream
-import java.util.concurrent.Executors
 
-@SuppressLint("WrongConstant")
-class MainActivity : AppCompatActivity(), MainCallbacks {
-    var sharedPreferences: SharedPreferences? = null
-    private var doRfid = false
+open class MainActivity : AppCompatActivity() {
+
     private var loadingDialog: AlertDialog? = null
-    private lateinit var mainFragment: MainFragment
 
-    private lateinit var binding: ActivityMainBinding
-
-    @Scenario.Scenarios
-    private var currentScenario: String = ""
-
-    private val useLivePortrait = false
+    private val binding: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    private val sharedPreferences: SharedPreferences by lazy { getSharedPreferences(MY_SHARED_PREFS, MODE_PRIVATE) }
+    private val viewModel: MainViewModel by lazy {
+        ViewModelProvider(this, MainViewModelFactory(DocumentReader.Instance(), sharedPreferences)).get(MainViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+
         val view = binding.root
         setContentView(view)
-        val fragment = findFragmentByTag(TAG_UI_FRAGMENT)
-        if (fragment == null) {
-            mainFragment = MainFragment()
-            replaceFragment(mainFragment, false)
-        } else {
-            mainFragment = fragment as MainFragment
+
+        initView()
+
+        viewModel.initLiveData.observe(this) {
+            dismissDialog()
+            it?.let {
+                disableUiElements()
+                Toast.makeText(this@MainActivity, "Init failed:$it", Toast.LENGTH_LONG).show()
+            } ?: successfulInit()
         }
-        sharedPreferences = getSharedPreferences(MY_SHARED_PREFS, MODE_PRIVATE)
+
+        viewModel.showScannerSuccessCompletion.observe(this) { results ->
+            dismissDialog()
+
+            //Checking, if nfc chip reading should be performed
+            if (binding.doRfidCb.isChecked && results != null && results.chipPage != 0) {
+
+                //starting chip reading
+                viewModel.startRFIDReader(this@MainActivity)
+            } else {
+                displayResults(results)
+            }
+        }
+
+        viewModel.rfidCompletion.observe(this) {
+            displayResults(it)
+        }
+
+        viewModel.showScannerErrorCompletion.observe(this) {
+            dismissDialog()
+            Toast.makeText(this@MainActivity, "Error: $it", Toast.LENGTH_LONG).show()
+        }
+
+        viewModel.showScannerCancelCompletion.observe(this) {
+            dismissDialog()
+            Toast.makeText(this@MainActivity, "Canceled by user", Toast.LENGTH_LONG).show()
+        }
+
+        viewModel.doRfidData.observe(this) {
+            binding.doRfidCb.isChecked = it
+        }
 
         if (DocumentReader.Instance().isReady) {
             successfulInit()
             return
         }
 
-        showDialog("Preparing database")
-
-        //preparing database files, it will be downloaded from network only one time and stored on user device
-        DocumentReader.Instance().prepareDatabase(
-            this@MainActivity,
-            "Full",
-            object : IDocumentReaderPrepareCompletion {
-                override fun onPrepareProgressChanged(progress: Int) {
-                    setTitleDialog("Downloading database: $progress%")
-                }
-
-                override fun onPrepareCompleted(
-                    status: Boolean,
-                    error: DocumentReaderException?
-                ) {
-                    if (status) {
-                        onPrepareDbCompleted()
-                    } else {
-                        dismissDialog()
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Prepare DB failed:$error",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
-            })
+        showDialog("Initializing...")
+        viewModel.init (this)
     }
 
-    private fun initializeReader() {
-        val license = Utils.getLicense(this) ?: return
+    private fun disableUiElements() {
+        binding.recognizePdfLink.isClickable = false
+        binding.showScannerLink.isClickable = false
+        binding.recognizeImageLink.isClickable = false
 
-        showDialog("Initializing")
-        val config = DocReaderConfig(license)
-        config.setLicenseUpdate(true)
-
-        //Initializing the reader
-        DocumentReader.Instance().initializeReader(this@MainActivity, config, initCompletion)
+        binding.recognizePdfLink.setTextColor(Color.GRAY)
+        binding.showScannerLink.setTextColor(Color.GRAY)
+        binding.recognizeImageLink.setTextColor(Color.GRAY)
     }
 
-    fun onPrepareDbCompleted() {
-        initializeReader()
-    }
-
-    override fun recognizePdf() {
-        if (!DocumentReader.Instance().isReady) return
-        showDialog("Processing pdf")
-        Executors.newSingleThreadExecutor().execute {
-            val `is`: InputStream
-            var buffer: ByteArray? = null
-            try {
-                `is` = assets.open("Regula/test.pdf")
-                val size = `is`.available()
-                buffer = ByteArray(size)
-                `is`.read(buffer)
-                `is`.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-            val finalBuffer = buffer
-            runOnUiThread {
-                finalBuffer?.let {
-                    val recognizeConfig =
-                        RecognizeConfig.Builder(currentScenario).setData(it).build()
-                    DocumentReader.Instance().recognize(recognizeConfig, completion)
-                }
-            }
-        }
-    }
-
-    override fun scenarioLv(item: String?) {
-        if (!DocumentReader.Instance().isReady) return
-
+    private fun scenarioLv(item: String?) {
         //setting selected scenario to DocumentReader params
-        currentScenario = item!!
-    }
-
-    override fun showScanner() {
-        if (!DocumentReader.Instance().isReady) return
-
-        val scannerConfig = ScannerConfig.Builder(currentScenario).build()
-        DocumentReader.Instance().showScanner(this@MainActivity, scannerConfig, completion)
-    }
-
-    override fun recognizeImage() {
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            )
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
-            )
-        } else {
-            //start image browsing
-            createImageBrowsingRequest()
+        item?.let {
+            viewModel.scenario(it)
         }
     }
 
-    override fun setDoRFID(checked: Boolean) {
-        doRfid = checked
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == RFID_RESULT) {
-            if (documentReaderResults != null)
-                mainFragment.displayResults(documentReaderResults)
-        }
-
-        //Image browsing intent processed successfully
-        if (resultCode != RESULT_OK || requestCode != REQUEST_BROWSE_PICTURE || data!!.data == null) return
-
-        val selectedImage = data.data
-        val bmp: Bitmap? = Utils.getBitmap(contentResolver, selectedImage, 1920, 1080)
-        showDialog("Processing image")
-        bmp?.let {
-            val recognizeConfig = if (useLivePortrait)
-                RecognizeConfig.Builder(currentScenario).setLivePortrait((getDrawable(R.drawable.live_portrait) as BitmapDrawable).bitmap).setBitmap(it).build()
-            else
-                RecognizeConfig.Builder(currentScenario).setBitmap(it).build()
-            DocumentReader.Instance().recognize(recognizeConfig, completion)
-        }
-    }
-
-    protected val initCompletion =
-        IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
-            dismissDialog()
-            if (!result) { //Initialization was not successful
-                mainFragment?.disableUiElements()
-                Toast.makeText(this@MainActivity, "Init failed:$error", Toast.LENGTH_LONG).show()
-                return@IDocumentReaderInitCompletion
-            }
-            successfulInit()
-        }
-
-    protected fun successfulInit() {
-        setupCustomization()
-        setupFunctionality()
-        setupProcessParams()
-        mainFragment.setDoRfid(
-            DocumentReader.Instance().isRFIDAvailableForUse,
-            sharedPreferences!!
-        )
+    private fun successfulInit() {
         //getting current processing scenario and loading available scenarios to ListView
-        if (DocumentReader.Instance().availableScenarios.isNotEmpty())
+        if (DocumentReader.Instance().availableScenarios.isNotEmpty()) {
+            if (DocumentReader.Instance().isRFIDAvailableForUse)
+                binding.doRfidCb.visibility = View.VISIBLE
+            else
+                binding.doRfidCb.visibility = View.GONE
+
             setScenarios()
-        else {
-            mainFragment.disableUiElements()
-            Toast.makeText(
-                this@MainActivity,
-                "Available scenarios list is empty",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
-    private fun setupCustomization() {
-        DocumentReader.Instance().customization().edit().setShowHelpAnimation(false).apply()
-    }
-
-    private fun setupFunctionality() {
-        DocumentReader.Instance().functionality().edit()
-            .setShowCameraSwitchButton(true)
-            .apply()
-    }
-
-    private fun setupProcessParams() {
-        DocumentReader.Instance().processParams().multipageProcessing = true
-    }
-
-    @SuppressLint("MissingPermission")
-    private val completion =
-        IDocumentReaderCompletion { action, results, error ->
-            //processing is finished, all results are ready
-            if (action == DocReaderAction.COMPLETE || action == DocReaderAction.TIMEOUT) {
-                dismissDialog()
-
-                //Checking, if nfc chip reading should be performed
-                if (doRfid && results != null && results.chipPage != 0) {
-
-                    //starting chip reading
-                    DocumentReader.Instance()
-                        .startRFIDReader(this@MainActivity, object : IRfidReaderCompletion() {
-                            override fun onCompleted(
-                                rfidAction: Int,
-                                documentReaderResults: DocumentReaderResults?,
-                                e: DocumentReaderException?
-                            ) {
-                                if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
-                                    mainFragment.displayResults(results)
-                                }
-                            }
-                        })
-                } else {
-                    mainFragment.displayResults(results)
-                }
-            } else {
-                //something happened before all results were ready
-                if (action == DocReaderAction.CANCEL) {
-                    Toast.makeText(this@MainActivity, "Scanning was cancelled", Toast.LENGTH_LONG)
-                        .show()
-                } else if (action == DocReaderAction.ERROR) {
-                    Toast.makeText(this@MainActivity, "Error:$error", Toast.LENGTH_LONG).show()
-                }
-            }
+            return
         }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE -> {
-
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.size > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED
-                ) {
-                    //access to gallery is allowed
-                    createImageBrowsingRequest()
-                } else {
-                    Toast.makeText(this, "Permission required, to browse images", Toast.LENGTH_LONG)
-                        .show()
-                }
-            }
-        }
+        disableUiElements()
+        Toast.makeText(
+            this@MainActivity,
+            "Available scenarios list is empty",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     // creates and starts image browsing intent
     // results will be handled in onActivityResult method
     private fun createImageBrowsingRequest() {
-        val intent = Intent()
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "image/*"
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-        intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(
-            Intent.createChooser(intent, "Select Picture"),
-            REQUEST_BROWSE_PICTURE
-        )
+        browsePictureResultLauncher.launch(intent)
     }
 
-    override fun onPause() {
-        super.onPause()
-        if (loadingDialog != null) {
-            loadingDialog!!.dismiss()
-            loadingDialog = null
+    private var browsePictureResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // There are no request codes
+            val data: Intent? = result.data
+
+            val selectedImage = data?.data
+            if (selectedImage == null) {
+                Toast.makeText(this@MainActivity, "Something wrong with selected image", Toast.LENGTH_LONG).show()
+                return@registerForActivityResult
+            }
+
+            val bmp: Bitmap? = Utils.getBitmap(contentResolver, selectedImage, 1920, 1080)
+            bmp?.let {
+                showDialog("Processing image")
+                viewModel.recognize(context = this@MainActivity, it)
+            }
         }
     }
 
-    override fun onBackPressed() {
-        if (supportFragmentManager.backStackEntryCount > 0) supportFragmentManager.popBackStack() else super.onBackPressed()
+    private fun setTitleDialog(msg: String?) {
+        loadingDialog?.setTitle(msg) ?: showDialog(msg)
     }
 
-    protected fun setTitleDialog(msg: String?) {
-        if (loadingDialog != null) {
-            loadingDialog!!.setTitle(msg)
-        } else {
-            showDialog(msg)
-        }
+    private fun dismissDialog() {
+        loadingDialog?.dismiss()
     }
 
-    protected fun dismissDialog() {
-        if (loadingDialog != null) {
-            loadingDialog!!.dismiss()
-        }
-    }
-
-    protected fun showDialog(msg: String?) {
+    private fun showDialog(msg: String?) {
         dismissDialog()
         val builderDialog = AlertDialog.Builder(this)
         val dialogView = layoutInflater.inflate(R.layout.simple_dialog, null)
@@ -351,21 +170,30 @@ class MainActivity : AppCompatActivity(), MainCallbacks {
         loadingDialog = builderDialog.show()
     }
 
-    private fun findFragmentByTag(tag: String?): Fragment? {
-        val fm = supportFragmentManager
-        return fm.findFragmentByTag(tag)
-    }
-
-    private fun replaceFragment(fragment: Fragment, addFragmentInBackstack: Boolean) {
-        val backStateName = fragment.javaClass.name
-        val manager = supportFragmentManager
-        val fragmentPopped = manager.popBackStackImmediate(backStateName, 0)
-        if (!fragmentPopped && manager.findFragmentByTag(backStateName) == null) {
-            val ft = manager.beginTransaction()
-            ft.replace(R.id.fragmentContainer, fragment, backStateName)
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-            if (addFragmentInBackstack) ft.addToBackStack(backStateName)
-            ft.commit()
+    private fun initView() {
+        binding.recognizePdfLink.setOnClickListener {
+            clearResults()
+            showDialog("Processing pdf")
+            viewModel.recognizePdf(this)
+        }
+        binding.recognizeImageLink.setOnClickListener {
+            if (!DocumentReader.Instance().isReady) return@setOnClickListener
+            clearResults()
+            createImageBrowsingRequest()
+        }
+        binding.showScannerLink.setOnClickListener {
+            clearResults()
+            viewModel.showScanner(this@MainActivity)
+        }
+        binding.scenariosList.onItemClickListener =
+            AdapterView.OnItemClickListener { adapterView: AdapterView<*>, _: View?, i: Int, _: Long ->
+                val adapter = adapterView.adapter as ScenarioAdapter
+                scenarioLv(adapter.getItem(i))
+                adapter.setSelectedPosition(i)
+                adapter.notifyDataSetChanged()
+            }
+        binding.doRfidCb.setOnCheckedChangeListener { _, checked ->
+            viewModel.doRfid(checked)
         }
     }
 
@@ -377,37 +205,46 @@ class MainActivity : AppCompatActivity(), MainCallbacks {
 
         if (scenarios.isNotEmpty()) {
             //setting default scenario
-            if (currentScenario.isEmpty())
-                currentScenario = scenarios[0]
-
-            val scenarioPosition: Int =
-                getScenarioPosition(scenarios, currentScenario)
-            scenarioLv(currentScenario)
-            val adapter =
-                ScenarioAdapter(this@MainActivity, android.R.layout.simple_list_item_1, scenarios)
-            adapter.setSelectedPosition(scenarioPosition)
-            mainFragment.setAdapter(adapter)
+            val adapter = ScenarioAdapter(this@MainActivity, android.R.layout.simple_list_item_1, scenarios)
+            adapter.setSelectedPosition(0)
+            binding.scenariosList.adapter = adapter
         }
     }
 
-    private fun getScenarioPosition(scenarios: List<String>, currentScenario: String): Int {
-        var selectedPosition = 0
-        for (i in scenarios.indices) {
-            if (scenarios[i] == currentScenario) {
-                selectedPosition = i
-                break
+    private fun displayResults(results: DocumentReaderResults?) {
+        if (results != null) {
+            val name = results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES)
+            if (name != null) {
+                binding.nameTv.text = name
+            }
+
+            // through all text fields
+            results.textResult?.fields?.forEach {
+                val value = results.getTextFieldValueByType(it.fieldType, it.lcid)
+                Log.d("MainActivity", "Text Field: " + it.getFieldName(applicationContext)  + " value: " + value);
+            }
+
+            results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)?.let {
+                binding.portraitIv.setImageBitmap(it)
+            }
+            results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA)?.let {
+                binding.portraitIv.setImageBitmap(it)
+            }
+            results.getGraphicFieldImageByType(eGraphicFieldType.GF_DOCUMENT_IMAGE)?.let {
+                val aspectRatio = it.width.toDouble() / it.height.toDouble()
+                val documentImage = Bitmap.createScaledBitmap(it, (480 * aspectRatio).toInt(), 480, false)
+                binding.documentImageIv.setImageBitmap(documentImage)
             }
         }
-        return selectedPosition
+    }
+
+    private fun clearResults() {
+        binding.nameTv.text = ""
+        binding.portraitIv.setImageResource(R.drawable.portrait)
+        binding.documentImageIv.setImageResource(R.drawable.id)
     }
 
     companion object {
-        const val REQUEST_BROWSE_PICTURE = 11
-        const val PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 22
         private const val MY_SHARED_PREFS = "MySharedPrefs"
-        const val DO_RFID = "doRfid"
-        var documentReaderResults: DocumentReaderResults? = null
-        private const val TAG_UI_FRAGMENT = "ui_fragment"
-        private const val TAG_SETTINGS_FRAGMENT = "settings_fragment"
     }
 }

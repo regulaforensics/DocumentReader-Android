@@ -2,10 +2,8 @@ package com.regula.documentreader;
 
 import static com.regula.documentreader.MainFragment.RFID_RESULT;
 
-import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,12 +11,9 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -26,16 +21,12 @@ import androidx.fragment.app.FragmentTransaction;
 import com.regula.documentreader.api.DocumentReader;
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion;
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion;
-import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion;
+import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion;
 import com.regula.documentreader.api.config.RecognizeConfig;
 import com.regula.documentreader.api.config.ScannerConfig;
 import com.regula.documentreader.api.enums.DocReaderAction;
 import com.regula.documentreader.api.enums.Scenario;
-import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion;
-import com.regula.documentreader.api.enums.DocReaderAction;
-import com.regula.documentreader.api.errors.DocReaderRfidException;
 import com.regula.documentreader.api.errors.DocumentReaderException;
-import com.regula.documentreader.api.results.DocumentReaderNotification;
 import com.regula.documentreader.api.results.DocumentReaderResults;
 import com.regula.documentreader.api.results.DocumentReaderScenario;
 import com.regula.documentreader.util.Utils;
@@ -49,7 +40,6 @@ import java.util.concurrent.Executors;
 public abstract class BaseActivity extends AppCompatActivity implements MainFragment.MainCallbacks {
 
     public static final int REQUEST_BROWSE_PICTURE = 11;
-    public static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 22;
     private static final String MY_SHARED_PREFS = "MySharedPrefs";
     public static final String DO_RFID = "doRfid";
     private static final String TAG_UI_FRAGMENT = "ui_fragment";
@@ -68,7 +58,6 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
 
 
     protected abstract void initializeReader();
-    protected abstract void onPrepareDbCompleted();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,28 +77,7 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
             successfulInit();
             return;
         }
-
-        showDialog("Preparing database");
-
-        //preparing database files, it will be downloaded from network only one time and stored on user device
-        DocumentReader.Instance().prepareDatabase(BaseActivity.this,
-                "Full",  // if you use 7310, replace to FullAuth
-                new IDocumentReaderPrepareCompletion() {
-            @Override
-            public void onPrepareProgressChanged(int progress) {
-                setTitleDialog("Downloading database: " + progress + "%");
-            }
-
-            @Override
-            public void onPrepareCompleted(boolean status, DocumentReaderException error) {
-                if (status) {
-                    onPrepareDbCompleted();
-                } else {
-                    dismissDialog();
-                    Toast.makeText(BaseActivity.this, "Prepare DB failed:" + error, Toast.LENGTH_LONG).show();
-                }
-            }
-        });
+        initializeReader();
     }
 
     @Override
@@ -130,17 +98,8 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
 
     @Override
     public void recognizeImage() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-        } else {
-            //start image browsing
-            createImageBrowsingRequest();
-        }
+        //start image browsing
+        createImageBrowsingRequest();
     }
 
     @Override
@@ -270,32 +229,12 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
         }
     };
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //access to gallery is allowed
-                    createImageBrowsingRequest();
-                } else {
-                    Toast.makeText(this, "Permission required, to browse images", Toast.LENGTH_LONG).show();
-                }
-            }
-            break;
-        }
-    }
-
     // creates and starts image browsing intent
     // results will be handled in onActivityResult method
     private void createImageBrowsingRequest() {
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_BROWSE_PICTURE);
+        startActivityForResult(intent, REQUEST_BROWSE_PICTURE);
     }
 
     @Override

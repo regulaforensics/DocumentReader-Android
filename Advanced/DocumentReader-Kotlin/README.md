@@ -13,6 +13,7 @@
 3. If you use any mobile device (except 7310):
 - visit our [Client Portal](https://client.regulaforensics.com/) to get a trial license (`regula.license` file). The license creation wizard will guide you through the necessary steps.
 - copy the license file to the project: `Advanced/DocumentReader-Kotlin/app/src/main/assets/Regula/`.
+- copy the database file db.dat from [Client Portal](https://client.regulaforensics.com/customer/databases) to the project: `Advanced/DocumentReader-Kotlin/app/src/main/assets/Regula/`.
 4. Change the application ID to the one you have specified during the registration at [Client Portal](https://client.regulaforensics.com/).
 5. Run the project.
 Note: Android Gradle plugin requires Java 11 to run

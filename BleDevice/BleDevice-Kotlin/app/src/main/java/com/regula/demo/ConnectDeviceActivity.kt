@@ -22,7 +22,6 @@ import com.regula.documentreader.api.ble.BleWrapperCallback
 import com.regula.documentreader.api.ble.RegulaBleService
 import com.regula.documentreader.api.ble.callback.BleManagerCallback
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
-import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
 import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.BleDeviceConfig
@@ -43,7 +42,6 @@ class ConnectDeviceActivity : AppCompatActivity() {
         setContentView(view)
 
         val prefs = getSharedPreferences("MySharedPrefs", MODE_PRIVATE);
-        prepareDatabase()
         binding.edDevice.setText(prefs.getString("device_name", DocumentReader.Instance().functionality().btDeviceName))
         binding.btnConnect.setOnClickListener {
             val deviceName = binding.edDevice.text.toString()
@@ -53,34 +51,6 @@ class ConnectDeviceActivity : AppCompatActivity() {
             DocumentReader.Instance().functionality().edit().setBtDeviceName(deviceName).apply()
             startBluetoothService()
         }
-    }
-
-    private fun prepareDatabase() {
-        showDialog("Preparing database")
-        DocumentReader.Instance().prepareDatabase(//call prepareDatabase not necessary if you have local database at assets/Regula/db.dat
-                this@ConnectDeviceActivity,
-                "FullAuth",
-                object : IDocumentReaderPrepareCompletion {
-                    override fun onPrepareProgressChanged(progress: Int) {
-                        if (loadingDialog != null)
-                            loadingDialog!!.setTitle("Downloading database: $progress%")
-                    }
-
-                    override fun onPrepareCompleted(
-                        status: Boolean,
-                        error: DocumentReaderException?
-                    ) {
-                        if (!status) {
-                            dismissDialog()
-                            Toast.makeText(
-                                this@ConnectDeviceActivity,
-                                "Prepare DB failed:$error",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                        dismissDialog()
-                    }
-                })
     }
 
     fun initializeReader() {

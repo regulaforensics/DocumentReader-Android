@@ -4,31 +4,26 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.regula.documentreader.api.DocumentReader
-
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.completions.*
-import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.completions.rfid.IRfidPKDCertificateCompletion
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.completions.rfid.IRfidReaderRequest
-import com.regula.documentreader.api.completions.rfid.IRfidTASignatureCompletion
+import com.regula.documentreader.api.completions.rfid.certificates.IRfidTACertificates
+import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
+import com.regula.documentreader.api.enums.eCheckResult
 import com.regula.documentreader.api.enums.eGraphicFieldType
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
-import com.regula.documentreader.api.params.rfid.authorization.PAResourcesIssuer
-import com.regula.documentreader.api.params.rfid.authorization.TAChallenge
+import com.regula.documentreader.api.params.rfid.PKDCertificate
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.rfid_certificates_runtime_kotlin.databinding.ActivityMainBinding
 import java.util.concurrent.Executors
-import com.regula.documentreader.api.enums.eCheckResult
-import com.regula.documentreader.api.params.rfid.PKDCertificate
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -110,17 +105,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-        }, object : IRfidReaderRequest {
-            override fun onRequestPACertificates(
-                bytes: ByteArray?,
-                paResourcesIssuer: PAResourcesIssuer?,
-                completionCert: IRfidPKDCertificateCompletion
-            ) {
-
-            }
-
+        }, IRfidReaderRequest(object : IRfidTACertificates {
             override fun onRequestTACertificates(
-                p0: String?,
+                keyCAR: String?,
                 completion: IRfidPKDCertificateCompletion
             ) {
                 val pkdCertificatesList: MutableList<PKDCertificate> = ArrayList()
@@ -149,14 +136,7 @@ class MainActivity : AppCompatActivity() {
 
                 completion.onCertificatesReceived(pkdCertificatesList.toTypedArray())
             }
-
-            override fun onRequestTASignature(
-                p0: TAChallenge?,
-                completion: IRfidTASignatureCompletion
-            ) {
-                completion.onSignatureReceived(null)
-            }
-        })
+        }))
     }
 
     private fun setupDgGroups() {

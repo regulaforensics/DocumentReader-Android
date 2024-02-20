@@ -10,9 +10,10 @@
 1. Visit our [Client Portal](https://client.regulaforensics.com/) to get a trial license (`regula.license` file). The license creation wizard will guide you through the necessary steps.
 2. Download or clone the current repository using the command `git clone https://github.com/regulaforensics/DocumentReader-Android.git`.
 3. Open the `1120-Without License` project in an IDE.
-4. Copy the license file to the project: `Basic/DocumentReader-sample/app/src/main/res/raw/`.
-5. Change the application ID to the one you have specified during the registration at [Client Portal](https://client.regulaforensics.com/).
-6. Run the project.
+4. Copy the license file to the project: `1120-Without License/app/src/main/res/raw/`.
+5. Copy the database file db.dat from [Client Portal](https://client.regulaforensics.com/customer/databases) to the project: `1120-Without License/app/src/main/assets/Regula/`.
+6. Change the application ID to the one you have specified during the registration at [Client Portal](https://client.regulaforensics.com/).
+7. Run the project.
    Note: Android Gradle plugin requires Java 11 to run
 
 ## Documentation

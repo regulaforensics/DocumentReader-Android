@@ -1,0 +1,9 @@
+<network-security-config xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingDefaultResource">
+    <domain-config>
+        <domain includeSubdomains="true">regulaforensics.com</domain>
+        <pin-set>
+            <pin digest="SHA-256">/5RKFaPkCjAzvsEZHOlYqncYADaLIG5VfTmhsBbkaBk=</pin>
+        </pin-set>
+    </domain-config>
+</network-security-config>

@@ -20,27 +20,30 @@ import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
     var loadingDialog: AlertDialog? = null
-    var cam1Btn: Button? = null
-    var cam2Btn: Button? = null
-    var regActivityBtn: Button? = null
+    private val cam1Btn: Button by lazy {
+        findViewById(R.id.cameraBtn)
+    }
+    private val cam2Btn: Button by lazy {
+        findViewById(R.id.camera2Btn)
+    }
+    private val regActivityBtn: Button by lazy {
+        findViewById(R.id.cameraRegBtn)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initializeReader()
 
-        cam1Btn = findViewById(R.id.cameraBtn)
-        cam2Btn = findViewById(R.id.camera2Btn)
-        regActivityBtn = findViewById(R.id.cameraRegBtn)
-
-        cam1Btn!!.setOnClickListener {
+        cam1Btn.setOnClickListener {
             val intent = Intent(this, CameraActivity::class.java)
             startActivity(intent)
         }
-        cam2Btn!!.setOnClickListener {
+        cam2Btn.setOnClickListener {
             val intent = Intent(this, Camera2Activity::class.java)
             startActivity(intent)
         }
-        regActivityBtn!!.setOnClickListener {
+        regActivityBtn.setOnClickListener {
             val intent = Intent(this, CustomRegActivity::class.java)
             startActivity(intent)
         }
@@ -87,9 +90,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun dismissDialog() {
-        if (loadingDialog != null) {
-            loadingDialog!!.dismiss()
-        }
+        loadingDialog?.dismiss()
     }
 
     private fun showDialog(msg: String?) {

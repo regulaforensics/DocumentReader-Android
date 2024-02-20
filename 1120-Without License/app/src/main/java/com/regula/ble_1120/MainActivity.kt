@@ -23,8 +23,6 @@ import com.regula.documentreader.api.ble.BleWrapperCallback
 import com.regula.documentreader.api.ble.RegulaBleService
 import com.regula.documentreader.api.ble.callback.BleManagerCallback
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
-import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
-import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
 
@@ -42,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initViews()
-        prepareDatabase()
+        initializeReader()
         etDeviceName?.setText(DocumentReader.Instance().functionality().btDeviceName)
         btnConnect?.setOnClickListener { view: View? ->
             if (etDeviceName?.text != null) {
@@ -56,42 +54,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun prepareDatabase() {
-        showDialog("preparing database")
-        DocumentReader.Instance()
-            .prepareDatabase(//call prepareDatabase not necessary if you have local database at assets/Regula/db.dat
-                this@MainActivity,
-                "FullAuth",
-                object : IDocumentReaderPrepareCompletion {
-                    override fun onPrepareProgressChanged(progress: Int) {
-                        if (loadingDialog != null)
-                            loadingDialog?.setTitle("Downloading database: $progress%")
-                    }
-
-                    override fun onPrepareCompleted(
-                        status: Boolean,
-                        error: DocumentReaderException?
-                    ) {
-                        if (status) {
-                            initializeReader()
-                        } else {
-                            dismissDialog()
-                            Toast.makeText(
-                                this@MainActivity,
-                                "Prepare DB failed:$error",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
-                })
-    }
-
     private fun initViews() {
         etDeviceName = findViewById(R.id.ed_device)
         btnConnect = findViewById(R.id.btn_connect)
     }
 
-    fun initializeReader() {
+    private fun initializeReader() {
         val license = Utils.getLicense(this) ?: return
         showDialog("Initializing")
 

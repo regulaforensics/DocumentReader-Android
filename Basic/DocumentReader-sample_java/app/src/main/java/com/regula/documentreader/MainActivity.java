@@ -30,11 +30,6 @@ public class MainActivity extends BaseActivity {
         DocumentReader.Instance().initializeReader(MainActivity.this, config, initCompletion);
     }
 
-    @Override
-    protected void onPrepareDbCompleted() {
-        initializeReader();
-    }
-
     private void showDialog(Context context) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 

@@ -14,7 +14,6 @@ import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
-import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
 import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
@@ -58,7 +57,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkModule() {
         if (splitInstallManager.installedModules.contains(coreModule)) {
             SplitCompat.install(this)
-            prepareDatabase()
+            initializeReader()
         } else {
             binding.loadBtn.visibility = View.VISIBLE;
             binding.nameTv.text = "Regula Core SDK not found"
@@ -121,7 +120,7 @@ class MainActivity : AppCompatActivity() {
         binding.nameTv.text = ""
         binding.progress.visibility = View.GONE
         if(!DocumentReader.Instance().isReady) {
-            prepareDatabase()
+            initializeReader()
         }
     }
 
@@ -257,35 +256,5 @@ class MainActivity : AppCompatActivity() {
         } else {
             binding.nameTv.text = "Name:"
         }
-    }
-
-    private fun prepareDatabase() {
-        showDialog("preparing database")
-        DocumentReader.Instance()
-            .prepareDatabase(//call prepareDatabase not necessary if you have local database at assets/Regula/db.dat
-                this@MainActivity,
-                "Full",
-                object : IDocumentReaderPrepareCompletion {
-                    override fun onPrepareProgressChanged(progress: Int) {
-                        if (loadingDialog != null)
-                            loadingDialog!!.setTitle("Downloading database: $progress%")
-                    }
-
-                    override fun onPrepareCompleted(
-                        status: Boolean,
-                        error: DocumentReaderException?
-                    ) {
-                        if (!status) {
-                            Toast.makeText(
-                                this@MainActivity,
-                                "Prepare DB failed:$error",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            dismissDialog()
-                        } else {
-                            initializeReader()
-                        }
-                    }
-                })
     }
 }

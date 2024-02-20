@@ -4,15 +4,12 @@ import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import com.regula.onlineprocessing_without_license_kotlin.databinding.ActivityMainBinding
 
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
-import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
 import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.*
-import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.OnlineProcessingConfig
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.onlineprocessing_without_license_kotlin.util.Constants

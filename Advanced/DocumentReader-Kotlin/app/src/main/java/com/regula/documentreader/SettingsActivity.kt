@@ -442,8 +442,8 @@ class APISettingsFragment : Fragment() {
             Stepper(
                 "DPI threshold",
                 "",
-                { Instance().processParams().imageQA?.dpiThreshold },
-                { Instance().processParams().imageQA?.dpiThreshold = it },
+                { Instance().processParams().imageQA.dpiThreshold },
+                { Instance().processParams().imageQA.dpiThreshold = it },
                 step = 25,
                 addMinusOne = true
             )
@@ -452,33 +452,33 @@ class APISettingsFragment : Fragment() {
             Stepper(
                 "Angle threshold",
                 "",
-                { Instance().processParams().imageQA?.angleThreshold },
-                { Instance().processParams().imageQA?.angleThreshold = it },
+                { Instance().processParams().imageQA.angleThreshold },
+                { Instance().processParams().imageQA.angleThreshold = it },
             )
         )
         sectionsData.add(
             Switch(
                 "Focus check",
-                { Instance().processParams().imageQA?.focusCheck },
-                { Instance().processParams().imageQA?.focusCheck = it })
+                { Instance().processParams().imageQA.focusCheck },
+                { Instance().processParams().imageQA.focusCheck = it })
         )
         sectionsData.add(
             Switch(
                 "Glares check",
-                { Instance().processParams().imageQA?.glaresCheck },
-                { Instance().processParams().imageQA?.glaresCheck = it })
+                { Instance().processParams().imageQA.glaresCheck },
+                { Instance().processParams().imageQA.glaresCheck = it })
         )
         sectionsData.add(
             Switch(
                 "Colorness check",
-                { Instance().processParams().imageQA?.colornessCheck },
-                { Instance().processParams().imageQA?.colornessCheck = it })
+                { Instance().processParams().imageQA.colornessCheck },
+                { Instance().processParams().imageQA.colornessCheck = it })
         )
         sectionsData.add(
             Switch(
-                "Moire check",
-                { Instance().processParams().imageQA?.moireCheck },
-                { Instance().processParams().imageQA?.moireCheck = it })
+                "Screen Capture",
+                { Instance().processParams().imageQA.screenCapture },
+                { Instance().processParams().imageQA.screenCapture = it })
         )
         sectionsData.add(
             BSMulti(
@@ -496,11 +496,11 @@ class APISettingsFragment : Fragment() {
                     BSItem("handwritten", eImageQualityCheckType.IQC_HANDWRITTEN)
                 ),
                 {
-                    (Instance().processParams().imageQA?.expectedPass?.toMutableList()
+                    (Instance().processParams().imageQA.expectedPass?.toMutableList()
                         ?: mutableListOf()).toMutableListString()
                 },
                 {
-                    Instance().processParams().imageQA?.expectedPass =
+                    Instance().processParams().imageQA.expectedPass =
                         it.toTypedArray().toIntArray()
                 }
             ))
@@ -559,13 +559,6 @@ class APISettingsFragment : Fragment() {
                 "Update OCR validity by glare",
                 { Instance().processParams().updateOCRValidityByGlare },
                 { Instance().processParams().updateOCRValidityByGlare = it })
-        )
-        sectionsData.add(Section("Authenticity"))
-        sectionsData.add(
-            Switch(
-                "Check hologram",
-                { Instance().processParams().checkHologram },
-                { Instance().processParams().checkHologram = it })
         )
         sectionsData.add(Section("Timeouts"))
         sectionsData.add(

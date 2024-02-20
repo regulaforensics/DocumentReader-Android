@@ -10,7 +10,8 @@
 ## How to build the demo application
 1. Download or clone the current repository using the command `git clone https://github.com/regulaforensics/DocumentReader-Android.git`.
 2. Open the `BleDevice-Kotlin` project in an IDE.
-3. Run the project.
+3. Copy the database file db.dat from [Client Portal](https://client.regulaforensics.com/customer/databases) to the project: `BleDevice-Kotlin/app/src/main/assets/Regula/`.
+4. Run the project.
 Note: Android Gradle plugin requires Java 11 to run
 
 ## Documentation

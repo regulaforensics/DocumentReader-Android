@@ -136,6 +136,13 @@ class Image(
     title: String,
     var value: Bitmap,
 ) : Base(title)
+class ImagePair(
+    title: String,
+    var error: String?,
+    var image: Bitmap?,
+    var imageEtalon: Bitmap?,
+    var status: Int?,
+) : Base(title)
 
 class Status(
     title: String,
@@ -163,7 +170,9 @@ class Attribute(
     var source: Int? = null,
     @Transient
     var image: Bitmap? = null,
+    var imageEtalon: Bitmap? = null,
     var equality: Boolean = true,
+    var auth: Boolean = false,
     var rfidStatus: Int? = null,
     var checkResult: Int? = null,
 ) : Serializable {

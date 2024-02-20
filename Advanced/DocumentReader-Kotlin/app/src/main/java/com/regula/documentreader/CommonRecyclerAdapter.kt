@@ -19,6 +19,7 @@ import com.regula.documentreader.Scan.Companion.ACTION_TYPE_GALLERY
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_MANUAL_MULTIPAGE_MODE
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_SCANNER
 import com.regula.documentreader.api.DocumentReader
+import com.regula.documentreader.api.enums.eCheckResult
 import com.regula.documentreader.api.params.Functionality
 import com.regula.documentreader.api.params.ParamsCustomization
 import com.regula.documentreader.databinding.*
@@ -39,6 +40,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
         is InputString -> INPUT_STRING
         is TextResult -> TEXT_RESULT
         is Image -> IMAGE
+        is ImagePair -> IMAGE_PAIR
         is Status -> STATUS
         is InputDouble -> INPUT_DOUBLE
         else -> 0
@@ -58,6 +60,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
             INPUT_STRING -> VH.InputStringVH(RvTitleValueBinding.inflate(li, parent, false))
             TEXT_RESULT -> VH.TextResultVH(RvTextResultBinding.inflate(li, parent, false))
             IMAGE -> VH.ImageVH(RvImageBinding.inflate(li, parent, false))
+            IMAGE_PAIR -> VH.ImagePairVH(RvImagePairBinding.inflate(li, parent, false))
             STATUS -> VH.StatusVH(RvStatusBinding.inflate(li, parent, false))
             INPUT_DOUBLE -> VH.InputDoubleVH(RvTitleValueBinding.inflate(li, parent, false))
             else -> VH.SectionVH(RvSectionBinding.inflate(li, parent, false))
@@ -119,7 +122,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
 
                     when (scan.actionType) {
                         ACTION_TYPE_SCANNER -> (context as MainActivity).showScanner()
-                        ACTION_TYPE_GALLERY -> (context as MainActivity).recognizeImage()
+                        ACTION_TYPE_GALLERY -> (context as MainActivity).createImageBrowsingRequest()
                         ACTION_TYPE_CUSTOM -> {
                         }
                         ACTION_TYPE_MANUAL_MULTIPAGE_MODE -> {
@@ -341,6 +344,53 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
             }
         }
 
+        class ImagePairVH(private val binding: RvImagePairBinding) : VH(binding.root) {
+            override fun bind(base: Base) {
+                val image = base as ImagePair
+                binding.title.text = "#$layoutPosition " + image.title
+
+                if(image.error?.isEmpty() == true) {
+                    binding.titleError.visibility = View.GONE
+                } else{
+                    binding.titleError.visibility = View.VISIBLE
+                }
+                binding.titleError.text =  image.error
+
+                if(image.imageEtalon != null) {
+                    image.imageEtalon.let {
+                        binding.titleEtalon.text = "(EtalonImage)"
+                    }
+                    binding.imageEtalon.visibility = View.VISIBLE
+                    binding.imageEtalon.setImageBitmap(image.imageEtalon)
+                } else{
+                    binding.titleEtalon.text = ""
+                    binding.imageEtalon.visibility = View.GONE
+                }
+                if(image.image != null) {
+                    binding.image.visibility = View.VISIBLE
+                    binding.image.setImageBitmap(image.image)
+                    binding.titleImage.text = "(Image)"
+                } else{
+                    binding.titleImage.text = ""
+                    binding.image.visibility = View.GONE
+                }
+                image.status
+                when (image.status) {
+                    eCheckResult.CH_CHECK_OK -> {
+                        binding.elementStatusImage.setImageResource(R.drawable.reg_icon_check_ok)
+                    }
+                    eCheckResult.CH_CHECK_ERROR -> {
+                        binding.elementStatusImage.setImageResource(R.drawable.reg_icon_check_fail)
+                    }
+                    eCheckResult.CH_CHECK_WAS_NOT_DONE -> {
+                        binding.elementStatusImage.setImageResource(R.drawable.reg_icon_no_check)
+                    }
+                    else -> {
+                        binding.elementStatusImage.setImageBitmap(null)
+                    }
+                }
+            }
+        }
         class ImageVH(private val binding: RvImageBinding) : VH(binding.root) {
             override fun bind(base: Base) {
                 val image = base as Image
@@ -375,5 +425,6 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
         private const val IMAGE = 8
         private const val STATUS = 9
         private const val INPUT_DOUBLE = 10
+        private const val IMAGE_PAIR = 11
     }
 }

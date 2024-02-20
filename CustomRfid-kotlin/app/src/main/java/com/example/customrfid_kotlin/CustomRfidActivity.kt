@@ -18,7 +18,6 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.customrfid_kotlin.databinding.ActivityCustomRfidBinding
-import com.regula.common.utils.RegulaLog
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.enums.DocReaderAction
@@ -149,7 +148,7 @@ class CustomRfidActivity : AppCompatActivity() {
         Log.d(TAG, "nfcTag extracted from NfcAdapter.EXTRA_TAG")
 
         val isoDepTag = IsoDep.get(nfcTag) ?: return
-        RegulaLog.d("IsoDep.get(nfcTag) successful")
+        Log.d(TAG, "IsoDep.get(nfcTag) successful")
 
         if (isRestartedReading) {
             Log.d(TAG,  "Restart read RFID")

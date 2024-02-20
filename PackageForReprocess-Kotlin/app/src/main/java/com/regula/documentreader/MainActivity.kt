@@ -16,7 +16,6 @@ import com.github.kittinunf.result.Result
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
-import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
 import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
@@ -38,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initViews()
-        prepareDatabase()
+        initializeReader()
     }
 
     private fun initViews() {
@@ -78,37 +77,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    private fun prepareDatabase() {
-        showDialog("preparing database")
-        DocumentReader.Instance()
-            .prepareDatabase(//call prepareDatabase not necessary if you have local database at assets/Regula/db.dat
-                this@MainActivity,
-                "Full",
-                object : IDocumentReaderPrepareCompletion {
-                    override fun onPrepareProgressChanged(progress: Int) {
-                        if (loadingDialog != null)
-                            loadingDialog!!.setTitle("Downloading database: $progress%")
-                    }
-
-                    override fun onPrepareCompleted(
-                        status: Boolean,
-                        error: DocumentReaderException?
-                    ) {
-                        if (!status) {
-                            dismissDialog()
-                            Toast.makeText(
-                                this@MainActivity,
-                                "Prepare DB failed:$error",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        } else {
-                            initializeReader()
-                        }
-                        dismissDialog()
-                    }
-                })
     }
 
     private fun initializeReader() {

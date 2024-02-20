@@ -15,7 +15,9 @@ object CertificatesUtil {
     ): PKDCertificate {
         val certificate = PKDCertificate()
         certificate.resourceType = PKDResourceType.CERTIFICATE_TA
-        certificate.binaryData = getBinaryData(am, certificateName)
+        getBinaryData(am, certificateName)?.let {
+            certificate.binaryData = it
+        }
         certificate.privateKey = getBinaryData(am, certificateKey)
         return certificate
     }

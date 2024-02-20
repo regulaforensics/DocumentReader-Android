@@ -26,9 +26,15 @@ import com.regula.documentreader.api.enums.LCID
 import com.regula.documentreader.api.enums.eCheckResult.*
 import com.regula.documentreader.api.enums.eRFID_DataFile_Type
 import com.regula.documentreader.api.enums.eRFID_ErrorCodes.*
+import com.regula.documentreader.api.enums.eRPRM_ResultType
 import com.regula.documentreader.api.results.DocumentReaderComparison
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.results.DocumentReaderValidity
+import com.regula.documentreader.api.results.authenticity.DocumentReaderAuthenticityElement
+import com.regula.documentreader.api.results.authenticity.DocumentReaderIdentResult
+import com.regula.documentreader.api.results.authenticity.DocumentReaderOCRSecurityTextResult
+import com.regula.documentreader.api.results.authenticity.DocumentReaderPhotoIdentResult
+import com.regula.documentreader.api.results.authenticity.DocumentReaderSecurityFeatureCheck
 import com.regula.documentreader.databinding.ActivityResultsBinding
 import com.regula.documentreader.databinding.FragmentResultsBinding
 import com.regula.documentreader.databinding.FragmentRvBinding
@@ -40,6 +46,7 @@ class ResultsActivity : AppCompatActivity() {
     private lateinit var resultsFragment: ResultsTabFragment
     private lateinit var compareFragment: ResultsTabFragment
     private lateinit var rfidFragment: ResultsTabFragment
+    private lateinit var authFragment: ResultsTabFragment
     private var selectedTabIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,6 +91,14 @@ class ResultsActivity : AppCompatActivity() {
                             R.id.results_compare_rfid
                         )
                     }
+                    3 -> {
+                        selectedTabIndex = 3
+                        replaceFragment(
+                            authFragment,
+                            this@ResultsActivity,
+                            R.id.results_compare_rfid
+                        )
+                    }
                 }
             }
 
@@ -95,9 +110,11 @@ class ResultsActivity : AppCompatActivity() {
             resultsGroupedAttributes = initResults()
             compareGroupedAttributes = initCompare()
             rfidGroupedAttributes = initRfidData()
+            authGroupedAttributes = initAuthData()
             resultsFragment = ResultsTabFragment.newInstance(RESULTS)
             compareFragment = ResultsTabFragment.newInstance(COMPARE)
             rfidFragment = ResultsTabFragment.newInstance(RFID)
+            authFragment = ResultsTabFragment.newInstance(AUTH)
             replaceFragment(resultsFragment, this, R.id.results_compare_rfid)
             binding.tabLayout.getTabAt(selectedTabIndex)!!.select()
         } else {
@@ -106,10 +123,12 @@ class ResultsActivity : AppCompatActivity() {
             compareFragment =
                 savedInstanceState.getSerializable("compareFragment") as ResultsTabFragment
             rfidFragment = savedInstanceState.getSerializable("rfidFragment") as ResultsTabFragment
+            authFragment = savedInstanceState.getSerializable("authFragment") as ResultsTabFragment
 
             resultsFragment.numberPickerIndex = savedInstanceState.getInt("resultsIndex")
             compareFragment.numberPickerIndex = savedInstanceState.getInt("compareIndex")
             rfidFragment.numberPickerIndex = savedInstanceState.getInt("rfidIndex")
+            authFragment.numberPickerIndex = savedInstanceState.getInt("authIndex")
 
             selectedTabIndex = savedInstanceState.getInt("selectedTabIndex")
         }
@@ -119,6 +138,8 @@ class ResultsActivity : AppCompatActivity() {
             turnTabOff(1)
         if (rfidGroupedAttributes.isEmpty())
             turnTabOff(2)
+        if (authGroupedAttributes.isEmpty())
+            turnTabOff(3)
     }
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
@@ -127,14 +148,68 @@ class ResultsActivity : AppCompatActivity() {
         savedInstanceState.putSerializable("resultsFragment", resultsFragment)
         savedInstanceState.putSerializable("compareFragment", compareFragment)
         savedInstanceState.putSerializable("rfidFragment", rfidFragment)
+        savedInstanceState.putSerializable("authFragment", authFragment)
 
         savedInstanceState.putInt("resultsIndex", resultsFragment.numberPickerIndex)
         savedInstanceState.putInt("compareIndex", compareFragment.numberPickerIndex)
         savedInstanceState.putInt("rfidIndex", rfidFragment.numberPickerIndex)
+        savedInstanceState.putInt("authIndex", authFragment.numberPickerIndex)
 
         savedInstanceState.putInt("selectedTabIndex", selectedTabIndex)
     }
 
+    private fun initAuthData(): List<GroupedAttributes> {
+        val pickerData = mutableListOf<GroupedAttributes>()
+        val attributes = mutableListOf<Attribute>()
+
+        results.authenticityResult?.checks?.forEach { checks ->
+            checks.elements.forEach{
+                val error = if (it.elementDiagnose == 1) "" else (it.getElementDiagnoseName(this))
+                when (it) {
+                    is DocumentReaderIdentResult -> {
+                        val name = it.getElementTypeName(this) + " [${checks.pageIndex}]"
+                        val item = Attribute(name, error, source = checks.type, pageIndex = checks.pageIndex,
+                            valid = it.status,
+                            image = it.image?.bitmap,
+                            imageEtalon = it.etalonImage?.bitmap,
+                            auth = true
+                        )
+                        attributes.add(item)
+                    }
+                    is DocumentReaderPhotoIdentResult -> {
+                        val name = it.getElementTypeName(this) + " [${checks.pageIndex}]"
+                        if(it.resultImages.size > 0) {
+                            val image = it.resultImages.get(0).bitmap;
+                            val item = Attribute(name, error, source = checks.type, pageIndex = checks.pageIndex,
+                                valid = it.status,
+                                image = image,
+                                auth = true
+                            )
+                            attributes.add(item)
+                        }
+                    }
+                    is DocumentReaderSecurityFeatureCheck -> {
+                        val name = it.getElementTypeName(this) + " [${checks.pageIndex}]"
+                        val item = Attribute(name, error, source = checks.type, pageIndex = checks.pageIndex,
+                            valid = it.status,
+                            auth = true
+                        )
+                        attributes.add(item)
+                    }
+                }
+            }
+        }
+
+        val types = attributes.map { it.source }.toSet()
+        for (type in types) {
+            val typed = attributes.filter { it.source == type }.toMutableList()
+            val group = GroupedAttributes(getResultTypeTranslation(type!!), typed)
+            pickerData.add(group)
+        }
+        pickerData.sortBy { it.type }
+
+        return pickerData
+    }
     private fun initResults(): List<GroupedAttributes> {
         val pickerData = mutableListOf<GroupedAttributes>()
         val attributes = mutableListOf<Attribute>()
@@ -320,10 +395,12 @@ class ResultsActivity : AppCompatActivity() {
         var resultsGroupedAttributes: List<GroupedAttributes> = listOf()
         var compareGroupedAttributes: List<GroupedAttributes> = listOf()
         var rfidGroupedAttributes: List<GroupedAttributes> = listOf()
+        var authGroupedAttributes: List<GroupedAttributes> = listOf()
 
         const val RESULTS = 0
         const val COMPARE = 1
         const val RFID = 2
+        const val AUTH = 3
     }
 }
 
@@ -346,6 +423,7 @@ class ResultsTabFragment : Fragment(), Serializable {
         val pickerData = when (pickerDataReference) {
             ResultsActivity.RESULTS -> ResultsActivity.resultsGroupedAttributes
             ResultsActivity.COMPARE -> ResultsActivity.compareGroupedAttributes
+            ResultsActivity.AUTH -> ResultsActivity.authGroupedAttributes
             else -> ResultsActivity.rfidGroupedAttributes
         }
         if (pickerData.isEmpty())
@@ -421,6 +499,15 @@ class GroupFragment : Fragment() {
 
         for (attribute in groupedAttributes.items) {
             when {
+                attribute.auth -> sectionsData.add(
+                    ImagePair(
+                        attribute.name,
+                        attribute.value,
+                        attribute.image,
+                        attribute.imageEtalon,
+                        attribute.valid
+                    )
+                )
                 attribute.image != null -> sectionsData.add(
                     Image(
                         attribute.name,
@@ -433,15 +520,20 @@ class GroupFragment : Fragment() {
                         color = Color.GREEN
                     if (attribute.valid == CH_CHECK_ERROR)
                         color = Color.RED
-                    sectionsData.add(
-                        TextResult(
-                            attribute.name,
-                            attribute.value!!,
-                            LCID.getTranslation(context, attribute.lcid!!),
-                            attribute.pageIndex!!,
-                            color
-                        )
-                    )
+                    context?.let {
+                        attribute.lcid?.let { lcid ->
+                            sectionsData.add(
+                                TextResult(
+                                    attribute.name,
+                                    attribute.value!!,
+                                    LCID.getTranslation(it, lcid),
+                                    attribute.pageIndex!!,
+                                    color
+                                )
+                            )
+                        }
+
+                    }
                 }
                 attribute.rfidStatus != null -> {
                     var value = UNDEFINED

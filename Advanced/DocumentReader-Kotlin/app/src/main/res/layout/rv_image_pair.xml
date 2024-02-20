@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/padding_horizontal"
+        android:paddingTop="@dimen/padding_gap"
+        android:paddingEnd="@dimen/padding_horizontal"
+        android:paddingBottom="@dimen/padding_gap"
+        android:layout_marginEnd="10dp"
+        android:textColor="@color/blackText"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toStartOf="@+id/elementStatusImage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Text" />
+
+
+    <ImageView
+        android:id="@+id/elementStatusImage"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="10dp"
+        android:layout_centerVertical="true"
+        app:layout_constraintBottom_toBottomOf="@+id/title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/title" />
+
+    <TextView
+        android:id="@+id/titleError"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/padding_horizontal"
+        android:paddingTop="@dimen/padding_gap"
+        android:paddingEnd="@dimen/padding_horizontal"
+        android:paddingBottom="@dimen/padding_gap"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        tools:text="Text" />
+    <TextView
+        android:id="@+id/titleEtalon"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/padding_horizontal"
+        android:paddingTop="@dimen/padding_gap"
+        android:paddingEnd="@dimen/padding_horizontal"
+        android:paddingBottom="@dimen/padding_gap"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleError"
+        tools:text="Text" />
+
+    <ImageView
+        android:id="@+id/imageEtalon"
+        android:layout_width="wrap_content"
+        android:layout_height="150dp"
+        android:contentDescription="@string/value"
+        android:paddingTop="@dimen/padding_gap"
+        android:adjustViewBounds="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleEtalon" />
+
+
+    <TextView
+        android:id="@+id/titleImage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/padding_horizontal"
+        android:paddingTop="@dimen/padding_gap"
+        android:paddingEnd="@dimen/padding_horizontal"
+        android:paddingBottom="@dimen/padding_gap"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageEtalon"
+        tools:text="Text" />
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="wrap_content"
+        android:layout_height="150dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/value"
+        android:paddingTop="@dimen/padding_gap"
+        android:paddingBottom="@dimen/padding_gap"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleImage" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

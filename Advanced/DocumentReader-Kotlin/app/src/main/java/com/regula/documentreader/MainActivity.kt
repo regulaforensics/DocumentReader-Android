@@ -1,12 +1,10 @@
 package com.regula.documentreader
 
-import android.Manifest
 import android.animation.ValueAnimator
 import android.animation.ValueAnimator.AnimatorUpdateListener
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.*
 import android.net.Uri
 import android.os.Bundle
@@ -23,8 +21,6 @@ import android.view.animation.AccelerateInterpolator
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -32,7 +28,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.regula.documentreader.Helpers.Companion.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
 import com.regula.documentreader.Helpers.Companion.colorString
 import com.regula.documentreader.Helpers.Companion.drawable
 import com.regula.documentreader.Helpers.Companion.getBitmap
@@ -45,13 +40,13 @@ import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnab
 import com.regula.documentreader.SettingsActivity.Companion.isRfidEnabled
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
-import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
 import com.regula.documentreader.api.config.RecognizeConfig
 import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.FrameShapeType
 import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
+import com.regula.documentreader.api.enums.Scenario.Scenarios
 import com.regula.documentreader.api.enums.eRFID_DataFile_Type
 import com.regula.documentreader.api.enums.eRFID_NotificationCodes
 import com.regula.documentreader.api.enums.eRPRM_Lights
@@ -75,7 +70,8 @@ import java.util.*
 class MainActivity : FragmentActivity(), Serializable {
     private var mTimerAnimator: ValueAnimator? = null
     private var isAnimationStarted: Boolean = false
-    private var currentScenario: String = ""
+    @Scenarios
+    private var currentScenario: String = Scenario.SCENARIO_MRZ
 
     @Transient
     private lateinit var binding: ActivityMainBinding
@@ -158,12 +154,6 @@ class MainActivity : FragmentActivity(), Serializable {
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = CommonRecyclerAdapter(getRvData())
         binding.recyclerView.addItemDecoration(DividerItemDecoration(this, 1))
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (Instance().isReady)
-            return
 
         val license = LicenseUtil.readFileFromAssets(
             "Regula",
@@ -173,43 +163,33 @@ class MainActivity : FragmentActivity(), Serializable {
 
         license?.let {
             initDialog = showDialog("Initializing")
-            getPrepareCompletion(it)
-        }?.let { Instance().prepareDatabase(this, "Full", it) }
+            initializeReader(it)
+        }
     }
 
-    private fun getPrepareCompletion(license: ByteArray) =
-        object : IDocumentReaderPrepareCompletion {
-            override fun onPrepareProgressChanged(progress: Int) {
-                initDialog!!.setTitle("Downloading database: $progress%")
-            }
+    private fun initializeReader(license: ByteArray) {
+        Instance().initializeReader(this@MainActivity, DocReaderConfig(license))
+        { success, error_initializeReader ->
+            if (initDialog?.isShowing == true)
+                initDialog?.dismiss()
+            Instance().customization().edit().setShowHelpAnimation(false).apply()
 
-            override fun onPrepareCompleted(status: Boolean, error: DocumentReaderException?) {
-                Instance().initializeReader(this@MainActivity, DocReaderConfig(license))
-                { success, error_initializeReader ->
-                    if (initDialog!!.isShowing)
-                        initDialog!!.dismiss()
-                    Instance().customization().edit().setShowHelpAnimation(false).apply()
-
-                    if (success) onInitComplete()
-                    else
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Init failed:$error_initializeReader",
-                            Toast.LENGTH_LONG
-                        ).show()
-                }
-            }
+            if (success) onInitComplete()
+            else
+                Toast.makeText(
+                    this@MainActivity,
+                    "Init failed:$error_initializeReader",
+                    Toast.LENGTH_LONG
+                ).show()
         }
+    }
 
     private fun onInitComplete() {
-        currentScenario = Instance().processParams().scenario
         val scenarios: Array<String?> = arrayOfNulls(Instance().availableScenarios.size)
         for ((i, scenario) in Instance().availableScenarios.withIndex())
             scenarios[i] = scenario.name
         if (scenarios.isNotEmpty()) {
-            if (currentScenario.isEmpty()) {
-                currentScenario = scenarios[0] ?: ""
-            }
+            currentScenario = scenarios[0] ?: ""
             binding.scenarioPicker.visibility = View.VISIBLE
             binding.scenarioPicker.maxValue = scenarios.size - 1
             binding.scenarioPicker.wrapSelectorWheel = false
@@ -371,42 +351,11 @@ class MainActivity : FragmentActivity(), Serializable {
         Instance().showScanner(this@MainActivity, scannerConfig, completion)
     }
 
-    private fun createImageBrowsingRequest() {
-        val intent = Intent()
+    fun createImageBrowsingRequest() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "image/*"
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-        intent.action = Intent.ACTION_GET_CONTENT
-        imageBrowsingIntentLauncher.launch(Intent.createChooser(intent, "Select Picture"))
-    }
-
-    fun recognizeImage() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
-            )
-        } else
-            createImageBrowsingRequest()
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    createImageBrowsingRequest()
-                else
-                    Toast.makeText(this, "Permission required, to browse images", Toast.LENGTH_LONG)
-                        .show()
-            }
-        }
+        imageBrowsingIntentLauncher.launch(intent)
     }
 
     private fun getRvData(): List<Base> {
@@ -582,19 +531,18 @@ class MainActivity : FragmentActivity(), Serializable {
             Instance().customization().edit()
                 .setMultipageAnimationBackImage(drawable(R.drawable.two, this)).apply()
         })
-        rvData.add(Scan("Custom Hologram animation") {
-            Instance().processParams().checkHologram = true
+        rvData.add(Scan("Custom Liveness animation") {
             // NOTE: for a runtime animation change take a look at `showScanner` completion handler.
             Instance().customization().edit()
-                .setHologramAnimationImage(getDrawable(R.drawable.reg_nfc_full_id_big)).apply()
+                .setLivenessAnimationImage(getDrawable(R.drawable.reg_id_front_mrz)).apply()
             Instance().customization().edit()
-                .setHologramAnimationPositionMultiplier(0.4f).apply()
+                .setLivenessAnimationPositionMultiplier(0.4f).apply()
             Instance().customization().edit()
-                .setHologramAnimationImageScaleType(ImageView.ScaleType.CENTER_INSIDE).apply()
+                .setLivenessAnimationImageScaleType(ImageView.ScaleType.CENTER_INSIDE).apply()
 
             val matrix = Matrix()
             Instance().customization().edit()
-                .setHologramAnimationImageMatrix(matrix).apply()
+                .setLivenessAnimationImageMatrix(matrix).apply()
         })
         rvData.add(Section("Custom tint color"))
         rvData.add(Scan("Activity indicator") {
@@ -718,7 +666,7 @@ class MainActivity : FragmentActivity(), Serializable {
 
     private fun startRecognizeImageWithLight() {
         // For FULL_AUTH processing you need to do implementation in gradle com.regula.documentreader.core:fullauthrfid
-        // Set databaseID to 'FullAuth' in method prepareDatabase
+        // Add 'FullAuth' database to 'assets/Regula'
         val image1 = BitmapFactory.decodeResource(resources, R.drawable.white)
         val image2 = BitmapFactory.decodeResource(resources, R.drawable.uv)
         val image3 = BitmapFactory.decodeResource(resources, R.drawable.ir)

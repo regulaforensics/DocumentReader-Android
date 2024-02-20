@@ -9,11 +9,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.regula.certificates_default_kotlin.CertificatesUtil.getRfidCertificate
 import com.regula.certificates_default_kotlin.databinding.ActivityMainBinding
-import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
-import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
 import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.enums.DocReaderAction
