@@ -42,7 +42,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.google.android.play:feature-delivery:2.0.1'
-    implementation('com.regula.documentreader:api:7.1.+@aar') {
+    implementation('com.regula.documentreader:api:7.2.+@aar') {
         transitive = true
     }
 }

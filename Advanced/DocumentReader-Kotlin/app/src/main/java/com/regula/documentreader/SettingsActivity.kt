@@ -25,6 +25,7 @@ import com.regula.documentreader.SettingsActivity.Companion.customString
 import com.regula.documentreader.SettingsActivity.Companion.functionality
 import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnabled
 import com.regula.documentreader.api.DocumentReader.Instance
+import com.regula.documentreader.api.enums.BarcodeType
 import com.regula.documentreader.api.enums.DocReaderFrame.*
 import com.regula.documentreader.api.enums.MRZFormat.*
 import com.regula.documentreader.api.enums.diDocType
@@ -658,26 +659,26 @@ class APISettingsFragment : Fragment() {
                 "Do barcodes",
                 "processParams.doBarcodes",
                 arrayListOf(
-                    BSItem(".unknown"),
-                    BSItem(".code128"),
-                    BSItem(".code39"),
-                    BSItem(".EAN8"),
-                    BSItem(".ITF"),
-                    BSItem(".PDF417"),
-                    BSItem(".PDF417"),
-                    BSItem(".STF"),
-                    BSItem(".MTF"),
-                    BSItem(".IATA"),
-                    BSItem(".CODABAR"),
-                    BSItem(".UPCA"),
-                    BSItem(".CODE93"),
-                    BSItem(".UPCE"),
-                    BSItem(".EAN13"),
-                    BSItem(".QRCODE"),
-                    BSItem(".AZTEC"),
-                    BSItem(".DATAMATRIX"),
-                    BSItem(".ALL_1D"),
-                    BSItem(".code11")
+                    BSItem(BarcodeType.valueOf(BarcodeType.UNKNOWN)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.BCT_CODE128)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.CODE39)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.EAN8)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.ITF)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.PDF417)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.STF)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.MTF)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.IATA)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.CODABAR)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.UPCA)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.CODE93)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.UPCE)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.EAN13)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.QRCODE)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.AZTEC)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.DATAMATRIX)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.ALL_1D)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.CODE11)),
+                    BSItem(BarcodeType.valueOf(BarcodeType.JABCODE))
                 ),
                 { Instance().processParams().doBarcodes?.toMutableList() ?: mutableListOf() },
                 { Instance().processParams().doBarcodes = it.toTypedArray() }

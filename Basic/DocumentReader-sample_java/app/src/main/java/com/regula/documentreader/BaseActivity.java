@@ -211,7 +211,7 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
                             @Override
                             public void onCompleted(int rfidAction, @Nullable DocumentReaderResults documentReaderResults, @Nullable DocumentReaderException e) {
                                 if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
-                                    mainFragment.displayResults(results);
+                                    mainFragment.displayResults(documentReaderResults);
                                 }
                             }
                         });

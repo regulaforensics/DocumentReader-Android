@@ -59,10 +59,11 @@ class ResultsActivity : AppCompatActivity() {
             startActivity(Intent(this, DirectResultsActivity::class.java))
         }
 
-        if (results.status.overallStatus == CH_CHECK_OK)
-            binding.overAllResultImage.setImageResource(android.R.drawable.ic_menu_add)
-        if (results.status.overallStatus == CH_CHECK_WAS_NOT_DONE)
-            binding.overAllResultImage.setImageResource(android.R.drawable.ic_menu_help)
+        when(results.status.overallStatus) {
+            CH_CHECK_OK -> binding.overAllResultImage.setImageResource(R.drawable.reg_icon_check_ok)
+            CH_CHECK_WAS_NOT_DONE -> binding.overAllResultImage.setImageResource(R.drawable.reg_icon_no_check)
+            else -> binding.overAllResultImage.setImageResource(R.drawable.reg_icon_check_fail)
+        }
 
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
