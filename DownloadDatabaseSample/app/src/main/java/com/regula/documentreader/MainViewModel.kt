@@ -63,7 +63,7 @@ class MainViewModel(private val documentReader: DocumentReader): ViewModel() {
         documentReader.deinitializeReader()
     }
 
-    private val prepareCompletion = object: IDocumentReaderPrepareCompletion() {
+    private val prepareCompletion = object: IDocumentReaderPrepareCompletion {
         override fun onPrepareProgressChanged(prepareProgress: Int) {
             val progress = "prepareProgress%"
             progressData.postValue(progress)
