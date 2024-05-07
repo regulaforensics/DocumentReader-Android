@@ -7,8 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.ICheckDatabaseUpdate
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
-import com.regula.documentreader.api.completions.IDocumentReaderPrepareDbCompletion
-import com.regula.documentreader.api.completions.model.PrepareProgress
+import com.regula.documentreader.api.completions.IDocumentReaderPrepareCompletion
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig
 import com.regula.documentreader.util.Utils
@@ -64,12 +63,9 @@ class MainViewModel(private val documentReader: DocumentReader): ViewModel() {
         documentReader.deinitializeReader()
     }
 
-    private val prepareCompletion = object: IDocumentReaderPrepareDbCompletion() {
-        override fun onPrepareProgressChanged(prepareProgress: PrepareProgress) {
-            val d: Double = prepareProgress.downloadedBytes.toDouble() / 1000000
-            val t: Double = prepareProgress.totalBytes.toDouble() / 1000000
-            val df = DecimalFormat("0.00")
-            val progress = df.format(d) + "/" + df.format(t) + " - " + prepareProgress.progress + "%"
+    private val prepareCompletion = object: IDocumentReaderPrepareCompletion() {
+        override fun onPrepareProgressChanged(prepareProgress: Int) {
+            val progress = "prepareProgress%"
             progressData.postValue(progress)
         }
 
