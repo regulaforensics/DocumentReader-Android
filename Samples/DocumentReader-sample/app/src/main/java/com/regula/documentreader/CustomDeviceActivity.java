@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -18,7 +17,10 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.regula.documentreader.api.DocumentReader;
+import com.regula.documentreader.api.config.RecognizeConfig;
 import com.regula.documentreader.api.usb.RegDeviceService;
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion;
 import com.regula.documentreader.api.enums.DocReaderAction;
@@ -136,7 +138,7 @@ public class CustomDeviceActivity extends AppCompatActivity {
             mRegulaService.turnOnLed();
         }
 
-        ((ImageButton)view).setImageResource(mRegulaService.isLedOn() ? com.regula.documentreader.api.R.drawable.reg_flash_on: com.regula.documentreader.api.R.drawable.reg_flash_off);
+        ((ImageButton)view).setImageResource(mRegulaService.isLedOn() ? com.regula.common.R.drawable.reg_flash_on: com.regula.common.R.drawable.reg_flash_off);
     }
 
     public void onCloseClick(View view) {
@@ -155,7 +157,11 @@ public class CustomDeviceActivity extends AppCompatActivity {
                 mLoadingBar.setVisibility(View.VISIBLE);
             }
         });
-        DocumentReader.Instance().recognizeImage(bitmap, new IDocumentReaderCompletion() {
+
+        RecognizeConfig config = new RecognizeConfig.Builder(DocumentReader.Instance().processParams().scenario)
+                .setBitmap(bitmap).build();
+
+        DocumentReader.Instance().recognize(config, new IDocumentReaderCompletion() {
             @Override
             public void onCompleted(int action, DocumentReaderResults results, DocumentReaderException error) {
                 if (action != DocReaderAction.COMPLETE) {

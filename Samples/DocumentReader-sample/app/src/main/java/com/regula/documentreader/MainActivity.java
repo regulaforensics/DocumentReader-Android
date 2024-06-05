@@ -16,12 +16,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +29,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.regula.documentreader.api.DocumentReader;
+import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion;
+import com.regula.documentreader.api.config.RecognizeConfig;
+import com.regula.documentreader.api.config.ScannerConfig;
+import com.regula.documentreader.api.params.DocReaderConfig;
 import com.regula.documentreader.api.usb.RegDeviceService;
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion;
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion;
@@ -57,6 +55,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.graphics.BitmapFactory.decodeStream;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -138,8 +143,10 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onPrepareCompleted(boolean status, DocumentReaderException error) {
 
+                    DocReaderConfig docReaderConfig = new DocReaderConfig(license);
+
                     //Initializing the reader
-                    DocumentReader.Instance().initializeReader(MainActivity.this, license, new IDocumentReaderInitCompletion() {
+                    DocumentReader.Instance().initializeReader(MainActivity.this, docReaderConfig, new IDocumentReaderInitCompletion() {
                         @Override
                         public void onInitCompleted(boolean success, DocumentReaderException error) {
                             if (initDialog.isShowing()) {
@@ -165,8 +172,10 @@ public class MainActivity extends AppCompatActivity {
                                     public void onClick(View view) {
                                         clearResults();
 
+                                        ScannerConfig config = new ScannerConfig.Builder(DocumentReader.Instance().processParams().scenario).build();
+
                                         //starting video processing
-                                        DocumentReader.Instance().showScanner(MainActivity.this, completion);
+                                        DocumentReader.Instance().showScanner(MainActivity.this, config, completion);
                                     }
                                 });
 
@@ -175,26 +184,15 @@ public class MainActivity extends AppCompatActivity {
                                     public void onClick(View view) {
                                         clearResults();
                                         //checking for image browsing permissions
-                                        if (ContextCompat.checkSelfPermission(MainActivity.this,
-                                                Manifest.permission.READ_EXTERNAL_STORAGE)
-                                                != PackageManager.PERMISSION_GRANTED) {
-
-                                            ActivityCompat.requestPermissions(MainActivity.this,
-                                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                                    PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-                                        } else {
-                                            //start image browsing
-                                            createImageBrowsingRequest();
-                                        }
+                                        createImageBrowsingRequest();
                                     }
                                 });
 
                                 customActivityLink.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        clearResults();
-                                        Intent intent = new Intent(MainActivity.this, CustomDeviceActivity.class);
-                                        startActivityForResult(intent, CUSTOM_DEVICE_REQUEST_CODE);
+                                        Intent intent = new Intent(MainActivity.this, CustomRfidActivity.class);
+                                        startActivityForResult(intent, CUSTOM_RFID_REQUEST_CODE);
                                     }
                                 });
 
@@ -303,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void successfulInit() {
-        if (DocumentReader.Instance().getDocumentReaderIsReady()) {
+        if (DocumentReader.Instance().isReady()) {
             Intent intent = new Intent(MainActivity.this, RegDeviceService.class);
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         }
@@ -322,7 +320,10 @@ public class MainActivity extends AppCompatActivity {
 
                     loadingDialog = showDialog("Processing image");
 
-                    DocumentReader.Instance().recognizeImage(bmp, completion);
+                    RecognizeConfig config = new RecognizeConfig.Builder(DocumentReader.Instance().processParams().scenario)
+                            .setBitmap(bmp).build();
+
+                    DocumentReader.Instance().recognize(config, completion);
                 }
             } else if (requestCode == CUSTOM_DEVICE_REQUEST_CODE) {
                 completeRecognition(documentReaderResults);
@@ -331,23 +332,6 @@ public class MainActivity extends AppCompatActivity {
                 displayResults(documentReaderResults);
                 documentReaderResults = null;
             }
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //access to gallery is allowed
-                    createImageBrowsingRequest();
-                } else {
-                    Toast.makeText(MainActivity.this, "Permission required, to browse images",Toast.LENGTH_LONG).show();
-                }
-            } break;
         }
     }
 
@@ -394,7 +378,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, CustomRfidActivity.class);
                 startActivityForResult(intent, CUSTOM_RFID_REQUEST_CODE);
             } else {
-                DocumentReader.Instance().startRFIDReader(MainActivity.this, new IDocumentReaderCompletion() {
+                DocumentReader.Instance().startRFIDReader(MainActivity.this, new IRfidReaderCompletion() {
                     @Override
                     public void onCompleted(int rfidAction, DocumentReaderResults results, DocumentReaderException error) {
                         if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
@@ -456,11 +440,9 @@ public class MainActivity extends AppCompatActivity {
     // creates and starts image browsing intent
     // results will be handled in onActivityResult method
     private void createImageBrowsingRequest() {
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_BROWSE_PICTURE);
+        startActivityForResult(intent, REQUEST_BROWSE_PICTURE);
     }
 
     // loads bitmap from uri
@@ -569,7 +551,9 @@ public class MainActivity extends AppCompatActivity {
             HANDLER.post(new Runnable() {
                 @Override
                 public void run() {
-                    DocumentReader.Instance().recognizeImage(bitmap, completion);
+                    RecognizeConfig config = new RecognizeConfig.Builder(DocumentReader.Instance().processParams().scenario)
+                            .setBitmap(bitmap).build();
+                    DocumentReader.Instance().recognize(config, completion);
                 }
             });
         }
