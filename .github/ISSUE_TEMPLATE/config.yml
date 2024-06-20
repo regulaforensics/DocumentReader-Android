@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Regula Help Center
+  - name: Submit a request
     url: https://support.regulaforensics.com/hc/requests/new?utm_source=github
-    about: Please submit any requests here
+    about: Submit any requests to Regula Support Team
