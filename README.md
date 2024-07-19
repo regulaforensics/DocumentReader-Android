@@ -12,4 +12,4 @@ The documentation on the Document Reader SDK can be found [here](https://docs.re
 
 ## Support
 
-If you have any technical questions or suggestions, feel free to [contact us](https://support.regulaforensics.com/hc/requests/new?utm_source=docs) or create an issue on [GitHub](https://github.com/regulaforensics/DocumentReader-Android/issues).
+If you have any technical questions or suggestions, feel free to [contact us](https://support.regulaforensics.com/hc/requests/new?utm_source=github).

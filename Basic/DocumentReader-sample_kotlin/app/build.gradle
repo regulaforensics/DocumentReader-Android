@@ -30,8 +30,8 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
-    implementation 'com.regula.documentreader.core:fullrfid:7.2.+@aar'
-    implementation('com.regula.documentreader:api:7.2.+@aar') {
+    implementation 'com.regula.documentreader.core:fullrfid:7.3.+@aar'
+    implementation('com.regula.documentreader:api:7.3.+@aar') {
         transitive = true;
     }
 }

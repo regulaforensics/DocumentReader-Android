@@ -1,7 +1,6 @@
 package com.regula.documentreader
 
 import android.content.DialogInterface
-import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -87,6 +86,13 @@ open class MainActivity : AppCompatActivity() {
         }
 
         viewModel.progressData.observe(this) {
+            if (progressDialog == null) {
+                progressDialog = showDialog("Downloading database: $it") { _, _ ->
+                    progressDialog?.dismiss()
+                    viewModel.cancelDbUpdate(this@MainActivity)
+                }
+                return@observe
+            }
             progressDialog?.setTitle("Downloading database: $it")
         }
 
@@ -118,9 +124,15 @@ open class MainActivity : AppCompatActivity() {
             .setCancelable(false)
 
         clickListener?.let {
-            builder.setCancelable(true)
             builder.setPositiveButton("Cancel", clickListener)
         }
         return builder.show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        progressDialog?.dismiss()
+
+        viewModel.reset()
     }
 }

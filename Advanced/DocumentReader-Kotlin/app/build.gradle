@@ -39,9 +39,9 @@ dependencies {
 
     implementation 'com.regula.btdevice:api:1.0.+@aar'
     //noinspection GradleDynamicVersion
-    implementation 'com.regula.documentreader.core:fullrfid:7.2.+@aar'
+    implementation 'com.regula.documentreader.core:fullrfid:7.3.+@aar'
     //noinspection GradleDynamicVersion
-    implementation('com.regula.documentreader:api:7.2.+@aar') {
+    implementation('com.regula.documentreader:api:7.3.+@aar') {
         transitive = true
     }
 

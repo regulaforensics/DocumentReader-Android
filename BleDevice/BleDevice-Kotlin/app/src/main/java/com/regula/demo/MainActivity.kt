@@ -56,6 +56,8 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
                         })
+                    } else {
+                        showGraphicFieldImage(results)
                     }
                     Log.d(this@MainActivity.localClassName, "completion raw result: " + results?.rawResult)
                 } else {

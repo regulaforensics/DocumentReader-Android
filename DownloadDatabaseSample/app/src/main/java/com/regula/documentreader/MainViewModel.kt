@@ -15,12 +15,12 @@ import com.regula.documentreader.util.Utils
 
 class MainViewModel(private val documentReader: DocumentReader): ViewModel() {
 
-    val progressData = MutableLiveData<String>()
-    val prepareSuccess = MutableLiveData<Void>()
-    val prepareFailed = MutableLiveData<String>()
-    val lockUI = MutableLiveData<Boolean>()
-    val dbInfo = MutableLiveData<String>()
-    val initState = MutableLiveData<String>()
+    var progressData = MutableLiveData<String>()
+    var prepareSuccess = MutableLiveData<Void>()
+    var prepareFailed = MutableLiveData<String>()
+    var lockUI = MutableLiveData<Boolean>()
+    var dbInfo = MutableLiveData<String>()
+    var initState = MutableLiveData<String>()
 
     private val DATABASE_ID = "Full"
 
@@ -74,21 +74,21 @@ class MainViewModel(private val documentReader: DocumentReader): ViewModel() {
         }
 
         override fun onPrepareCompleted(status: Boolean, error: DocumentReaderException?) {
-            lockUI.value = true
             error?.let {
                 prepareFailed.postValue(it.message)
             } ?: run {
                 prepareSuccess.postValue(null)
             }
+            lockUI.value = true
         }
     }
 
     private val checkDbUpdateCompletion = ICheckDatabaseUpdate { db ->
         lockUI.value = true
         db?.let {
-            dbInfo.value = "Version: ${db.version}\nDate: ${db.date}\nDescription: ${db.databaseDescription}\nSize: ${Utils.humanReadableByteCountSI(db.size!!)}"
+            dbInfo.postValue("Version: ${db.version}\nDate: ${db.date}\nDescription: ${db.databaseDescription}\nSize: ${Utils.humanReadableByteCountSI(db.size!!)}")
         } ?: run {
-            dbInfo.value = "Issue during check db version"
+            dbInfo.postValue("No db update")
         }
     }
 
@@ -103,4 +103,10 @@ class MainViewModel(private val documentReader: DocumentReader): ViewModel() {
             }
         }
 
+    fun reset() {
+        progressData = MutableLiveData<String>()
+        prepareSuccess = MutableLiveData<Void>()
+        prepareFailed = MutableLiveData<String>()
+        initState = MutableLiveData<String>()
+    }
 }

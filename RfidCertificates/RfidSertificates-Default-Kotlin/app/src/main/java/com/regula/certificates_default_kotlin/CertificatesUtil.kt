@@ -10,7 +10,7 @@ import java.util.*
 object CertificatesUtil {
     fun getRfidCertificate(am: AssetManager): List<PKDCertificate> {
         val pkdCertificatesList: MutableList<PKDCertificate> = ArrayList()
-        val licInput: InputStream = am.open("Regula/certificates/PKDML.000209.ldif")
+        val licInput: InputStream = am.open("Regula/certificates/PKDML.000259.ldif")
         val available: Int = licInput.available()
         val binaryData = ByteArray(available)
         licInput.read(binaryData)
