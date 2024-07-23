@@ -91,6 +91,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readRfid() {
+        // uncomment this line in case you have valid certificates for Terminal Authentication
+        // Instance().rfidScenario().ePassportDataGroups().isDG3 = true
+
         Instance().startRFIDReader(
             this, object: IRfidReaderCompletion() {
                 override fun onCompleted(
@@ -135,10 +138,14 @@ class MainActivity : AppCompatActivity() {
     private fun displayTextFields(results: DocumentReaderResults?) {
         if (results?.status?.detailsRFID != null) {
             val rfidResults = results.status.detailsRFID
-            val paStatus = "PA status:" + sertResultParse(rfidResults.pa)
+            val paStatus = "PA status:" + resultStatusParse(rfidResults.pa)
             binding.paStatusTv.text = paStatus
+
+            val taStatus = "TA status: " + resultStatusParse(rfidResults.ta)
+            binding.taStatusTv.text = taStatus
         } else {
             binding.paStatusTv.text = "PA status:NONE"
+            binding.taStatusTv.text = "TA status:NONE"
         }
     }
 
@@ -165,6 +172,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun clearResults() {
         binding.paStatusTv.text = "PA Status:"
+        binding.taStatusTv.text = "TA Status:"
         binding.resultIv.setImageBitmap(null)
     }
 
@@ -192,7 +200,7 @@ class MainActivity : AppCompatActivity() {
         loadingDialog = builderDialog.show()
     }
 
-    private fun sertResultParse(value: Int): String {
+    private fun resultStatusParse(value: Int): String {
         when (value) {
             eCheckResult.CH_CHECK_WAS_NOT_DONE -> return "check was not done"
             eCheckResult.CH_CHECK_OK -> return "ok"

@@ -173,7 +173,7 @@ class MainActivity : AppCompatActivity() {
     private fun displayTextFields(results: DocumentReaderResults?) {
         if (results?.status?.detailsRFID != null) {
             val rfidResults = results.status.detailsRFID
-            val taStatus = "TA status: " + sertResultParse(rfidResults.ta)
+            val taStatus = "TA status: " + resultStatusParse(rfidResults.ta)
             binding.paStatusTv.text = taStatus
         } else {
             binding.paStatusTv.text = "TA status:NONE"
@@ -220,7 +220,7 @@ class MainActivity : AppCompatActivity() {
         loadingDialog = builderDialog.show()
     }
 
-    private fun sertResultParse(value: Int): String {
+    private fun resultStatusParse(value: Int): String {
         when (value) {
             eCheckResult.CH_CHECK_WAS_NOT_DONE -> return "check was not done"
             eCheckResult.CH_CHECK_OK -> return "ok"
