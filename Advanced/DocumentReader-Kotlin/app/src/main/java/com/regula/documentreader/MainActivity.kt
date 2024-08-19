@@ -257,7 +257,7 @@ class MainActivity : FragmentActivity(), Serializable {
                     Instance().functionality().edit().setManualMultipageMode(false).apply()
                 }
             }
-            if (isRfidEnabled && results?.chipPage != 0) {
+            if (isRfidEnabled && results?.chipPage != 0 && Instance().isRFIDAvailableForUse) {
                 Instance().startRFIDReader(this, object: IRfidReaderCompletion() {
                     override fun onChipDetected() {
                         Log.d("Rfid", "Chip detected")
