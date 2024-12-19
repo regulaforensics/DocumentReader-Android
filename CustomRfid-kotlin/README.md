@@ -1,35 +1,53 @@
-# Regula Document Reader (Android version)
-The `CustomRfid-kotlin` sample project shows how to use a custom rfid activity
+# Document Reader SDK Custom RFID UI Sample Project (Android)
 
-# Content
-* [How to build the demo application](#how-to-build-the-demo-application)
-* [Troubleshooting license issues](#troubleshooting-license-issues)
+* [Overview](#overview)
+* [Installation](#installation)
+* [Troubleshooting](#troubleshooting)
 * [Documentation](#documentation)
-* [Additional information](#additional-information)
+* [Demo Application](#demo-application)
+* [Technical Support](#technical-support)
+* [Business Enquiries](#business-enquiries)
 
-## How to build the demo application
-1. Visit our [Client Portal](https://client.regulaforensics.com/) to get a trial license (`regula.license` file). The license creation wizard will guide you through the necessary steps.
-2. Download or clone the current repository using the command `git clone https://github.com/regulaforensics/DocumentReader-Android.git`.
-3. Open the `CustomRfid-kotlin` project in an IDE. 
-4. Copy the license file to the project: `CustomRfid-kotlin/app/src/main/res/raw/`.
-5. Copy the database file db.dat from [Client Portal](https://client.regulaforensics.com/customer/databases) to the project: `CustomRfid-kotlin/app/src/main/assets/Regula/`.
-6. Change the application ID to the one you have specified during the registration at [Client Portal](https://client.regulaforensics.com/).
-7. Run the project.
-Note: Android Gradle plugin requires Java 11 to run
+## Overview
 
-## Troubleshooting license issues
-If you have issues with license verification when running the application, please verify that next is true:
+Sample project in Kotlin, demonstrating how to create the custom UI for the RFID chip processing.
+
+## Installation
+
+1. Download or clone the current repository using the command `git clone https://github.com/regulaforensics/DocumentReader-Android.git`
+2. Open the `CustomRfid-kotlin` project in an IDE.
+3. Add license and database files to the project:
+   - Visit [Regula Client Portal](https://client.regulaforensics.com/) to get a trial license (`regula.license` file). The license creation wizard will guide you through the necessary steps. 
+   - Copy the license file to the project: `CustomRfid-kotlin/app/src/main/res/raw/`
+   - Copy the database file `db.dat` from [Regula Client Portal](https://client.regulaforensics.com/customer/databases) to the project: `CustomRfid-kotlin/app/src/main/assets/Regula/`
+4. Change the application ID to the one you have specified during the registration at [Regula Client Portal](https://client.regulaforensics.com/).
+5. Run the project.
+   
+**Note:** Android Gradle plugin requires Java 11 to run.
+
+## Troubleshooting
+
+If you have issues with the license verification when running the application, check the following:
+
 1. The OS, which you use, is specified in the license (Android).
 2. The application ID, which you use, is specified in the license.
 3. The license is valid (not expired).
 4. The date and time on the device, where you run the application, are valid.
 5. You use the latest release version of the Document Reader SDK.
-6. You placed the license into the project.
+6. You placed the license into the project as described in the [Installation](#installation) section.
 
 ## Documentation
-The documentation on the SDK can be found [here](https://docs.regulaforensics.com/develop/doc-reader-sdk/mobile?utm_source=github).
 
-## Additional information
-If you have any technical questions or suggestions, feel free to [contact](mailto:android.support@regulaforensics.com) us or create an issue [here](https://github.com/regulaforensics/DocumentReader-Android/issues).
+<a target="_blank" href="https://docs.regulaforensics.com/develop/doc-reader-sdk/mobile/">Document Reader SDK Mobile Documentation</a>
 
-To use our SDK in your own app you have to [purchase](https://pipedrivewebforms.com/form/5f1d771cbe4f844a1f78f8a06fbf94361841159) a commercial license.
+## Demo Application
+
+<a target="_blank" href="https://play.google.com/store/apps/details?id=com.regula.documentreader">Regula Document Reader Android Demo Application on Google Play</a>
+
+## Technical Support
+
+To submit a request to the Support Team, visit <a target="_blank" href="https://support.regulaforensics.com/hc/en-us/requests/new?utm_source=github">Regula Help Center</a>.
+
+## Business Enquiries
+
+To discuss business opportunities, fill the <a target="_blank" href="https://explore.regula.app/docs-support-request">Enquiry Form</a> and specify your scenarios, applications, and technical requirements.

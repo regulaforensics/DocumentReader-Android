@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
                     binding.showScannerBtn.isEnabled = false
                 }
             } else {
-                Toast.makeText(this@MainActivity, "Init failed:$error", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@MainActivity, "Init failed:${error?.message}", Toast.LENGTH_LONG).show()
                 return@IDocumentReaderInitCompletion
             }
         }

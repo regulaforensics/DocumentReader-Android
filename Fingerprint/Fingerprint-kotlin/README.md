@@ -1,19 +1,36 @@
-# Regula Document Reader (Android version)
-The `Fingerprint-kotlin` sample project shows the use of the fingerprint scanner module
+# Document Reader SDK Fingerprint Scanner Sample Project (Android)
 
-# Content
-* [How to build the demo application](#how-to-build-the-demo-application)
+* [Overview](#overview)
+* [Installation](#installation)
 * [Documentation](#documentation)
-* [Additional information](#additional-information)
+* [Demo Application](#demo-application)
+* [Technical Support](#technical-support)
+* [Business Enquiries](#business-enquiries)
 
-## How to build the demo application
-1. Download or clone the current repository using the command `git clone https://github.com/regulaforensics/DocumentReader-Android.git`.
+## Overview
+
+Sample project in Kotlin, demonstrating integration with an external fingerprint scanner.
+
+## Installation
+
+1. Download or clone the current repository using the command `git clone https://github.com/regulaforensics/DocumentReader-Android.git`
 2. Open the `Fingerprint-kotlin` project in an IDE.
 3. Run the project.
-   Note: Android Gradle plugin requires Java 11 to run
+
+**Note:** Android Gradle plugin requires Java 11 to run.
 
 ## Documentation
-The documentation on the SDK can be found [here](https://docs.regulaforensics.com/develop/doc-reader-sdk/mobile?utm_source=github).
 
-## Additional information
-If you have any technical questions or suggestions, feel free to [contact](mailto:android.support@regulaforensics.com) us or create an issue [here](https://github.com/regulaforensics/DocumentReader-Android/issues).
+<a target="_blank" href="https://docs.regulaforensics.com/develop/doc-reader-sdk/mobile/">Document Reader SDK Mobile Documentation</a>
+
+## Demo Application
+
+<a target="_blank" href="https://play.google.com/store/apps/details?id=com.regula.documentreader">Regula Document Reader Android Demo Application on Google Play</a>
+
+## Technical Support
+
+To submit a request to the Support Team, visit <a target="_blank" href="https://support.regulaforensics.com/hc/en-us/requests/new?utm_source=github">Regula Help Center</a>.
+
+## Business Enquiries
+
+To discuss business opportunities, fill the <a target="_blank" href="https://explore.regula.app/docs-support-request">Enquiry Form</a> and specify your scenarios, applications, and technical requirements.

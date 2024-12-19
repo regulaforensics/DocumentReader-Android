@@ -162,7 +162,7 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
 
         if (!result) { //Initialization was not successful
             mainFragment.disableUiElements();
-            Toast.makeText(BaseActivity.this, "Init failed:" + error, Toast.LENGTH_LONG).show();
+            Toast.makeText(BaseActivity.this, "Init failed:" + (error != null ? error.getMessage() : ""), Toast.LENGTH_LONG).show();
             return;
         }
         successfulInit();

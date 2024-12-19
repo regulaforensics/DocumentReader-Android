@@ -109,6 +109,7 @@ class CameraActivity : AppCompatActivity(), PreviewCallback {
                                     "Page ready, flip",
                                     Toast.LENGTH_LONG
                                 ).show()
+                                isPauseRecognize = false
 
                                 //letting API know, that all frames will be from different page of the same document, merge same field types
                                 DocumentReader.Instance().startNewPage()

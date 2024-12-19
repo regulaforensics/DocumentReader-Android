@@ -178,7 +178,7 @@ class MainActivity : FragmentActivity(), Serializable {
             else
                 Toast.makeText(
                     this@MainActivity,
-                    "Init failed:$error_initializeReader",
+                    "Init failed:${error_initializeReader?.message}",
                     Toast.LENGTH_LONG
                 ).show()
         }
@@ -276,7 +276,9 @@ class MainActivity : FragmentActivity(), Serializable {
                         results_RFIDReader: DocumentReaderResults?,
                         error: DocumentReaderException?
                     ) {
-                        if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL)
+                        if (rfidAction == DocReaderAction.COMPLETE
+                            || rfidAction == DocReaderAction.ERROR
+                            || rfidAction == DocReaderAction.CANCEL)
                             displayResults(results_RFIDReader!!)
                     }
                 })

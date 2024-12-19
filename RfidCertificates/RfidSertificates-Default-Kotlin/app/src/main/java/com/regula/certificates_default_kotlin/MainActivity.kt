@@ -158,7 +158,7 @@ class MainActivity : AppCompatActivity() {
                 else Toast.makeText(this, "rfid is not available for use", Toast.LENGTH_SHORT)
                     .show()
             } else {
-                Toast.makeText(this@MainActivity, "Init failed:$error", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@MainActivity, "Init failed:${error?.message}", Toast.LENGTH_LONG).show()
                 return@IDocumentReaderInitCompletion
             }
         }

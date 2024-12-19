@@ -1,27 +1,39 @@
-# Regula Document Reader (Android version)
-The `CertificatePinning` sample project shows how configure Certificate Pinning in the Android app
+# Document Reader SDK Certificate Pinning Sample Project (Android)
 
-# Content
-* [How to configure Certificate Pinning](#how-to-configure-Certificate-Pinning)
+* [Overview](#overview)
+* [Configuration of Certificate Pinning](#configuration-of-certificate-pinning)
 * [Documentation](#documentation)
-* [Additional information](#additional-information)
+* [Demo Application](#demo-application)
+* [Technical Support](#technical-support)
+* [Business Enquiries](#business-enquiries)
 
-## How to configure Certificate Pinning
+## Overview
 
-Here you can find how to generate key for the android app
-https://nikunj-joshi.medium.com/ssl-pinning-increase-server-identity-trust-656a2fc7e22b
+Sample project in Kotlin, demonstrating how to set up and use the <a target="_blank" href="https://docs.regulaforensics.com/develop/doc-reader-sdk/mobile/security/certificate-pinning/">Certificate Pinning</a> feature.
 
-1. In the mobile app you need to create xml file (main/res/xml/network_security_config)
-2. In the AndroidManifest.xml you need to set up config above in the application area:
-   android:networkSecurityConfig="@xml/network_security_config"
-3. In the network-security-config you need to replace 'domain' to your and replace 'SHA-256'
+## Configuration of Certificate Pinning
 
-Note: Android Gradle plugin requires Java 11 to run
+To generate the key for the Android app, you can follow the <a target="_blank" href="https://nikunj-joshi.medium.com/ssl-pinning-increase-server-identity-trust-656a2fc7e22b">example instructions</a>.
+
+1. In the mobile app you need to create `xml` file (`main/res/xml/network_security_config`)
+2. In the `AndroidManifest.xml` you need to set up config above in the application area:
+   `android:networkSecurityConfig="@xml/network_security_config"`
+3. In the `network-security-config` you need to replace `domain` with your value and replace `SHA-256`.
+
+**Note:** Android Gradle plugin requires Java 11 to run.
 
 ## Documentation
-The documentation on the SDK can be found [here](https://docs.regulaforensics.com/develop/doc-reader-sdk/mobile?utm_source=github).
 
-## Additional information
-If you have any technical questions or suggestions, feel free to [contact](mailto:android.support@regulaforensics.com) us or create an issue [here](https://github.com/regulaforensics/DocumentReader-Android/issues).
+<a target="_blank" href="https://docs.regulaforensics.com/develop/doc-reader-sdk/mobile/">Document Reader SDK Mobile Documentation</a>
 
-To use our SDK in your own app you have to [purchase](https://pipedrivewebforms.com/form/5f1d771cbe4f844a1f78f8a06fbf94361841159) a commercial license.
+## Demo Application
+
+<a target="_blank" href="https://play.google.com/store/apps/details?id=com.regula.documentreader">Regula Document Reader Android Demo Application on Google Play</a>
+
+## Technical Support
+
+To submit a request to the Support Team, visit <a target="_blank" href="https://support.regulaforensics.com/hc/en-us/requests/new?utm_source=github">Regula Help Center</a>.
+
+## Business Enquiries
+
+To discuss business opportunities, fill the <a target="_blank" href="https://explore.regula.app/docs-support-request">Enquiry Form</a> and specify your scenarios, applications, and technical requirements.

@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity() {
                 DocumentReader.Instance().processParams()
                     .setScenario(Scenario.SCENARIO_MRZ)
             } else {
-                Toast.makeText(this@MainActivity, "Init failed:$error", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@MainActivity, "Init failed:${error?.message}", Toast.LENGTH_LONG).show()
                 return@IDocumentReaderInitCompletion
             }
         }

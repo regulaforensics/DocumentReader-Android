@@ -44,7 +44,7 @@ open class MainActivity : AppCompatActivity() {
             dismissDialog()
             it?.let {
                 disableUiElements()
-                Toast.makeText(this@MainActivity, "Init failed:$it", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@MainActivity, "Init failed: ${it.message}", Toast.LENGTH_LONG).show()
             } ?: successfulInit()
         }
 

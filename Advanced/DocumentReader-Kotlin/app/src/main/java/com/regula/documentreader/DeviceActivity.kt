@@ -134,7 +134,7 @@ class DeviceActivity : AppCompatActivity() {
         IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
             dismissDialog()
             if (!result) { //Initialization was not successful
-                Toast.makeText(this, "Init failed:$error", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Init failed: ${error?.message}", Toast.LENGTH_LONG).show()
                 return@IDocumentReaderInitCompletion
             } else {
                 MainActivity.isInitializedByBleDevice = true

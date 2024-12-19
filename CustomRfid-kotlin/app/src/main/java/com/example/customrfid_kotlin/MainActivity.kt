@@ -135,7 +135,7 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this@MainActivity, "Scanning was cancelled", Toast.LENGTH_LONG)
                         .show()
                 } else if (action == DocReaderAction.ERROR) {
-                    Toast.makeText(this@MainActivity, "Error:$error", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@MainActivity, "Error:${error?.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }

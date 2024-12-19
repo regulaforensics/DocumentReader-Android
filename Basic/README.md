@@ -1,7 +1,6 @@
-# Document Reader SDK BLE Sample Project (Android)
+# Document Reader SDK Basic Sample Projects (Android)
 
 * [Overview](#overview)
-* [Installation](#installation)
 * [Documentation](#documentation)
 * [Demo Application](#demo-application)
 * [Technical Support](#technical-support)
@@ -9,16 +8,14 @@
 
 ## Overview
 
-Sample project in Kotlin, demonstrating the Document Reader SDK integration with the devices <a target="_blank" href="https://docs.regulaforensics.com/develop/1120/">Mobile Document Authenticator Regula 1120</a> and <a target="_blank" href="https://docs.regulaforensics.com/develop/7310/">Mobile Workstation Regula 7310</a> with the license inside them.
+Basic samples demonstrate the general principles of integrating the Mobile SDK to your project with a minimum of code needed.
 
-## Installation
+There are several sample projects, see the details in the table below.
 
-1. Download or clone the current repository using the command `git clone https://github.com/regulaforensics/DocumentReader-Android.git`
-2. Open the `BleDevice-Kotlin` project in an IDE.
-3. Copy the database file `db.dat` from [Regula Client Portal](https://client.regulaforensics.com/customer/databases) to the project: `BleDevice-Kotlin/app/src/main/assets/Regula/`
-4. Run the project.
-   
-**Note:** Android Gradle plugin requires Java 11 to run.
+| Samples                                        | Description                                                                          |
+|:-----------------------------------------------|:-------------------------------------------------------------------------------------|
+| [Kotlin project](DocumentReader-sample_kotlin) | Sample project in Kotlin, demonstrating the Document Reader SDK basic functionality. |
+| [Java project](DocumentReader-sample_java)     | Sample project in Java, demonstrating the Document Reader SDK basic functionality.   |
 
 ## Documentation
 
