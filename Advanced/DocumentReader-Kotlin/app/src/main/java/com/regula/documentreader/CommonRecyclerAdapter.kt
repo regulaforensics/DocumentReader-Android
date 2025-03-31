@@ -11,6 +11,7 @@ import android.widget.EditText
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.regula.documentreader.Helpers.Companion.adaptImageSize
 import com.regula.documentreader.Helpers.Companion.grayedOutAlpha
 import com.regula.documentreader.Helpers.Companion.listToString
 import com.regula.documentreader.Helpers.Companion.openLink
@@ -43,6 +44,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
         is ImagePair -> IMAGE_PAIR
         is Status -> STATUS
         is InputDouble -> INPUT_DOUBLE
+        is AuthSection -> AUTH_SECTION
         else -> 0
     }
 
@@ -56,6 +58,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
             BOTTOM_SHEET -> VH.BottomSheetVH(RvTitleValueBinding.inflate(li, parent, false))
             BOTTOM_SHEET_MULTI ->
                 VH.BottomSheetMultiVH(RvTitleValueBinding.inflate(li, parent, false))
+
             INPUT_INT -> VH.InputIntVH(RvTitleValueBinding.inflate(li, parent, false))
             INPUT_STRING -> VH.InputStringVH(RvTitleValueBinding.inflate(li, parent, false))
             TEXT_RESULT -> VH.TextResultVH(RvTextResultBinding.inflate(li, parent, false))
@@ -63,6 +66,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
             IMAGE_PAIR -> VH.ImagePairVH(RvImagePairBinding.inflate(li, parent, false))
             STATUS -> VH.StatusVH(RvStatusBinding.inflate(li, parent, false))
             INPUT_DOUBLE -> VH.InputDoubleVH(RvTitleValueBinding.inflate(li, parent, false))
+            AUTH_SECTION -> VH.AuthSectionVH(RvAuthSectionBinding.inflate(li, parent, false))
             else -> VH.SectionVH(RvSectionBinding.inflate(li, parent, false))
         }
     }
@@ -87,16 +91,62 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
                             context.getString(R.string.help_mrz),
                             R.drawable.info_mrz
                         )
+
                         20 -> showBottomSheetHelp(
                             context.getString(R.string.viz),
                             context.getString(R.string.help_viz),
                             R.drawable.info_viz
                         )
+
                         30 -> showBottomSheetHelp(
                             context.getString(R.string.barcode),
                             context.getString(R.string.help_barcode),
                             R.drawable.info_barcode
                         )
+
+                        40 -> openLink(context, "Security")
+                    }
+                }
+            }
+
+            private fun showBottomSheetHelp(title: String, text: String, image: Int) =
+                BottomSheet.newInstance(
+                    title, arrayListOf(HelpBig(text, image)), true, "Close", true
+                ) {}.show((context as FragmentActivity).supportFragmentManager, "")
+        }
+
+        class AuthSectionVH(private val binding: RvAuthSectionBinding) : VH(binding.root) {
+            override fun bind(base: Base) {
+                val section = base as AuthSection
+                binding.title.text = section.title
+                if (section.helpTag == 0)
+                    binding.help.visibility = INVISIBLE
+
+                when (section.checkStatus){
+                    eCheckResult.CH_CHECK_ERROR ->  binding.completedStatusImage.setImageResource(R.drawable.reg_icon_check_fail)
+                    eCheckResult.CH_CHECK_OK -> binding.completedStatusImage.setImageResource(R.drawable.reg_icon_check_ok)
+                    eCheckResult.CH_CHECK_WAS_NOT_DONE -> binding.completedStatusImage.setImageResource(R.drawable.reg_icon_no_check)
+                }
+                binding.help.setOnClickListener {
+                    when (section.helpTag) {
+                        10 -> showBottomSheetHelp(
+                            context.getString(R.string.mrz),
+                            context.getString(R.string.help_mrz),
+                            R.drawable.info_mrz
+                        )
+
+                        20 -> showBottomSheetHelp(
+                            context.getString(R.string.viz),
+                            context.getString(R.string.help_viz),
+                            R.drawable.info_viz
+                        )
+
+                        30 -> showBottomSheetHelp(
+                            context.getString(R.string.barcode),
+                            context.getString(R.string.help_barcode),
+                            R.drawable.info_barcode
+                        )
+
                         40 -> openLink(context, "Security")
                     }
                 }
@@ -125,6 +175,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
                         ACTION_TYPE_GALLERY -> (context as MainActivity).createImageBrowsingRequest()
                         ACTION_TYPE_CUSTOM -> {
                         }
+
                         ACTION_TYPE_MANUAL_MULTIPAGE_MODE -> {
                             DocumentReader.Instance().startNewSession()
                             (context as MainActivity).showScanner()
@@ -349,28 +400,28 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
                 val image = base as ImagePair
                 binding.title.text = "#$layoutPosition " + image.title
 
-                if(image.error?.isEmpty() == true) {
+                if (image.error?.isEmpty() == true) {
                     binding.titleError.visibility = View.GONE
-                } else{
+                } else {
                     binding.titleError.visibility = View.VISIBLE
                 }
-                binding.titleError.text =  image.error
+                binding.titleError.text = image.error
 
-                if(image.imageEtalon != null) {
+                if (image.imageEtalon != null) {
                     image.imageEtalon.let {
                         binding.titleEtalon.text = "(EtalonImage)"
                     }
                     binding.imageEtalon.visibility = View.VISIBLE
                     binding.imageEtalon.setImageBitmap(image.imageEtalon)
-                } else{
+                } else {
                     binding.titleEtalon.text = ""
                     binding.imageEtalon.visibility = View.GONE
                 }
-                if(image.image != null) {
+                if (image.image != null) {
                     binding.image.visibility = View.VISIBLE
                     binding.image.setImageBitmap(image.image)
                     binding.titleImage.text = "(Image)"
-                } else{
+                } else {
                     binding.titleImage.text = ""
                     binding.image.visibility = View.GONE
                 }
@@ -379,23 +430,33 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
                     eCheckResult.CH_CHECK_OK -> {
                         binding.elementStatusImage.setImageResource(R.drawable.reg_icon_check_ok)
                     }
+
                     eCheckResult.CH_CHECK_ERROR -> {
                         binding.elementStatusImage.setImageResource(R.drawable.reg_icon_check_fail)
                     }
+
                     eCheckResult.CH_CHECK_WAS_NOT_DONE -> {
                         binding.elementStatusImage.setImageResource(R.drawable.reg_icon_no_check)
                     }
+
                     else -> {
                         binding.elementStatusImage.setImageBitmap(null)
                     }
                 }
             }
         }
+
         class ImageVH(private val binding: RvImageBinding) : VH(binding.root) {
             override fun bind(base: Base) {
                 val image = base as Image
                 binding.title.text = image.title.uppercase(Locale.ROOT)
-                binding.image.setImageBitmap(image.value)
+
+                if (image.title.uppercase(Locale.ROOT).contains("DOCUMENT IMAGE")) {
+                    val resizedBitmap = adaptImageSize(image.value, 900)
+                    binding.image.setImageBitmap(resizedBitmap)
+                } else {
+                    binding.image.setImageBitmap(image.value)
+                }
             }
         }
 
@@ -426,5 +487,6 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
         private const val STATUS = 9
         private const val INPUT_DOUBLE = 10
         private const val IMAGE_PAIR = 11
+        private const val AUTH_SECTION = 12
     }
 }

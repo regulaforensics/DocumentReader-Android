@@ -33,10 +33,16 @@ abstract class Base(
     val title: String
 )
 
-class Section(
+open class Section(
     title: String,
     val helpTag: Int = 0
 ) : Base(title)
+
+class AuthSection(
+    title: String,
+    val helpTag: Int,
+    var checkStatus: Int
+) : Base (title)
 
 class Scan(
     title: String,
@@ -180,12 +186,20 @@ class Attribute(
     override fun hashCode() = name.hashCode()
 }
 
-class GroupedAttributes(
+open class GroupedAttributes(
     var type: String = "",
     var items: MutableList<Attribute> = mutableListOf(),
     var comparisonLHS: Int? = null,
     var comparisonRHS: Int? = null
 ) : Serializable
+
+class AuthGroupedAttributes(
+    type: String = "",
+    items: MutableList<Attribute> = mutableListOf(),
+    var checkStatus: Int = 0,
+    comparisonLHS: Int? = null,
+    comparisonRHS: Int? = null
+) : GroupedAttributes (type, items, comparisonLHS, comparisonRHS)
 
 class ParameterField(
     val title: String,

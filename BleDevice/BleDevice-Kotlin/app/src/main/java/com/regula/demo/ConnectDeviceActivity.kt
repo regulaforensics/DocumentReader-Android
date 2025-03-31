@@ -8,23 +8,25 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Message
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.regula.common.ble.BLEWrapper
+import com.regula.common.ble.BleWrapperCallback
+import com.regula.common.ble.RegulaBleService
+import com.regula.common.ble.callback.BleManagerCallback
 import com.regula.demo.databinding.ActivityConnectBinding
-import com.regula.demo.databinding.ActivityMainBinding
 import com.regula.demo.util.BluetoothUtil
 import com.regula.demo.util.PermissionUtil
 import com.regula.demo.util.PermissionUtil.Companion.respondToPermissionRequest
 import com.regula.documentreader.api.DocumentReader
-import com.regula.documentreader.api.ble.BLEWrapper
-import com.regula.documentreader.api.ble.BleWrapperCallback
-import com.regula.documentreader.api.ble.RegulaBleService
-import com.regula.documentreader.api.ble.callback.BleManagerCallback
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
-import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.BleDeviceConfig
+import com.regula.facesdk.FaceSDK
+import com.regula.facesdk.configuration.InitializationBleDeviceConfiguration
+import com.regula.facesdk.exception.InitException
 
 class ConnectDeviceActivity : AppCompatActivity() {
     private var bleManager: BLEWrapper? = null
@@ -53,27 +55,50 @@ class ConnectDeviceActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("MissingPermission")
     fun initializeReader() {
         showDialog("Initializing")
         if (bleManager != null) {
-            DocumentReader.Instance().initializeReader(this@ConnectDeviceActivity, BleDeviceConfig(bleManager), initCompletion)
+            DocumentReader.Instance().initializeReader(this@ConnectDeviceActivity, BleDeviceConfig(
+                bleManager!!
+            ), initCompletion)
         } else {
             dismissDialog()
             Toast.makeText(this, "Error reading license from device", Toast.LENGTH_LONG).show()
         }
     }
 
+    @SuppressLint("MissingPermission")
     private val initCompletion =
         IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
-            dismissDialog()
+
+            bleManager?.let {
+                val config = InitializationBleDeviceConfiguration(bleManager!!)
+                FaceSDK.Instance().LOG.isEnableLog = true
+                FaceSDK.Instance().initialize(
+                    this@ConnectDeviceActivity,
+                    config
+                ) { b: Boolean, initException: InitException? ->
+                    if (!b) {
+                        Log.d("Init", "Face Init failed:${initException?.message}")
+                    }
+                    startActivity()
+                }
+            } ?: run {
+                startActivity()
+            }
+
             if (result) {
                 setupFunctionality()
-                startActivity(Intent(this@ConnectDeviceActivity, MainActivity::class.java))
             } else {
-                Toast.makeText(this@ConnectDeviceActivity, "Init failed:$error", Toast.LENGTH_LONG).show()
-                return@IDocumentReaderInitCompletion
+                Log.d("Init", "Init failed:$error")
             }
         }
+
+    private fun startActivity() {
+        dismissDialog()
+        startActivity(Intent(this@ConnectDeviceActivity, MainActivity::class.java))
+    }
 
     @SuppressLint("MissingPermission")
     private fun setupFunctionality() {

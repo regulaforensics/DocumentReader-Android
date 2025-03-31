@@ -13,11 +13,11 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.regula.common.ble.BLEWrapper
+import com.regula.common.ble.BleWrapperCallback
+import com.regula.common.ble.RegulaBleService
+import com.regula.common.ble.callback.BleManagerCallback
 import com.regula.documentreader.api.DocumentReader
-import com.regula.documentreader.api.ble.BLEWrapper
-import com.regula.documentreader.api.ble.BleWrapperCallback
-import com.regula.documentreader.api.ble.RegulaBleService
-import com.regula.documentreader.api.ble.callback.BleManagerCallback
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.BleDeviceConfig
@@ -123,7 +123,7 @@ class DeviceActivity : AppCompatActivity() {
         showDialog("Initializing")
         if (bleManager != null) {
             DocumentReader.Instance()
-                .initializeReader(this@DeviceActivity, BleDeviceConfig(bleManager), initCompletion)
+                .initializeReader(this@DeviceActivity, BleDeviceConfig(bleManager!!), initCompletion)
         } else {
             dismissDialog()
             Toast.makeText(this, "Error reading license from device", Toast.LENGTH_LONG).show()

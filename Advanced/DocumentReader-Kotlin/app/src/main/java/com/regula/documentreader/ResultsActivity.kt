@@ -26,13 +26,10 @@ import com.regula.documentreader.api.enums.LCID
 import com.regula.documentreader.api.enums.eCheckResult.*
 import com.regula.documentreader.api.enums.eRFID_DataFile_Type
 import com.regula.documentreader.api.enums.eRFID_ErrorCodes.*
-import com.regula.documentreader.api.enums.eRPRM_ResultType
 import com.regula.documentreader.api.results.DocumentReaderComparison
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.results.DocumentReaderValidity
-import com.regula.documentreader.api.results.authenticity.DocumentReaderAuthenticityElement
 import com.regula.documentreader.api.results.authenticity.DocumentReaderIdentResult
-import com.regula.documentreader.api.results.authenticity.DocumentReaderOCRSecurityTextResult
 import com.regula.documentreader.api.results.authenticity.DocumentReaderPhotoIdentResult
 import com.regula.documentreader.api.results.authenticity.DocumentReaderSecurityFeatureCheck
 import com.regula.documentreader.databinding.ActivityResultsBinding
@@ -161,9 +158,11 @@ class ResultsActivity : AppCompatActivity() {
 
     private fun initAuthData(): List<GroupedAttributes> {
         val pickerData = mutableListOf<GroupedAttributes>()
-        val attributes = mutableListOf<Attribute>()
 
         results.authenticityResult?.checks?.forEach { checks ->
+
+            val attributes = mutableListOf<Attribute>()
+
             checks.elements.forEach{
                 val error = if (it.elementDiagnose == 1) "" else (it.getElementDiagnoseName(this))
                 when (it) {
@@ -199,12 +198,7 @@ class ResultsActivity : AppCompatActivity() {
                     }
                 }
             }
-        }
-
-        val types = attributes.map { it.source }.toSet()
-        for (type in types) {
-            val typed = attributes.filter { it.source == type }.toMutableList()
-            val group = GroupedAttributes(getResultTypeTranslation(type!!), typed)
+            val group = AuthGroupedAttributes(checks.getTypeName(this), attributes, checkStatus = checks.status)
             pickerData.add(group)
         }
         pickerData.sortBy { it.type }
@@ -496,7 +490,12 @@ class GroupFragment : Fragment() {
             tag = 30
         else if (type.contains("data groups") || type.contains("data status"))
             tag = 40
-        sectionsData.add(Section(groupedAttributes.type, tag))
+
+        if (groupedAttributes is AuthGroupedAttributes){
+            sectionsData.add(AuthSection(groupedAttributes.type, tag, (groupedAttributes as AuthGroupedAttributes).checkStatus))
+        } else {
+            sectionsData.add(Section(groupedAttributes.type, tag))
+        }
 
         for (attribute in groupedAttributes.items) {
             when {

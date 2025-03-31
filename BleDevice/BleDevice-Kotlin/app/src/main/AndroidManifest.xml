@@ -5,6 +5,8 @@
 
     <!-- used for DocumentReader.Instance().prepareDatabase method-->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- used for the start of the RFID scanning to be indicated with a vibration-->
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.NFC" />
 
     <application

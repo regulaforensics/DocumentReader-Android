@@ -196,6 +196,12 @@ class APISettingsFragment : Fragment() {
         )
         sectionsData.add(
             Switch(
+                "Turn on torch on camera start",
+                { functionality.isTorchTurnedOn },
+                { functionality.edit().setTorchTurnedOn(it).apply() })
+        )
+        sectionsData.add(
+            Switch(
                 "Camera Switch button",
                 { functionality.isShowCameraSwitchButton },
                 { functionality.edit().setShowCameraSwitchButton(it).apply() })

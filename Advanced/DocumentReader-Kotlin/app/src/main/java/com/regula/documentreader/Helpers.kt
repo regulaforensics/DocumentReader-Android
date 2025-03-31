@@ -17,7 +17,6 @@ import androidx.fragment.app.FragmentActivity
 import com.regula.common.utils.CameraUtil
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.enums.eRPRM_ResultType
-import com.regula.documentreader.api.enums.eRPRM_Authenticity
 import com.regula.documentreader.api.enums.eRPRM_ResultType.RPRM_RESULT_TYPE_MRZ_OCR_EXTENDED
 import com.regula.documentreader.api.enums.eVisualFieldType
 import com.regula.documentreader.api.params.Functionality
@@ -133,6 +132,13 @@ class Helpers {
 
         fun replaceFragment(fragment: Fragment, activity: FragmentActivity, id: Int) =
             activity.supportFragmentManager.beginTransaction().replace(id, fragment).commit()
+
+        fun adaptImageSize(bitmap: Bitmap, newWidth: Int): Bitmap {
+            val aspectRatio = bitmap.height.toFloat() / bitmap.width
+            val newHeight = (aspectRatio * newWidth).toInt()
+
+            return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, false)
+        }
 
         fun setFunctionality(from: Functionality) {
             val to = Instance().functionality().edit()
@@ -1070,16 +1076,6 @@ class Helpers {
             eRPRM_ResultType.RFID_RESULT_TYPE_RFID_ORIGINAL_GRAPHICS -> "RFID Original Graphics"
             eRPRM_ResultType.RPRM_RESULT_TYPE_BARCODE_POSITION -> "Barcode Position"
             eRPRM_ResultType.RPRM_RESULT_TYPE_MRZ_POSITION -> "Mrz Position"
-            eRPRM_Authenticity.IMAGE_PATTERN -> "Image pattern"
-            eRPRM_Authenticity.UV_LUMINESCENCE -> "UV dull paper check"
-            eRPRM_Authenticity.BARCODE_FORMAT_CHECK -> "Barcode format check"
-            eRPRM_Authenticity.HOLOGRAMS_DETECTION -> "Hologram detection"
-            eRPRM_Authenticity.PORTRAIT_COMPARISON -> "Comparison of the portraits"
-            eRPRM_Authenticity.OVI -> "OVI check"
-            eRPRM_Authenticity.IPI -> "IPI (invisible personal information)"
-            eRPRM_Authenticity.LIVENESS -> "Liveness"
-            eRPRM_Authenticity.BARCODE_FORMAT_CHECK -> "Barcode format check"
-            eRPRM_Authenticity.PHOTO_EMBED_TYPE -> "Photo embedding type"
             else -> "Undefined"
         }
 

@@ -17,11 +17,11 @@ import com.regula.ble_1120.util.BluetoothUtil
 import com.regula.ble_1120.util.PermissionUtil
 import com.regula.ble_1120.util.PermissionUtil.Companion.respondToPermissionRequest
 import com.regula.ble_1120.util.Utils
+import com.regula.common.ble.BLEWrapper
+import com.regula.common.ble.BleWrapperCallback
+import com.regula.common.ble.RegulaBleService
+import com.regula.common.ble.callback.BleManagerCallback
 import com.regula.documentreader.api.DocumentReader
-import com.regula.documentreader.api.ble.BLEWrapper
-import com.regula.documentreader.api.ble.BleWrapperCallback
-import com.regula.documentreader.api.ble.RegulaBleService
-import com.regula.documentreader.api.ble.callback.BleManagerCallback
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.params.DocReaderConfig

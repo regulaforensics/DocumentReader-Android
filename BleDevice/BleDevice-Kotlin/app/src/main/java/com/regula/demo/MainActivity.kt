@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -13,19 +14,32 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.regula.demo.databinding.ActivityMainBinding
 import com.regula.documentreader.api.DocumentReader
-import com.regula.documentreader.api.ble.BLEWrapper
-import com.regula.documentreader.api.ble.RegulaBleService
+import com.regula.common.ble.BLEWrapper
+import com.regula.common.ble.RegulaBleService
 import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.enums.*
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.results.authenticity.DocumentReaderIdentResult
+import com.regula.facesdk.FaceSDK
+import com.regula.facesdk.configuration.FaceCaptureConfiguration
+import com.regula.facesdk.detection.request.OutputImageCrop
+import com.regula.facesdk.detection.request.OutputImageParams
+import com.regula.facesdk.enums.ImageType
+import com.regula.facesdk.enums.OutputImageCropAspectRatio
+import com.regula.facesdk.model.MatchFacesImage
+import com.regula.facesdk.model.results.FaceCaptureResponse
+import com.regula.facesdk.model.results.matchfaces.MatchFacesResponse
+import com.regula.facesdk.model.results.matchfaces.MatchFacesSimilarityThresholdSplit
+import com.regula.facesdk.request.MatchFacesRequest
 
 class MainActivity : AppCompatActivity() {
 
     private var bleManager: BLEWrapper? = null
     private var isBleServiceConnected = false
+    private var rfidReading = false
+    private var matchFaces = true
 
     private lateinit var binding: ActivityMainBinding
 
@@ -36,6 +50,23 @@ class MainActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        if(FaceSDK.Instance().isInitialized) {
+            binding.chbMatchFaces.isChecked = true
+            binding.chbMatchFaces.setOnClickListener {
+                matchFaces = binding.chbMatchFaces.isChecked
+                changeMatchFacesVisibility()
+            }
+        } else{
+            binding.chbMatchFaces.isEnabled = false
+            binding.chbMatchFaces.text = "use face matching (unavablable)"
+        }
+
+        if(!DocumentReader.Instance().isReady) {
+            binding.chbMatchFaces.isEnabled = true
+            binding.chbMatchFaces.text = "use face matching"
+            binding.showScannerBtn.isEnabled = false
+        }
+
         binding.showScannerBtn.setOnClickListener {
             resetViews()
             val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_AUTH).build()
@@ -43,7 +74,7 @@ class MainActivity : AppCompatActivity() {
                 if (action == DocReaderAction.COMPLETE) {
                     showAuthenticityResults(results)
                     //Checking, if nfc chip reading should be performed
-                    if (results?.chipPage != 0) {
+                    if (results?.chipPage != 0 && binding.chbRfid.isChecked) {
                         //starting chip reading
                         DocumentReader.Instance().startRFIDReader(this@MainActivity, object: IRfidReaderCompletion() {
                             override fun onCompleted(
@@ -53,11 +84,17 @@ class MainActivity : AppCompatActivity() {
                             ) {
                                 if (rfidAction == DocReaderAction.COMPLETE || rfidAction == DocReaderAction.CANCEL) {
                                     showGraphicFieldImage(rfidResults)
+                                    if (binding.chbMatchFaces.isChecked) {
+                                        faceCapture(rfidResults)
+                                    }
                                 }
                             }
                         })
                     } else {
                         showGraphicFieldImage(results)
+                        if (binding.chbMatchFaces.isChecked) {
+                            faceCapture(results)
+                        }
                     }
                     Log.d(this@MainActivity.localClassName, "completion raw result: " + results?.rawResult)
                 } else {
@@ -73,6 +110,85 @@ class MainActivity : AppCompatActivity() {
 
         val bleIntent = Intent(this, RegulaBleService::class.java)
         bindService(bleIntent, mBleConnection, 0)
+    }
+
+    private fun changeMatchFacesVisibility(){
+        when (matchFaces){
+            true -> {
+                binding.portraitCameraIv.visibility = View.VISIBLE
+                binding.textViewSimilarity.visibility = View.VISIBLE
+            }
+            false -> {
+                binding.portraitCameraIv.visibility = View.GONE
+                binding.textViewSimilarity.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun matchFaces(first: Bitmap, second: Bitmap) {
+        val firstImage = MatchFacesImage(first, ImageType.LIVE)
+        val secondImage = MatchFacesImage(second, ImageType.PRINTED)
+        val matchFacesRequest = MatchFacesRequest(arrayListOf(firstImage, secondImage))
+
+        val crop = OutputImageCrop(
+            OutputImageCropAspectRatio.OUTPUT_IMAGE_CROP_ASPECT_RATIO_3X4
+        )
+        val outputImageParams = OutputImageParams(crop, Color.WHITE)
+        matchFacesRequest.outputImageParams = outputImageParams
+
+        FaceSDK.Instance().matchFaces(this@MainActivity, matchFacesRequest) { matchFacesResponse: MatchFacesResponse ->
+            matchFacesResponse.exception?.let {
+                val errorBuilder = "Error: ${matchFacesResponse.exception?.message} Details: ${matchFacesResponse.exception?.detailedErrorMessage}"
+                binding.textViewSimilarity.text = errorBuilder
+            } ?: run {
+                val split = MatchFacesSimilarityThresholdSplit(matchFacesResponse.results, 0.75)
+                val similarity = if (split.matchedFaces.size > 0) {
+                    split.matchedFaces[0].similarity
+                } else if (split.unmatchedFaces.size > 0){
+                    split.unmatchedFaces[0].similarity
+                } else {
+                    null
+                }
+
+
+                val text = similarity?.let {
+                    "Similarity: " + String.format("%.2f", it * 100) + "%"
+                } ?: matchFacesResponse.exception?.let {
+                    "Similarity: " + it.message
+                } ?: "Similarity: "
+
+                binding.textViewSimilarity.text = text
+
+            }
+        }
+    }
+
+    private fun faceCapture(results: DocumentReaderResults?) {
+
+        val configuration = FaceCaptureConfiguration.Builder().setCameraSwitchEnabled(true).build()
+
+        FaceSDK.Instance().presentFaceCaptureActivity(this@MainActivity, configuration) { faceCaptureResponse: FaceCaptureResponse? ->
+            if (faceCaptureResponse?.image != null) {
+                binding.portraitCameraIv.setImageBitmap(faceCaptureResponse.image!!.bitmap)
+
+
+                var portrait: Bitmap? = null
+                results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA)?.let {
+                    portrait = it
+                }
+                if(portrait == null) {
+                    results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)?.let {
+                        portrait = it
+                    }
+                }
+
+                if (matchFaces) {
+                    portrait?.let {
+                        matchFaces(faceCaptureResponse.image!!.bitmap, it)
+                    }
+                }
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -97,7 +213,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun resetViews() {
         binding.nameTv.text = ""
+        binding.textViewSimilarity.text = ""
         binding.portraitIv.setImageResource(R.drawable.portrait)
+        binding.portraitCameraIv.setImageResource(R.drawable.portrait)
         binding.documentImageIv.setImageResource(R.drawable.id)
         binding.uvImageView.setImageResource(R.drawable.id)
         binding.uvImageView.visibility = View.GONE
