@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+    <color name="actionColor">#631FC3</color>
+    <color name="textColor">#00171f</color>
+    <color name="textColorAction">#f0ebd8</color>
+    <color name="textColorInfo">#666A6F</color>
+    <color name="inactiveFunction">#f4d35e</color>
+    <color name="inactiveLivenessParamsScreen">#819E9E9E</color>
+    <color name="activeFunction">#64b5f6</color>
+    <color name="additionalItems">#284b63</color>
+    <color name="cardDefault">#ced4da</color>
+    <color name="cardAccent">#6c757d</color>
+    <color name="cardAttention">#DBE6EA</color>
+    <color name="cardDominant">#D2D3F3</color>
+    <color name="cardWarning">#ffd6a5</color>
+    <color name="backgroundColor">#F2F2FA</color>
+    <color name="btnPositive">#60d394</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="transparent">#00000000</color>
+</resources>

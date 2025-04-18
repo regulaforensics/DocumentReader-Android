@@ -37,8 +37,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     implementation 'com.regula.btdevice:api:7.6.+@aar'
-    implementation 'com.regula.documentreader.core:fullauthrfid:7.6.+@aar'
-    implementation('com.regula.documentreader:api:7.6.+@aar') {
+    implementation 'com.regula.documentreader.core:fullauthrfid:7.7.+@aar'
+    implementation('com.regula.documentreader:api:7.7.+@aar') {
         transitive = true;
     }
 }

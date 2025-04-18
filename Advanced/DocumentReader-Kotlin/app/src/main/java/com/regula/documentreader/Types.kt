@@ -178,7 +178,6 @@ class Attribute(
     var image: Bitmap? = null,
     var imageEtalon: Bitmap? = null,
     var equality: Boolean = true,
-    var auth: Boolean = false,
     var rfidStatus: Int? = null,
     var checkResult: Int? = null,
 ) : Serializable {

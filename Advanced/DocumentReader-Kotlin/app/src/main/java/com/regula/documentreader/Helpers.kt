@@ -1002,7 +1002,6 @@ class Helpers {
             "RPRM_RESULT_TYPE_VISUAL_OCR_EXTENDED" to 17,
             "RPRM_RESULT_TYPE_BAR_CODES_TEXT_DATA" to 18,
             "RPRM_RESULT_TYPE_BAR_CODES_IMAGE_DATA" to 19,
-            "RPRM_RESULT_TYPE_AUTHENTICITY" to 20,
             "RPRM_RESULT_TYPE_EOS_IMAGE" to 23,
             "RPRM_RESULT_TYPE_BAYER_IMAGE" to 24,
             "RPRM_RESULT_TYPE_MAGNETIC_STRIPE" to 25,
@@ -1057,7 +1056,6 @@ class Helpers {
             eRPRM_ResultType.RPRM_RESULT_TYPE_VISUAL_OCR_EXTENDED -> "Visual OCR Extended"
             eRPRM_ResultType.RPRM_RESULT_TYPE_BAR_CODES_TEXT_DATA -> "Barcodes Text Data"
             eRPRM_ResultType.RPRM_RESULT_TYPE_BAR_CODES_IMAGE_DATA -> "Barcodes Image Data"
-            eRPRM_ResultType.RPRM_RESULT_TYPE_AUTHENTICITY -> "Authenticity"
             eRPRM_ResultType.RPRM_RESULT_TYPE_EOS_IMAGE -> "EOS Image"
             eRPRM_ResultType.RPRM_RESULT_TYPE_BAYER_IMAGE -> "Bayer Image"
             eRPRM_ResultType.RPRM_RESULT_TYPE_MAGNETIC_STRIPE -> "Magnetic Stripe"

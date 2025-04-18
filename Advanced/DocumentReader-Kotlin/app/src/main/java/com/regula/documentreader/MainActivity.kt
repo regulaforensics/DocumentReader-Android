@@ -367,17 +367,6 @@ class MainActivity : FragmentActivity(), Serializable {
             Helpers.setFunctionality(functionality)
         })
         rvData.add(Scan("Gallery (recognizeImage)", ACTION_TYPE_GALLERY))
-        rvData.add(Scan("Recognize images with light type", ACTION_TYPE_CUSTOM) {
-            startRecognizeImageWithLight()
-        })
-
-        rvData.add(Section("Authenticator"))
-        rvData.add(Scan("use Authenticator", ACTION_TYPE_SCANNER) {
-            Instance().functionality().edit()
-                .setUseAuthenticator(true)
-                .setShowCameraSwitchButton(true)
-                .apply()
-        })
 
         rvData.add(Section("Custom"))
         rvData.add(Scan("Manual multipage mode", ACTION_TYPE_MANUAL_MULTIPAGE_MODE) {
@@ -664,24 +653,6 @@ class MainActivity : FragmentActivity(), Serializable {
             (it.getJSONArray("objects")[0] as JSONObject).getJSONObject("label")
                 .put("text", text)
         }
-    }
-
-    private fun startRecognizeImageWithLight() {
-        // For FULL_AUTH processing you need to do implementation in gradle com.regula.documentreader.core:fullauthrfid
-        // Add 'FullAuth' database to 'assets/Regula'
-        val image1 = BitmapFactory.decodeResource(resources, R.drawable.white)
-        val image2 = BitmapFactory.decodeResource(resources, R.drawable.uv)
-        val image3 = BitmapFactory.decodeResource(resources, R.drawable.ir)
-        val imageData1 = ImageInputData(image1, eRPRM_Lights.RPRM_LIGHT_WHITE_FULL)
-        val imageData2 = ImageInputData(image2, eRPRM_Lights.RPRM_LIGHT_UV)
-        val imageData3 = ImageInputData(image3, eRPRM_Lights.RPRM_Light_IR_Full)
-        recognizeSerialImages(imageData1, imageData2, imageData3)
-    }
-
-    private fun recognizeSerialImages(vararg imageInputData: ImageInputData) {
-        loadingDialog = showDialog("Processing images")
-        val recognizeConfig = RecognizeConfig.Builder(Scenario.SCENARIO_FULL_AUTH).setImageInputData(imageInputData).build()
-        Instance().recognize(recognizeConfig, completion)
     }
 
     companion object {
