@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity() {
 
         val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_PROCESS, onlineProcessingConfiguration).build()
 
-        DocumentReader.Instance().showScanner(this, scannerConfig, completion)
+        DocumentReader.Instance().startScanner(this, scannerConfig, completion)
     }
 
     private fun dismissDialog() {

@@ -34,7 +34,8 @@ class LivenessDialog(
         binding.tvCheckMliValue,
         binding.tvCheckOviValue,
         binding.tvCheckDynaprintValue,
-        binding.tvCheckBlackAndWhiteCopyValue
+        binding.tvCheckBlackAndWhiteCopyValue,
+        binding.tvCheckGeometryValue
     )
 
     init {
@@ -110,6 +111,14 @@ class LivenessDialog(
                 context
             )
         }
+        binding.tvCheckGeometryValue.setOnClickListener {
+            showBottomValuesDialog(
+                binding.tvCheckGeometry.text.toString(),
+                binding.tvCheckGeometryValue.text.toString(),
+                R.string.check_geometry,
+                context
+            )
+        }
 
         setDialogWidth(0.9f)
         listener = context as DialogListener
@@ -142,6 +151,9 @@ class LivenessDialog(
 
                 R.id.tvCheckBlackAndWhiteCopyValue -> textBtn.text =
                     getNameByValue(actualLivenessParams?.checkBlackAndWhiteCopy)
+
+                R.id.tvCheckGeometryValue -> textBtn.text =
+                    getNameByValue(actualLivenessParams?.checkGeometry)
             }
         }
     }
@@ -155,7 +167,7 @@ class LivenessDialog(
             binding.tvCheckOviValue.visibility = View.VISIBLE
             binding.tvCheckDynaprintValue.visibility = View.VISIBLE
             binding.tvCheckBlackAndWhiteCopyValue.visibility = View.VISIBLE
-            binding.tvCheckBlackAndWhiteCopyValue.visibility = View.VISIBLE
+            binding.tvCheckGeometryValue.visibility = View.VISIBLE
         } else {
             binding.overlay.visibility = View.VISIBLE
             binding.tvCheckHoloValue.visibility = View.INVISIBLE
@@ -164,6 +176,7 @@ class LivenessDialog(
             binding.tvCheckOviValue.visibility = View.INVISIBLE
             binding.tvCheckDynaprintValue.visibility = View.INVISIBLE
             binding.tvCheckBlackAndWhiteCopyValue.visibility = View.INVISIBLE
+            binding.tvCheckGeometryValue.visibility = View.INVISIBLE
         }
     }
 
@@ -210,6 +223,10 @@ class LivenessDialog(
 
     fun updateBlackAndWhiteCopyState(text: String) {
         binding.tvCheckBlackAndWhiteCopyValue.text = text
+    }
+
+    fun updateCheckGeometryState(text: String) {
+        binding.tvCheckGeometryValue.text = text
     }
 
     interface DialogListener {

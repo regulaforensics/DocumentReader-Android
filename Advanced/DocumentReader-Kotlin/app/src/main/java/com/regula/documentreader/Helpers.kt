@@ -19,9 +19,6 @@ import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.enums.eRPRM_ResultType
 import com.regula.documentreader.api.enums.eRPRM_ResultType.RPRM_RESULT_TYPE_MRZ_OCR_EXTENDED
 import com.regula.documentreader.api.enums.eVisualFieldType
-import com.regula.documentreader.api.params.Functionality
-import com.regula.documentreader.api.params.ParamsCustomization
-import com.regula.documentreader.api.params.ProcessParam
 import java.io.FileNotFoundException
 import java.io.InputStream
 
@@ -140,98 +137,21 @@ class Helpers {
             return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, false)
         }
 
-        fun setFunctionality(from: Functionality) {
-            val to = Instance().functionality().edit()
-            to.setShowChangeFrameButton(from.isShowChangeFrameButton)
-            to.setBtDeviceName(from.btDeviceName)
-            to.setCameraFrame(from.cameraFrame)
-            to.setDatabaseAutoupdate(from.isDatabaseAutoupdate)
-            to.setOrientation(from.orientation)
-            to.setPictureOnBoundsReady(from.isPictureOnBoundsReady)
-            to.setShowCameraSwitchButton(from.isShowCameraSwitchButton)
-            to.setShowCaptureButton(from.isShowCaptureButton)
-            to.setShowCaptureButtonDelayFromDetect(from.showCaptureButtonDelayFromDetect)
-            to.setShowCaptureButtonDelayFromStart(from.showCaptureButtonDelayFromStart)
-            to.setShowCloseButton(from.isShowCloseButton)
-            to.setShowSkipNextPageButton(from.isShowSkipNextPageButton)
-            to.setShowTorchButton(from.isShowTorchButton)
-            to.setSkipFocusingFrames(from.isSkipFocusingFrames)
-            to.setStartDocReaderForResult(from.startDocReaderForResult)
-            try {
-                to.setUseAuthenticator(from.isUseAuthenticator)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            to.setVideoCaptureMotionControl(from.isVideoCaptureMotionControl)
-            to.setCaptureMode(from.captureMode)
-            to.setDisplayMetadata(from.isDisplayMetaData)
-            to.setCameraSize(from.cameraWidth, from.cameraHeight)
-            to.setZoomEnabled(from.isZoomEnabled)
-            to.setZoomFactor(from.zoomFactor)
-            to.setCameraMode(from.cameraMode)
-            to.setExcludedCamera2Models(from.excludedCamera2Models)
-            to.setIsCameraTorchCheckDisabled(from.isCameraTorchCheckDisabled)
-            to.apply()
+        fun resetFunctionality() {
+            val customization = Instance().customization()
+            val processParam = Instance().processParams()
+            Instance().resetConfiguration()
+            Instance().customization().fromJson(customization.toJsonObject())
+            Instance().processParams().fromJson(processParam.toJSONObject())
         }
 
-        fun setCustomization(from: ParamsCustomization) {
-            val to = Instance().customization().edit()
-            to.setCustomLabelStatus(from.customLabelStatus)
-            to.setActivityIndicatorColor(from.activityIndicatorColor)
-            to.setBackgroundMaskAlpha(from.backgroundMaskAlpha)
-            to.setBorderBackgroundImage(from.borderBackgroundImage)
-            to.setCameraFrameActiveColor(from.cameraFrameActiveColor)
-            to.setCameraFrameBorderWidth(from.cameraFrameBorderWidth)
-            to.setCameraFrameCornerRadius(from.cameraFrameCornerRadius)
-            to.setCameraFrameDefaultColor(from.cameraFrameDefaultColor)
-            to.setCameraFrameLandscapeAspectRatio(from.cameraFrameLandscapeAspectRatio)
-            to.setCameraFrameLineCap(from.cameraFrameLineCap)
-            to.setCameraFrameLineLength(from.cameraFrameLineLength)
-            to.setCameraFramePortraitAspectRatio(from.cameraFramePortraitAspectRatio)
-            to.setCameraFrameShapeType(from.cameraFrameShapeType)
-            to.setCameraFrameVerticalPositionMultiplier(from.cameraFrameVerticalPositionMultiplier)
-            to.setCameraFrameOffsetWidth(from.cameraFrameOffsetWidth)
-            to.setCustomStatusPositionMultiplier(from.customStatusPositionMultiplier)
-            to.setHelpAnimationImage(from.helpAnimationImageDrawable)
-            to.setHelpAnimationImageMatrix(from.helpAnimationImageMatrix)
-            to.setHelpAnimationImageScaleType(from.helpAnimationImageScaleType)
-            to.setMultipageAnimationBackImage(from.multipageAnimationBackImage)
-            to.setMultipageAnimationBackImageMatrix(from.multipageAnimationBackImageMatrix)
-            to.setMultipageAnimationBackImageScaleType(from.multipageAnimationBackImageScaleType)
-            to.setMultipageAnimationFrontImage(from.multipageAnimationFrontImage)
-            to.setMultipageAnimationFrontImageMatrix(from.multipageAnimationFrontImageMatrix)
-            to.setMultipageAnimationFrontImageScaleType(from.multipageAnimationFrontImageScaleType)
-            to.setMultipageButtonBackgroundColor(from.multipageButtonBackgroundColor)
-            to.setResultStatus(from.resultStatus)
-            to.setResultStatusBackgroundColor(from.resultStatusBackgroundColor)
-            to.setShowResultStatusMessages(from.isShowResultStatusMessages)
-            to.setResultStatusPositionMultiplier(from.resultStatusPositionMultiplier)
-            to.setResultStatusTextColor(from.resultStatusTextColor)
-            to.setResultStatusTextFont(from.resultStatusTextFont)
-            to.setResultStatusTextSize(from.resultStatusTextSize)
-            to.setStatus(from.status)
-            to.setShowBackgroundMask(from.isShowBackgroundMask)
-            to.setShowHelpAnimation(from.isShowHelpAnimation)
-            to.setShowNextPageAnimation(from.isShowNextPageAnimation)
-            to.setShowStatusMessages(from.isShowStatusMessages)
-            to.setStatusPositionMultiplier(from.statusPositionMultiplier)
-            to.setStatusTextColor(from.statusTextColor)
-            to.setStatusTextFont(from.statusTextFont)
-            to.setStatusTextSize(from.statusTextSize)
-            to.setTintColor(from.tintColor)
-            to.setTorchImageOn(from.torchImageOnDrawable)
-            to.setTorchImageOff(from.torchImageOffDrawable)
-            to.setCloseButtonImage(from.closeButtonDrawable)
-            to.setCaptureButtonImage(from.captureButtonDrawable)
-            to.setChangeFrameCollapseButtonImage(from.changeFrameCollapseButtonDrawable)
-            to.setChangeFrameExpandButtonImage(from.changeFrameExpandButtonDrawable)
-            to.setCameraSwitchButtonImage(from.cameraSwitchButtonDrawable)
-            to.setToolbarSize(from.toolbarSize)
-            to.apply()
+        fun resetCustomization() {
+            val functionality = Instance().functionality()
+            val processParam = Instance().processParams()
+            Instance().resetConfiguration()
+            Instance().functionality().fromJson(functionality.toJsonObject())
+            Instance().processParams().fromJson(processParam.toJSONObject())
         }
-
-        fun setProcessParams(from: ProcessParam) =
-            Instance().processParams().fromJson(from.toJson())
 
         fun getBitmap(
             selectedImage: Uri?,

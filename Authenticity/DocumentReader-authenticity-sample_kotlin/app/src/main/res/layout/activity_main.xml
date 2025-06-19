@@ -730,6 +730,48 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_authenticity_check"
+                android:padding="12dp">
+
+                <ImageView
+                    android:id="@+id/ivSecurityTextInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:scaleY="1.2"
+                    android:scaleX="1.2"
+                    android:src="@drawable/baseline_info_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/additionalItems"  />
+
+                <TextView
+                    android:id="@+id/tvSecurityTextName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Security text"
+                    android:textColor="@color/textColor"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/ivSecurityTextInfo"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvSecurityTextValue"
+                    android:textAlignment="textEnd"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="default"
+                    android:textSize="16sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
     </ScrollView>
 

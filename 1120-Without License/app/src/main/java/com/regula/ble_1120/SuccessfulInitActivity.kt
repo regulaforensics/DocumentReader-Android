@@ -31,7 +31,7 @@ class SuccessfulInitActivity : AppCompatActivity() {
             showScannerBtn!!.isEnabled = false
         showScannerBtn!!.setOnClickListener {
             val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_AUTH).build()
-            DocumentReader.Instance().showScanner(
+            DocumentReader.Instance().startScanner(
                 this, scannerConfig
             ) { action, results, error ->
                 if (action == DocReaderAction.COMPLETE) {

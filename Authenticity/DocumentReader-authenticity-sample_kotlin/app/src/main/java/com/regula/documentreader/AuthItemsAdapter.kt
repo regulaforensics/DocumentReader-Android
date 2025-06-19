@@ -92,16 +92,16 @@ class AuthItemsAdapter(
 
                 val expandedElement = element as DocumentReaderIdentResult
                 if (expandedElement.etalonImage?.bitmap != null) {
-                    binding.ivElement.setImageBitmap(expandedElement.etalonImage?.bitmap)
-                } else {
-                    binding.ivElement.visibility = View.GONE
-                    binding.tvImageDescription.text = "image not found"
-                }
-                if (expandedElement.image?.bitmap != null) {
-                    binding.ivReference.setImageBitmap(expandedElement.image?.bitmap)
+                    binding.ivReference.setImageBitmap(expandedElement.etalonImage?.bitmap)
                 } else {
                     binding.ivReference.visibility = View.GONE
-                    binding.tvReferenceImageDescription.text = "image reference not found"
+                    binding.tvReferenceImageDescription.text = "image not found"
+                }
+                if (expandedElement.image?.bitmap != null) {
+                    binding.ivElement.setImageBitmap(expandedElement.image?.bitmap)
+                } else {
+                    binding.ivElement.visibility = View.GONE
+                    binding.tvImageDescription.text = "image reference not found"
                 }
                 binding.tvPercentage.text = expandedElement.percentValue.toString() + '%'
                 binding.tvArea.text = expandedElement.area?.height.toString() + "/" + expandedElement.area?.width.toString()
@@ -148,7 +148,7 @@ class AuthItemsAdapter(
 
                 val expandedElement = element as DocumentReaderPhotoIdentResult
                 binding.tvResult.text = expandedElement.result.toString()
-                binding.tvArea.text = expandedElement.area.toString()
+                binding.tvArea.text = expandedElement.area?.height.toString() + "/" + expandedElement.area?.width.toString()
                 binding.tvLightIndex.text = expandedElement.lightIndex.toString()
 
                 if (expandedElement.resultImages[0].bitmap != null) {
@@ -182,7 +182,13 @@ class AuthItemsAdapter(
                 binding.tvItemDiagnose.text =
                     "(${element.elementDiagnose}) ${element.getElementDiagnoseName(context)}"
 
-                var expandedElement = element as DocumentReaderSecurityFeatureCheck
+                val expandedElement = element as DocumentReaderSecurityFeatureCheck
+
+                if (expandedElement.elementRect != null){
+                    binding.tvElementRectDescription.visibility = View.VISIBLE
+                    binding.tvElementRect.visibility = View.VISIBLE
+                    binding.tvElementRect.text = "H:${expandedElement.elementRect!!.height} / W:${expandedElement.elementRect!!.width}"
+                }
             }
         }
 
@@ -199,6 +205,54 @@ class AuthItemsAdapter(
                     "(${element.elementDiagnose}) ${element.getElementDiagnoseName(context)}"
 
                 val expandedElement = element as DocumentReaderUvFiberElement
+                var actualValuesText = ""
+
+                if (expandedElement.width != null){
+                    binding.layoutWidth.visibility = View.VISIBLE
+                    binding.tvWidth.visibility = View.VISIBLE
+                    binding.tvWidthValue.visibility = View.VISIBLE
+                    for (i in expandedElement.width){
+                        actualValuesText += "$i\n"
+                    }
+                    binding.tvWidthValue.text = actualValuesText
+                }
+                if (expandedElement.length != null){
+                    binding.layoutLength.visibility = View.VISIBLE
+                    binding.tvLength.visibility = View.VISIBLE
+                    binding.tvLengthValue.visibility = View.VISIBLE
+                    for (i in expandedElement.length){
+                        actualValuesText += "$i\n"
+                    }
+                    binding.tvLengthValue.text = actualValuesText
+                }
+                if (expandedElement.area != null){
+                    binding.layoutArea.visibility = View.VISIBLE
+                    binding.tvArea.visibility = View.VISIBLE
+                    binding.tvAreaValue.visibility = View.VISIBLE
+
+                    for (i in expandedElement.area){
+                        actualValuesText += "$i\n"
+                    }
+                    binding.tvAreaValue.text = actualValuesText
+                }
+                if (expandedElement.colorValues != null){
+                    binding.layoutColorValues.visibility = View.VISIBLE
+                    binding.tvColorValues.visibility = View.VISIBLE
+                    binding.tvColorValuesValue.visibility = View.VISIBLE
+
+                    for (i in expandedElement.colorValues){
+                        actualValuesText += "$i\n"
+                    }
+                    binding.tvColorValuesValue.text = actualValuesText
+                }
+
+                for (i in expandedElement.rectArray){
+                    actualValuesText += "$i\n"
+                }
+                binding.tvReactArrayValue.text = actualValuesText
+
+                binding.tvRectCountValue.text = expandedElement.rectCount.toString()
+                binding.tvExpectedCountValue.text = expandedElement.expectedCount.toString()
             }
         }
         class SimpleElement(private val binding: ItemViewBinding) :

@@ -21,8 +21,6 @@ import com.regula.documentreader.Scan.Companion.ACTION_TYPE_MANUAL_MULTIPAGE_MOD
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_SCANNER
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.enums.eCheckResult
-import com.regula.documentreader.api.params.Functionality
-import com.regula.documentreader.api.params.ParamsCustomization
 import com.regula.documentreader.databinding.*
 import java.io.Serializable
 import java.util.*
@@ -165,9 +163,9 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
                 binding.title.text = base.title
                 binding.root.setOnClickListener {
 
-                    Helpers.setCustomization(ParamsCustomization())
+                    Helpers.resetCustomization()
                     if (scan.resetFunctionality)
-                        Helpers.setFunctionality(Functionality())
+                        Helpers.resetFunctionality()
                     scan.customize()
 
                     when (scan.actionType) {

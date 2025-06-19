@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
             binding.nameTv.text = "Name:"
             binding.resultIv.setImageBitmap(null)
             val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_PROCESS).build()
-            DocumentReader.Instance().showScanner(this, scannerConfig, completion)
+            DocumentReader.Instance().startScanner(this, scannerConfig, completion)
         }
         binding.loadBtn.setOnClickListener {
             loadAndLaunchModule(coreModule)

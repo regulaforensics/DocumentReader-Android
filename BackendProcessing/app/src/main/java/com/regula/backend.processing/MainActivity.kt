@@ -11,6 +11,7 @@ import com.regula.backend.processing.databinding.ActivityMainBinding
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
+import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.Scenario
@@ -94,7 +95,17 @@ class MainActivity : AppCompatActivity() {
             //processing is finished, all results are ready
 
             if (action == DocReaderAction.COMPLETE) {
-                finalize(results)
+                if (binding.doRfidCb.isChecked && results != null && results.chipPage != 0){
+                    DocumentReader.Instance().startRFIDReader(this, object : IRfidReaderCompletion() {
+                        override fun onCompleted(
+                            rfidAction: Int,
+                            documentReaderResults: DocumentReaderResults?,
+                            e: DocumentReaderException?
+                        ) {
+                            finalize(documentReaderResults)
+                        }
+                    })
+                } else finalize(results)
             } else {
                 //something happened before all results were ready
                 if (action == DocReaderAction.CANCEL) {
@@ -139,7 +150,7 @@ class MainActivity : AppCompatActivity() {
 
         val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_PROCESS).build()
 
-        DocumentReader.Instance().showScanner(this, scannerConfig, completion)
+        DocumentReader.Instance().startScanner(this, scannerConfig, completion)
     }
 
     private fun dismissDialog() {

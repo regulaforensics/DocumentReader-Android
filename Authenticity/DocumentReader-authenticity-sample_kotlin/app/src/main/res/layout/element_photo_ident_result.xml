@@ -110,6 +110,7 @@
         app:layout_constraintTop_toBottomOf="@+id/ivSource">
 
         <TextView
+            android:id="@+id/textView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="result:"
@@ -119,13 +120,17 @@
 
         <TextView
             android:id="@+id/tvResult"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="1"
+            android:textAlignment="textEnd"
+            android:maxLines="3"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textView5"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+            android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="area value"
@@ -135,26 +140,34 @@
 
         <TextView
             android:id="@+id/tvArea"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="80"
+            android:textAlignment="textEnd"
+            android:maxLines="3"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textView4"
             app:layout_constraintTop_toBottomOf="@+id/tvResult" />
 
         <TextView
+            android:id="@+id/textView6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="light index"
             app:layout_constraintBottom_toBottomOf="@+id/tvLightIndex"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tvLightIndex" />
+            app:layout_constraintTop_toTopOf="@id/tvLightIndex" />
 
         <TextView
             android:id="@+id/tvLightIndex"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="80"
+            android:textAlignment="textEnd"
+            android:maxLines="3"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textView6"
             app:layout_constraintTop_toBottomOf="@+id/tvArea" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -164,10 +177,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/layoutNamedSettings"
-        android:paddingHorizontal="16dp"
+        android:paddingHorizontal="12dp"
         android:paddingVertical="8dp">
 
         <TextView
+            android:id="@+id/textView9"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Reserved1:"
@@ -177,11 +191,14 @@
 
         <TextView
             android:id="@+id/tvReserved1"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Reserved1"
+            android:maxLines="3"
+            android:textAlignment="textEnd"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textView9"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -190,10 +207,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/layoutReserved1"
-        android:paddingHorizontal="16dp"
+        android:paddingHorizontal="12dp"
         android:paddingVertical="8dp">
 
         <TextView
+            android:id="@+id/textView8"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Reserved2:"
@@ -203,11 +221,14 @@
 
         <TextView
             android:id="@+id/tvReserved2"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Reserved2"
+            android:maxLines="3"
+            android:textAlignment="textEnd"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textView8"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -217,10 +238,11 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/layoutReserved2"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:paddingHorizontal="16dp"
+        android:paddingHorizontal="12dp"
         android:paddingVertical="8dp">
 
         <TextView
+            android:id="@+id/textView7"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Reserved3:"
@@ -230,12 +252,15 @@
 
         <TextView
             android:id="@+id/tvReserved3"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Reserved3"
+            android:maxLines="3"
+            android:textAlignment="textEnd"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintStart_toEndOf="@+id/textView7"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

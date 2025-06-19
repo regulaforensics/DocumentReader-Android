@@ -40,7 +40,7 @@
           "start": 10
         },
         "position": {
-          "v": 0.3
+          "v": 0.28
         }
       }
     },
@@ -61,7 +61,7 @@
           "bottom": 10
         },
         "position": {
-          "v": 1.75
+          "v": 1.65
         },
         "image": {
           "name1": "close",

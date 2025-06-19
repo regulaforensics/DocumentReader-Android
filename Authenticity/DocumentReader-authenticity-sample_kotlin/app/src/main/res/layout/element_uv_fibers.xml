@@ -54,214 +54,246 @@
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout1"
+        android:id="@+id/layoutRectArray"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingVertical="5dp"
         app:layout_constraintTop_toBottomOf="@+id/tvItemDiagnose">
 
         <TextView
+            android:id="@+id/tvReactArray"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="20dp"
+            android:text="React array:"
             android:textColor="@color/textColorInfo"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="React array (check in app code):" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvReactArrayValue"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingEnd="20dp"
+            android:text="List of DocReaderFieldRect"
             android:textColor="@color/textColorInfo"
             android:textSize="12sp"
+            android:textAlignment="textEnd"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="List of DocReaderFieldRect" />
+            app:layout_constraintStart_toEndOf="@+id/tvReactArray"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout2"
+        android:id="@+id/layoutWidth"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/layout1">
+        app:layout_constraintTop_toBottomOf="@+id/layoutRectArray"
+        android:visibility="gone">
 
         <TextView
+            android:id="@+id/tvWidth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="20dp"
+            android:text="width:"
             android:textColor="@color/textColorInfo"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="width (check in app code):" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvWidthValue"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingEnd="20dp"
+            android:text="int[] width;"
+            android:textAlignment="textEnd"
             android:textColor="@color/textColorInfo"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="int[] width;" />
+            app:layout_constraintStart_toEndOf="@+id/tvWidth"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout3"
+        android:id="@+id/layoutLength"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/layout2">
+        app:layout_constraintTop_toBottomOf="@+id/layoutWidth"
+        android:visibility="gone">
 
         <TextView
+            android:id="@+id/tvLength"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="20dp"
+            android:text="length:"
             android:textColor="@color/textColorInfo"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="length (check in app code):" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvLengthValue"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingEnd="20dp"
+            android:text="int[] length;"
             android:textColor="@color/textColorInfo"
             android:textSize="12sp"
+            android:textAlignment="textEnd"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="int[] length;" />
+            app:layout_constraintStart_toEndOf="@+id/tvLength"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout4"
+        android:id="@+id/layoutArea"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/layout3">
+        app:layout_constraintTop_toBottomOf="@+id/layoutLength"
+        android:visibility="gone">
 
         <TextView
+            android:id="@+id/tvArea"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="20dp"
+            android:text="area:"
             android:textColor="@color/textColorInfo"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="area (check in app code):" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvAreaValue"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingEnd="20dp"
+            android:text="int[] area;"
             android:textColor="@color/textColorInfo"
             android:textSize="12sp"
+            android:textAlignment="textEnd"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="int[] area;" />
+            app:layout_constraintStart_toEndOf="@+id/tvArea"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout5"
+        android:id="@+id/layoutColorValues"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/layout4">
+        app:layout_constraintTop_toBottomOf="@+id/layoutArea"
+        android:visibility="gone">
 
         <TextView
+            android:id="@+id/tvColorValues"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="20dp"
+            android:text="colorValues:"
             android:textColor="@color/textColorInfo"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="colorValues (check in app code):" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvColorValuesValue"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingEnd="20dp"
+            android:text="int[] colorValues;"
             android:textColor="@color/textColorInfo"
             android:textSize="12sp"
+            android:textAlignment="textEnd"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="int[] colorValues;" />
+            app:layout_constraintStart_toEndOf="@+id/tvColorValues"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout6"
+        android:id="@+id/layoutRectCount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/layout5">
+        app:layout_constraintTop_toBottomOf="@+id/layoutColorValues">
 
         <TextView
+            android:id="@+id/tvRectCont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="20dp"
+            android:text="rectCount:"
             android:textColor="@color/textColorInfo"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="rectCount (check in app code):" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvRectCountValue"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingEnd="20dp"
+            android:text="int rectCount;"
             android:textColor="@color/textColorInfo"
             android:textSize="12sp"
+            android:textAlignment="textEnd"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="int rectCount;" />
+            app:layout_constraintStart_toEndOf="@+id/tvRectCont"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout7"
+        android:id="@+id/layoutExpectedCount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/layout6">
+        app:layout_constraintTop_toBottomOf="@+id/layoutRectCount">
 
         <TextView
+            android:id="@+id/tvExpectedCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="20dp"
+            android:text="expectedCount:"
             android:textColor="@color/textColorInfo"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="expectedCount (check in app code):" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvExpectedCountValue"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingEnd="20dp"
+            android:text="int expectedCount;"
             android:textColor="@color/textColorInfo"
             android:textSize="12sp"
+            android:textAlignment="textEnd"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="int expectedCount;" />
+            app:layout_constraintStart_toEndOf="@+id/tvExpectedCount"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

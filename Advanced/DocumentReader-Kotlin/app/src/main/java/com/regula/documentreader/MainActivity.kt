@@ -34,28 +34,24 @@ import com.regula.documentreader.Helpers.Companion.getBitmap
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_CUSTOM
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_GALLERY
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_MANUAL_MULTIPAGE_MODE
-import com.regula.documentreader.Scan.Companion.ACTION_TYPE_SCANNER
-import com.regula.documentreader.SettingsActivity.Companion.functionality
 import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnabled
 import com.regula.documentreader.SettingsActivity.Companion.isRfidEnabled
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
+import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.config.RecognizeConfig
 import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.DocReaderAction
 import com.regula.documentreader.api.enums.FrameShapeType
 import com.regula.documentreader.api.enums.Scenario
-import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.enums.Scenario.Scenarios
 import com.regula.documentreader.api.enums.eRFID_DataFile_Type
 import com.regula.documentreader.api.enums.eRFID_NotificationCodes
-import com.regula.documentreader.api.enums.eRPRM_Lights
 import com.regula.documentreader.api.errors.DocReaderRfidException
 import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.internal.parser.DocReaderResultsJsonParser
 import com.regula.documentreader.api.params.DocReaderConfig
 import com.regula.documentreader.api.params.FaceApiParams
-import com.regula.documentreader.api.params.ImageInputData
 import com.regula.documentreader.api.results.DocumentReaderNotification
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.databinding.ActivityMainBinding
@@ -278,6 +274,7 @@ class MainActivity : FragmentActivity(), Serializable {
                     ) {
                         if (rfidAction == DocReaderAction.COMPLETE
                             || rfidAction == DocReaderAction.ERROR
+                            || rfidAction == DocReaderAction.TIMEOUT
                             || rfidAction == DocReaderAction.CANCEL)
                             displayResults(results_RFIDReader!!)
                     }
@@ -350,7 +347,7 @@ class MainActivity : FragmentActivity(), Serializable {
 
     fun showScanner() {
         val scannerConfig = ScannerConfig.Builder(currentScenario).build()
-        Instance().showScanner(this@MainActivity, scannerConfig, completion)
+        Instance().startScanner(this@MainActivity, scannerConfig, completion)
     }
 
     fun createImageBrowsingRequest() {
@@ -363,9 +360,7 @@ class MainActivity : FragmentActivity(), Serializable {
     private fun getRvData(): List<Base> {
         val rvData = mutableListOf<Base>()
         rvData.add(Section("Default"))
-        rvData.add(Scan("Default (showScanner)", resetFunctionality = false) {
-            Helpers.setFunctionality(functionality)
-        })
+        rvData.add(Scan("Default (startScanner)", resetFunctionality = false))
         rvData.add(Scan("Gallery (recognizeImage)", ACTION_TYPE_GALLERY))
 
         rvData.add(Section("Custom"))
@@ -418,13 +413,6 @@ class MainActivity : FragmentActivity(), Serializable {
             Instance().customization().edit()
                 .setCaptureButtonImage(drawable(R.drawable.capture, this)).apply()
         })
-        rvData.add(Scan("Custom change frame button") {
-            Instance().functionality().edit().setShowChangeFrameButton(true).apply()
-            Instance().customization().edit()
-                .setChangeFrameExpandButtonImage(drawable(R.drawable.expand, this)).apply()
-            Instance().customization().edit()
-                .setChangeFrameCollapseButtonImage(drawable(R.drawable.collapse, this)).apply()
-        })
         rvData.add(Scan("Custom close button") {
             Instance().functionality().edit().setShowCloseButton(true).apply()
             Instance().customization().edit().setCloseButtonImage(drawable(R.drawable.close, this))
@@ -456,30 +444,6 @@ class MainActivity : FragmentActivity(), Serializable {
         rvData.add(Scan("Custom position") {
             Instance().customization().edit().setShowStatusMessages(true).apply()
             Instance().customization().edit().setStatusPositionMultiplier(0.5f).apply()
-        })
-        rvData.add(Section("Custom result status messages"))
-        rvData.add(Scan("Custom text") {
-            Instance().customization().edit().setShowResultStatusMessages(true).apply()
-            Instance().customization().edit().setResultStatus("Custom result status").apply()
-        })
-        rvData.add(Scan("Custom text font") {
-            Instance().customization().edit().setShowResultStatusMessages(true).apply()
-            Instance().customization().edit().setResultStatusTextFont(Typeface.DEFAULT_BOLD).apply()
-            Instance().customization().edit().setResultStatusTextSize(24).apply()
-        })
-        rvData.add(Scan("Custom text color") {
-            Instance().customization().edit().setShowResultStatusMessages(true).apply()
-            Instance().customization().edit().setResultStatusTextColor(colorString(Color.BLUE))
-                .apply()
-        })
-        rvData.add(Scan("Custom background color") {
-            Instance().customization().edit().setShowResultStatusMessages(true).apply()
-            Instance().customization().edit()
-                .setResultStatusBackgroundColor(colorString(Color.BLUE)).apply()
-        })
-        rvData.add(Scan("Custom position") {
-            Instance().customization().edit().setShowResultStatusMessages(true).apply()
-            Instance().customization().edit().setResultStatusPositionMultiplier(0.5f).apply()
         })
         rvData.add(Section("Free custom status"))
         rvData.add(Scan("Free text + position") {
@@ -525,7 +489,7 @@ class MainActivity : FragmentActivity(), Serializable {
         rvData.add(Scan("Custom Liveness animation") {
             // NOTE: for a runtime animation change take a look at `showScanner` completion handler.
             Instance().customization().edit()
-                .setLivenessAnimationImage(getDrawable(R.drawable.reg_id_front_mrz)).apply()
+                .setLivenessAnimationImage(getDrawable(com.regula.documentreader.api.R.drawable.reg_passport_single)).apply()
             Instance().customization().edit()
                 .setLivenessAnimationPositionMultiplier(0.4f).apply()
             Instance().customization().edit()
@@ -541,9 +505,15 @@ class MainActivity : FragmentActivity(), Serializable {
                 .apply()
         })
         rvData.add(Scan("Next page button") {
+            val typeface = ResourcesCompat.getFont(this, R.font.my_font)
             Instance().functionality().edit().setShowSkipNextPageButton(true).apply()
             Instance().customization().edit()
-                .setMultipageButtonBackgroundColor(colorString(Color.RED)).apply()
+                .setMultipageButtonBackgroundColor(colorString(Color.RED))
+                .setMultipageButtonText("Skip page")
+                .setMultipageButtonTextColor("#FFFFFF")
+                .setMultipageButtonTextSize(20)
+                .setMultipageButtonTextFont(typeface)
+                .apply()
         })
         rvData.add(Scan("All visual elements") {
             Instance().customization().edit().setTintColor(colorString(Color.BLUE)).apply()
@@ -559,8 +529,8 @@ class MainActivity : FragmentActivity(), Serializable {
             val matrix = Matrix()
             Instance().customization().edit()
                 .setBorderBackgroundImage(drawable(R.drawable.viewfinder, this))
-                .setBorderBackgroundImageScaleType(ImageView.ScaleType.MATRIX)
-                .setBorderBackgroundImageMatrix(matrix)
+                //.setBorderBackgroundImageScaleType(ImageView.ScaleType.MATRIX)
+                //.setBorderBackgroundImageMatrix(matrix)
                 .apply()
         })
 
@@ -597,7 +567,7 @@ class MainActivity : FragmentActivity(), Serializable {
             .setTitle("Error")
             .setMessage("license in assets is missed")
             .setPositiveButton(
-                getString(R.string.strAccessibilityCloseButton)
+                getString(com.regula.documentreader.api.R.string.strAccessibilityCloseButton)
             ) { dialog, which ->
                 finish()
             }

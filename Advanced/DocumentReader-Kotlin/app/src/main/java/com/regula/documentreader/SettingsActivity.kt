@@ -17,12 +17,10 @@ import com.regula.documentreader.Helpers.Companion.listToString
 import com.regula.documentreader.Helpers.Companion.measureSystemIntToString
 import com.regula.documentreader.Helpers.Companion.measureSystemStringToInt
 import com.regula.documentreader.Helpers.Companion.replaceFragment
-import com.regula.documentreader.Helpers.Companion.setProcessParams
 import com.regula.documentreader.Helpers.Companion.toIntArray
 import com.regula.documentreader.Helpers.Companion.toMutableListString
 import com.regula.documentreader.Scan.Companion.ACTION_TYPE_CUSTOM
 import com.regula.documentreader.SettingsActivity.Companion.customString
-import com.regula.documentreader.SettingsActivity.Companion.functionality
 import com.regula.documentreader.SettingsActivity.Companion.isDataEncryptionEnabled
 import com.regula.documentreader.api.DocumentReader.Instance
 import com.regula.documentreader.api.enums.BarcodeType
@@ -48,7 +46,6 @@ import com.regula.documentreader.api.enums.diDocType.dtVisaID3
 import com.regula.documentreader.api.enums.eImageQualityCheckType
 import com.regula.documentreader.api.params.Functionality
 import com.regula.documentreader.api.params.ImageQA
-import com.regula.documentreader.api.params.ProcessParam
 import com.regula.documentreader.databinding.ActivitySettingsBinding
 import com.regula.documentreader.databinding.FragmentRvBinding
 import org.json.JSONObject
@@ -127,9 +124,8 @@ class SettingsActivity : FragmentActivity() {
             adapter.notifyItemRangeChanged(0, adapter.itemCount)
         } else {
             val scenario = Instance().processParams().scenario
-            setProcessParams(ProcessParam())
+            Instance().resetConfiguration()
             Instance().processParams().scenario = scenario
-            functionality = Functionality()
             val adapter =
                 apiSettingsFragment.binding.recyclerView.adapter as CommonRecyclerAdapter
             adapter.notifyItemRangeChanged(0, adapter.itemCount)
@@ -138,7 +134,6 @@ class SettingsActivity : FragmentActivity() {
 
     companion object {
         var isRfidEnabled = false
-        var functionality = Functionality()
         var isDataEncryptionEnabled = false
         var customString:String? = null
     }
@@ -187,6 +182,8 @@ class ApplicationSettingsFragment : Fragment() {
 class APISettingsFragment : Fragment() {
     private var _binding: FragmentRvBinding? = null
     val binding get() = _binding!!
+
+    val functionality = Instance().functionality()
 
     @SuppressLint("WrongConstant")
     override fun onCreateView(inflater: LayoutInflater, vg: ViewGroup?, bundle: Bundle?): View {
@@ -369,8 +366,14 @@ class APISettingsFragment : Fragment() {
             Stepper(
                 "DPI threshold",
                 "",
-                { Instance().processParams().imageQA.dpiThreshold },
-                { Instance().processParams().imageQA.dpiThreshold = it },
+                {
+                    val dpiThresholdValue = Instance().processParams().imageQA.dpiThreshold
+                    if (dpiThresholdValue != null) dpiThresholdValue else -1
+                },
+                {
+                    if (it != -1) Instance().processParams().imageQA.dpiThreshold = it
+                    else Instance().processParams().imageQA.dpiThreshold = null
+                },
                 step = 25,
                 addMinusOne = true
             )
@@ -379,8 +382,14 @@ class APISettingsFragment : Fragment() {
             Stepper(
                 "Angle threshold",
                 "",
-                { Instance().processParams().imageQA.angleThreshold },
-                { Instance().processParams().imageQA.angleThreshold = it },
+                {
+                    val angleThresholdValue = Instance().processParams().imageQA.angleThreshold
+                    if (angleThresholdValue != null) angleThresholdValue else -1
+                },
+                {
+                    if (it != -1) Instance().processParams().imageQA.angleThreshold = it
+                    else Instance().processParams().imageQA.angleThreshold = null
+                },
             )
         )
         sectionsData.add(
@@ -434,16 +443,22 @@ class APISettingsFragment : Fragment() {
 
         sectionsData.add(InputDouble("Max glaring part",
             { Instance().processParams().imageQA.glaresCheckParams?.maxGlaringPart },
-            { Instance().processParams().imageQA.glaresCheckParams =
-                Instance().processParams().imageQA.glaresCheckParams ?: ImageQA.GlaresCheckParams()
-                Instance().processParams().imageQA.glaresCheckParams?.maxGlaringPart  = it }
+            {
+                Instance().processParams().imageQA.glaresCheckParams =
+                    Instance().processParams().imageQA.glaresCheckParams
+                        ?: ImageQA.GlaresCheckParams()
+                Instance().processParams().imageQA.glaresCheckParams?.maxGlaringPart = it
+            }
         ))
 
         sectionsData.add(InputDouble("Image margin part",
             { Instance().processParams().imageQA.glaresCheckParams?.imgMarginPart },
-            {   Instance().processParams().imageQA.glaresCheckParams =
-                Instance().processParams().imageQA.glaresCheckParams ?: ImageQA.GlaresCheckParams()
-                Instance().processParams().imageQA.glaresCheckParams?.imgMarginPart = it }
+            {
+                Instance().processParams().imageQA.glaresCheckParams =
+                    Instance().processParams().imageQA.glaresCheckParams
+                        ?: ImageQA.GlaresCheckParams()
+                Instance().processParams().imageQA.glaresCheckParams?.imgMarginPart = it
+            }
         ))
 
         sectionsData.add(Section("Restrictions"))
@@ -863,5 +878,10 @@ class APISettingsFragment : Fragment() {
         sectionsData.add(Scan("", ACTION_TYPE_CUSTOM))
 
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

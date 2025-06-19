@@ -6,7 +6,7 @@
         "fontStyle": "normal",
         "fontColor": "#FF000000",
         "fontSize": 16,
-        "fontName": "Arial",
+        "fontName": "my_font",
         "alignment": "center",
         "background": "#AAFFFFFF",
         "borderRadius": 8,

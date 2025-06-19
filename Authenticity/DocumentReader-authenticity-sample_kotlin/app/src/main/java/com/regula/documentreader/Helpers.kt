@@ -123,6 +123,7 @@ class Helpers {
 
                 context.resources.getString(R.string.check_axial) -> context.resources.getString(R.string.help_check_axial)
                 context.resources.getString(R.string.check_ipi) -> context.resources.getString(R.string.help_check_ipi)
+                context.resources.getString(R.string.check_security_text) -> context.resources.getString(R.string.help_check_security_text)
                 context.resources.getString(R.string.authenticity_checks) -> context.resources.getString(
                     R.string.help_authenticity
                 )

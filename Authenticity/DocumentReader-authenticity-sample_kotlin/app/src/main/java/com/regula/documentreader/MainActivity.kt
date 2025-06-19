@@ -200,6 +200,10 @@ open class MainActivity : AppCompatActivity(), LivenessDialog.DialogListener,
             R.string.check_black_and_white_copy -> {
                 viewModel.setupAuthenticityLivenessCheckBlackAndWhiteCopy(checkValue)
             }
+
+            R.string.check_geometry -> {
+                viewModel.setupAuthenticityLivenessCheckGeometry(checkValue)
+            }
         }
     }
 
@@ -239,6 +243,11 @@ open class MainActivity : AppCompatActivity(), LivenessDialog.DialogListener,
             R.string.check_black_and_white_copy -> {
                 viewModel.setupAuthenticityLivenessCheckBlackAndWhiteCopy(value)
                 livenessDialog.updateBlackAndWhiteCopyState(text)
+            }
+
+            R.string.check_geometry -> {
+                viewModel.setupAuthenticityLivenessCheckGeometry(value)
+                livenessDialog.updateCheckGeometryState(text)
             }
 
 
@@ -295,6 +304,11 @@ open class MainActivity : AppCompatActivity(), LivenessDialog.DialogListener,
             R.string.check_ipi -> {
                 viewModel.setupAuthenticityCheckIPI(value)
                 binding.tvIPIValue.text = text
+            }
+
+            R.string.check_security_text -> {
+                viewModel.setupAuthenticityCheckSecurityText(value)
+                binding.tvSecurityTextValue.text = text
             }
         }
     }
@@ -356,6 +370,15 @@ open class MainActivity : AppCompatActivity(), LivenessDialog.DialogListener,
                     binding.tvIPIName.text.toString(),
                     binding.tvIPIValue.text.toString(),
                     R.string.check_ipi,
+                    this
+                )
+            }
+
+            binding.tvSecurityTextValue.setOnClickListener {
+                showBottomValuesDialog(
+                    binding.tvSecurityTextName.text.toString(),
+                    binding.tvSecurityTextValue.text.toString(),
+                    R.string.check_security_text,
                     this
                 )
             }
@@ -462,6 +485,10 @@ open class MainActivity : AppCompatActivity(), LivenessDialog.DialogListener,
         binding.ivIPIInfo.setOnClickListener {
             checkName = resources.getString(R.string.check_ipi)
             prepareDescriptionDialog(checkName, R.drawable.auth_doc_ipi)
+        }
+        binding.ivSecurityTextInfo.setOnClickListener {
+            checkName = resources.getString(R.string.check_security_text)
+            prepareDescriptionDialog(checkName, R.drawable.auth_doc_security_text)
         }
         binding.ivIRB900Info.setOnClickListener {
             checkName = "checkIRB900"

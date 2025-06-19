@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         binding.showScannerBtn.setOnClickListener {
             resetViews()
             val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_AUTH).build()
-            DocumentReader.Instance().showScanner(this, scannerConfig) { action, results, error ->
+            DocumentReader.Instance().startScanner(this, scannerConfig) { action, results, error ->
                 if (action == DocReaderAction.COMPLETE) {
                     showAuthenticityResults(results)
                     //Checking, if nfc chip reading should be performed
@@ -226,6 +226,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showGraphicFieldImage(results: DocumentReaderResults?) {
         results?.getTextFieldValueByType(eVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES).let {
+            binding.nameTv.visibility = View.VISIBLE
             binding.nameTv.text = it
         }
 
@@ -274,6 +275,8 @@ class MainActivity : AppCompatActivity() {
         results?.authenticityResult?.let {
             binding.authenticityLayout.visibility = View.VISIBLE
             binding.authenticityResultImg.setImageResource(if (results.authenticityResult?.status == eCheckResult.CH_CHECK_OK) R.drawable.correct else R.drawable.incorrect)
+            binding.layoutOverallResult.visibility = View.VISIBLE
+            binding.overallResultImg.setImageResource(if (results.status.overallStatus == eCheckResult.CH_CHECK_OK) R.drawable.correct else R.drawable.incorrect)
             it.checks.forEach { check ->
                 for (element in check.elements) {
                     if (element is DocumentReaderIdentResult) {

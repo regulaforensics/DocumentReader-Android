@@ -15,19 +15,6 @@
     },
     {
       "button": {
-        "title": "Frame",
-        "alignment": "center",
-        "tag": 1004,
-        "margin": {
-          "start": 10
-        },
-        "position": {
-          "v": 1.6
-        }
-      }
-    },
-    {
-      "button": {
         "title": "Close",
         "tag": 1001,
         "style": "PrimaryButton",

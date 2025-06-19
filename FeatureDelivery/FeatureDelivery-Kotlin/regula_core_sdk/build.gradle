@@ -11,5 +11,5 @@ android {
 
 dependencies {
     implementation project(":app")
-    implementation 'com.regula.documentreader.core:fullrfid:7.7.+@aar'
+    implementation 'com.regula.documentreader.core:fullrfid:8.1.+@aar'
 }

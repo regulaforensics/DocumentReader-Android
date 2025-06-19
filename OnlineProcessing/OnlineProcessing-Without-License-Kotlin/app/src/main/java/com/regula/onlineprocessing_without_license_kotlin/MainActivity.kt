@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         onlineProcessingConfiguration.processParam.scenario = Scenario.SCENARIO_FULL_PROCESS;
 
         val scannerConfig = ScannerConfig.Builder(onlineProcessingConfiguration).build()
-        DocumentReader.Instance().showScanner(this, scannerConfig, completion)
+        DocumentReader.Instance().startScanner(this, scannerConfig, completion)
     }
 
 

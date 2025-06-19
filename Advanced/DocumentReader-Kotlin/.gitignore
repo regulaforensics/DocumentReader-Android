@@ -86,4 +86,5 @@ lint/tmp/
 
 
 app/src/main/assets/Regula/db.dat
+*.license
 .idea/

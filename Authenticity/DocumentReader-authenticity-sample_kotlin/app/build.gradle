@@ -33,8 +33,8 @@ dependencies {
 
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
 
-    implementation 'com.regula.documentreader.core:fullauthrfid:7.7.+@aar'
-    implementation('com.regula.documentreader:api:7.7.+@aar') {
+    implementation 'com.regula.documentreader.core:fullauthrfid:8.1.+@aar'
+    implementation('com.regula.documentreader:api:8.1.+@aar') {
         transitive = true;
     }
 }

@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showScanner() {
         val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_MRZ).build()
-        DocumentReader.Instance().showScanner(this, scannerConfig, completion)
+        DocumentReader.Instance().startScanner(this, scannerConfig, completion)
     }
 
     private fun displayResults(results: DocumentReaderResults?) {

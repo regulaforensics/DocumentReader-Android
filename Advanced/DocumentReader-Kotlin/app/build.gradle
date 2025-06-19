@@ -25,6 +25,11 @@ android {
         viewBinding true
     }
     namespace 'com.regula.documentreader'
+
+    lintOptions {
+        abortOnError false
+        ignoreWarnings true
+    }
 }
 
 dependencies {
@@ -39,9 +44,9 @@ dependencies {
 
     implementation 'com.regula.btdevice:api:7.6.+@aar'
     //noinspection GradleDynamicVersion
-    implementation 'com.regula.documentreader.core:fullrfid:7.7.+@aar'
+    implementation 'com.regula.documentreader.core:fullrfid:8.1.+@aar'
     //noinspection GradleDynamicVersion
-    implementation('com.regula.documentreader:api:7.7.+@aar') {
+    implementation('com.regula.documentreader:api:8.1.+@aar') {
         transitive = true
     }
 

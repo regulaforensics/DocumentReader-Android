@@ -41,13 +41,15 @@
     <string name="check_mli">checkMLI</string>
     <string name="check_dynaprint">checkMLI</string>
     <string name="check_black_and_white_copy">checkBWCopy</string>
+    <string name="check_geometry">checkGeometry</string>
     <string name="help_use_liveness">In active state allows you to set LivenessParams, in the inactive state cancels use LivenessParams</string>
     <string name="help_holo">In this check, the presence of holographic effect and the shape of hologram image are analyzed.</string>
     <string name="help_ovi">Optically Variable Ink objects change their color and appearance under different illumination conditions.</string>
     <string name="help_mli">Multiple Laser Images is the technology of secure printing, resulting in different graphics depending on the viewing angle.</string>
     <string name="help_ed">In this check, the image, captured by the device`s camera from the computer`s monitor or other external display, is validated.</string>
-    <string name="help_dynaprint">dopolnit` opisanie.</string>
-    <string name="help_black_and_white_copy">dopolnit` opisanie.</string>
+    <string name="help_geometry_check">Geometry check.</string>
+    <string name="help_dynaprint">Help to composite image which consists of several initial images. It is applied and visualized with the use of the lenticular technology. Depending on the angle of observation, one or the other initial image is visible.</string>
+    <string name="help_black_and_white_copy">This check verifies that the document is not a black-and-white photocopy.</string>
     <string name="check_image_patterns">checkImagePatterns</string>
     <string name="help_check_image_patterns">Many personal documents have the laminated layer with unique image patterns, standing out by their shape, size, and color.</string>
     <string name="check_photo_embedding">checkPhotoEmbedding</string>
@@ -68,6 +70,8 @@
     <string name="check_ir_visibility">checkIRVisibility</string>
     <string name="help_check_ir_visibility">This check validates the visibility of different elements (especially photo and images) under infrared light and compares to their representations in visible light.</string>
     <string name="check_ipi">checkIPI</string>
+    <string name="check_security_text">checkSecurityText</string>
+    <string name="help_check_security_text">This check validates the sensitive personal text data in a visible and hidden form.</string>
     <string name="help_check_ipi">This check visualizes the Invisible Personal Information, applied to the holder`s photo. In most cases, the hidden data is the document number or the holder`s first and last name.</string>
     <string name="check_axial">checkAxial</string>
     <string name="help_check_axial">This check detects the areas of the laminate film unevenness by applying the illumination scheme with coinciding angles of illumination and observation under visible white light.</string>

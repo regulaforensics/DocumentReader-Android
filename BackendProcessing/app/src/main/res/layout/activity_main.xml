@@ -35,6 +35,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/nameTv" />
 
+    <CheckBox
+        android:id="@+id/doRfidCb"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Perform NFC chip reading"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintBottom_toTopOf="@+id/showScannerBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <Button
         android:id="@+id/showScannerBtn"
         android:layout_width="wrap_content"

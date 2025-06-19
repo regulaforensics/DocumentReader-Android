@@ -80,7 +80,7 @@ class MainViewModel(val documentReader: DocumentReader): ViewModel()  {
         this.rfidReading = rfidReading
 
         val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_AUTH).build()
-        documentReader.showScanner(context, scannerConfig, completion)
+        documentReader.startScanner(context, scannerConfig, completion)
     }
 
     fun recognize(context: Context, bitmap: Bitmap) {
@@ -148,6 +148,10 @@ class MainViewModel(val documentReader: DocumentReader): ViewModel()  {
         documentReader.processParams().authenticityParams?.checkIPI = value
     }
 
+    fun setupAuthenticityCheckSecurityText(value: Boolean?){
+        documentReader.processParams().authenticityParams?.checkSecurityText = value
+    }
+
     fun setupAuthenticityUseLiveness(value: Boolean?){
         documentReader.processParams().authenticityParams?.useLivenessCheck = value
     }
@@ -172,6 +176,9 @@ class MainViewModel(val documentReader: DocumentReader): ViewModel()  {
     }
     fun setupAuthenticityLivenessCheckBlackAndWhiteCopy(value: Boolean?){
         documentReader.processParams().authenticityParams?.livenessParams?.checkBlackAndWhiteCopy = value
+    }
+    fun setupAuthenticityLivenessCheckGeometry(value: Boolean?){
+        documentReader.processParams().authenticityParams?.livenessParams?.checkGeometry = value
     }
 
     fun getActualLivenessParams(): LivenessParams? {

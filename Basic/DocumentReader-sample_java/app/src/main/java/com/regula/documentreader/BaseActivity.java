@@ -93,7 +93,7 @@ public abstract class BaseActivity extends AppCompatActivity implements MainFrag
             return;
 
         ScannerConfig scannerConfig = new ScannerConfig.Builder(currentScenario).build();
-        DocumentReader.Instance().showScanner(BaseActivity.this, scannerConfig, completion);
+        DocumentReader.Instance().startScanner(BaseActivity.this, scannerConfig, completion);
     }
 
     @Override

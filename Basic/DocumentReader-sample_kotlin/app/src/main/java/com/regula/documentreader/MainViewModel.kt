@@ -119,7 +119,7 @@ class MainViewModel(val documentReader: DocumentReader, val sharedPreferences: S
         if (!documentReader.isReady) return
 
         val scannerConfig = ScannerConfig.Builder(currentDocReaderScenario()).build()
-        documentReader.showScanner(context, scannerConfig, completion)
+        documentReader.startScanner(context, scannerConfig, completion)
     }
 
     fun recognize(context: Context, bitmap: Bitmap) {

@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
             clearResults()
 
             val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_MRZ).build()
-            Instance().showScanner(this, scannerConfig, completion)
+            Instance().startScanner(this, scannerConfig, completion)
         }
     }
 
