@@ -12,6 +12,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.github.kittinunf.fuel.httpPost
@@ -118,7 +120,7 @@ class OnlineProcessingActivity : FragmentActivity() {
 
         return FileProvider.getUriForFile(
             applicationContext,
-            "${BuildConfig.APPLICATION_ID}.provider",
+            "${applicationContext.packageName}.provider",
             tmpFile
         )
     }
@@ -293,5 +295,30 @@ class OnlineProcessingActivity : FragmentActivity() {
     private fun hideDialog() {
         loadingDialog?.dismiss()
         loadingDialog = null
+    }
+
+    override fun setContentView(view: View?) {
+        super.setContentView(view)
+
+        applyEdgeToEdgeInsets()
+    }
+
+    private fun applyEdgeToEdgeInsets() {
+        val rootView = window.decorView.findViewWithTag<View>("content")
+        if (rootView != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
+                val systemBars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars()
+                            or WindowInsetsCompat.Type.displayCutout()
+                )
+                view.setPadding(
+                    systemBars.left,
+                    systemBars.top,
+                    systemBars.right,
+                    systemBars.bottom
+                )
+                insets
+            }
+        }
     }
 }

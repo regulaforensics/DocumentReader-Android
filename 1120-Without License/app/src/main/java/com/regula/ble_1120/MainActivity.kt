@@ -11,8 +11,12 @@ import android.os.Message
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.regula.ble_1120.util.BluetoothUtil
 import com.regula.ble_1120.util.PermissionUtil
 import com.regula.ble_1120.util.PermissionUtil.Companion.respondToPermissionRequest
@@ -182,5 +186,30 @@ class MainActivity : AppCompatActivity() {
                 if (bluetoothUtil.isBluetoothSettingsReady(this))
                     initializeReader()
             }
+    }
+
+    override fun setContentView(@LayoutRes layoutResID: Int) {
+        super.setContentView(layoutResID)
+
+        applyEdgeToEdgeInsets()
+    }
+
+    private fun applyEdgeToEdgeInsets() {
+        val rootView = window.decorView.findViewWithTag<View>("content")
+        if (rootView != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
+                val systemBars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars()
+                            or WindowInsetsCompat.Type.displayCutout()
+                )
+                view.setPadding(
+                    systemBars.left,
+                    systemBars.top,
+                    systemBars.right,
+                    systemBars.bottom
+                )
+                insets
+            }
+        }
     }
 }

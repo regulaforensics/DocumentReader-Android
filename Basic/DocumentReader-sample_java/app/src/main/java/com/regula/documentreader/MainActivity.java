@@ -35,7 +35,7 @@ public class MainActivity extends BaseActivity {
 
         builder.setTitle("Error");
         builder.setMessage("license in assets is missed!");
-        builder.setPositiveButton(getString(R.string.strAccessibilityCloseButton), (dialog, which) -> finish());
+        builder.setPositiveButton(getString(com.regula.documentreader.api.R.string.strAccessibilityCloseButton), (dialog, which) -> finish());
         builder.setCancelable(false);
         builder.show();
     }

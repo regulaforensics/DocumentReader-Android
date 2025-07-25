@@ -13,6 +13,7 @@
     <string name="application">Application</string>
     <string name="api">API</string>
     <string name="reset">Reset</string>
+    <string name="base_condition">default</string>
     <string name="check">✔</string>
     <string name="string_default">default</string>
     <string name="stepper_value">%1$d %2$s</string>
@@ -47,7 +48,7 @@
     <string name="help_ovi">Optically Variable Ink objects change their color and appearance under different illumination conditions.</string>
     <string name="help_mli">Multiple Laser Images is the technology of secure printing, resulting in different graphics depending on the viewing angle.</string>
     <string name="help_ed">In this check, the image, captured by the device`s camera from the computer`s monitor or other external display, is validated.</string>
-    <string name="help_geometry_check">Geometry check.</string>
+    <string name="help_geometry_check">This check analyzes the geometry deviations, based on the document edges and perspective.</string>
     <string name="help_dynaprint">Help to composite image which consists of several initial images. It is applied and visualized with the use of the lenticular technology. Depending on the angle of observation, one or the other initial image is visible.</string>
     <string name="help_black_and_white_copy">This check verifies that the document is not a black-and-white photocopy.</string>
     <string name="check_image_patterns">checkImagePatterns</string>

@@ -11,8 +11,15 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.ContentView
+import androidx.annotation.NonNull
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.Insets
+import androidx.core.view.OnApplyWindowInsetsListener
+import androidx.core.view.ViewCompat
+import androidx.core.view.ViewCompat.onApplyWindowInsets
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.enums.eGraphicFieldType
@@ -242,6 +249,31 @@ open class MainActivity : AppCompatActivity() {
         binding.nameTv.text = ""
         binding.portraitIv.setImageResource(R.drawable.portrait)
         binding.documentImageIv.setImageResource(R.drawable.id)
+    }
+
+    override fun setContentView(view: View?) {
+        super.setContentView(view)
+
+        applyEdgeToEdgeInsets()
+    }
+
+    private fun applyEdgeToEdgeInsets() {
+        val rootView = window.decorView.findViewWithTag<View>("content")
+        if (rootView != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
+                val systemBars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars()
+                            or WindowInsetsCompat.Type.displayCutout()
+                )
+                view.setPadding(
+                    systemBars.left,
+                    systemBars.top,
+                    systemBars.right,
+                    systemBars.bottom
+                )
+                insets
+            }
+        }
     }
 
     companion object {

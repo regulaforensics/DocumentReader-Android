@@ -7,6 +7,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -134,5 +136,30 @@ open class MainActivity : AppCompatActivity() {
         progressDialog?.dismiss()
 
         viewModel.reset()
+    }
+
+    override fun setContentView(view: View?) {
+        super.setContentView(view)
+
+        applyEdgeToEdgeInsets()
+    }
+
+    private fun applyEdgeToEdgeInsets() {
+        val rootView = window.decorView.findViewWithTag<View>("content")
+        if (rootView != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
+                val systemBars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars()
+                            or WindowInsetsCompat.Type.displayCutout()
+                )
+                view.setPadding(
+                    systemBars.left,
+                    systemBars.top,
+                    systemBars.right,
+                    systemBars.bottom
+                )
+                insets
+            }
+        }
     }
 }

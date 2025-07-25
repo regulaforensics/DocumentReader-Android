@@ -12,6 +12,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -252,7 +254,7 @@ class ResultsActivity : AppCompatActivity() {
         val combinations = mutableListOf<MutableList<T>>()
         while (elements.size > 1) {
             val element = elements[0]
-            elements.removeFirst()
+            elements.removeAt(0)
             combinations += combinationsFrom(elements, taking - 1).map {
                 (mutableListOf(element) + it).toMutableList()
             }
@@ -324,6 +326,31 @@ class ResultsActivity : AppCompatActivity() {
         const val RESULTS = 0
         const val COMPARE = 1
         const val RFID = 2
+    }
+
+    override fun setContentView(view: View?) {
+        super.setContentView(view)
+
+        applyEdgeToEdgeInsets()
+    }
+
+    private fun applyEdgeToEdgeInsets() {
+        val rootView = window.decorView.findViewWithTag<View>("content")
+        if (rootView != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
+                val systemBars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars()
+                            or WindowInsetsCompat.Type.displayCutout()
+                )
+                view.setPadding(
+                    systemBars.left,
+                    systemBars.top,
+                    systemBars.right,
+                    systemBars.bottom
+                )
+                insets
+            }
+        }
     }
 }
 
@@ -428,7 +455,7 @@ class GroupFragment : Fragment() {
                     )
                 )
                 attribute.value != null -> {
-                    var color = requireContext().themeColor(R.attr.colorOnSecondary)
+                    var color = requireContext().themeColor(com.google.android.material.R.attr.colorSecondary)
                     if (attribute.valid == CH_CHECK_OK)
                         color = Color.GREEN
                     if (attribute.valid == CH_CHECK_ERROR)

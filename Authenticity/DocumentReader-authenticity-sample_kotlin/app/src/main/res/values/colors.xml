@@ -18,6 +18,7 @@
     <color name="cardWarning">#ffd6a5</color>
     <color name="backgroundColor">#F2F2FA</color>
     <color name="btnPositive">#60d394</color>
+    <color name="btnReset">#FFD1B8</color>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="transparent">#00000000</color>

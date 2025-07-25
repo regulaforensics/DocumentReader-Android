@@ -13,6 +13,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import com.regula.documentreader.Helpers.Companion.dismissDialog
 import com.regula.documentreader.Helpers.Companion.getCheckDescription
@@ -78,13 +80,30 @@ open class MainActivity : AppCompatActivity(), LivenessDialog.DialogListener,
             Toast.makeText(this, "Canceled by user", Toast.LENGTH_LONG).show()
         }
 
-        if (DocumentReader.Instance().isReady) {
-            successfulInit()
-            return
-        }
-
         prepareSimpleDialog("Initializing...", false)
         viewModel.init(this)
+
+        binding.btnResetAll.setOnClickListener {
+            viewModel.initAuth()
+            resetViewAndParams()
+        }
+    }
+
+    private fun resetViewAndParams(){
+        binding.tvImagePatternsValue.setText(R.string.base_condition)
+        binding.tvPhotoEmbeddingValue.setText(R.string.base_condition)
+        binding.tvBarcodeFormatValue.setText(R.string.base_condition)
+        binding.tvPortraitComparisonValue.setText(R.string.base_condition)
+        binding.tvPortraitComparisonValue.visibility = View.GONE
+        binding.rBtnUseRfid.isChecked = false
+        binding.tvUVLuminescenceValue.setText(R.string.base_condition)
+        binding.tvUVFibersValue.setText(R.string.base_condition)
+        binding.tvExtendedMRZValue.setText(R.string.base_condition)
+        binding.tvExtendedOCRValue.setText(R.string.base_condition)
+        binding.tvIRB900Value.setText(R.string.base_condition)
+        binding.tvIRVisibilityValue.setText(R.string.base_condition)
+        binding.tvIPIValue.setText(R.string.base_condition)
+        binding.tvSecurityTextValue.setText(R.string.base_condition)
     }
 
     private fun disableUiElements() {
@@ -148,9 +167,11 @@ open class MainActivity : AppCompatActivity(), LivenessDialog.DialogListener,
 
     private fun initView() {
         binding.btnStartDocProcessing.setOnClickListener {
+            viewModel.updateRfidReading(binding.rBtnUseRfid.isChecked)
+
             val selectedId = binding.radioGroup.checkedRadioButtonId
             when (selectedId) {
-                R.id.rBtnShowScanner -> viewModel.showScanner(this@MainActivity, rfidReading = binding.rBtnUseRfid.isChecked)
+                R.id.rBtnShowScanner -> viewModel.showScanner(this@MainActivity)
                 R.id.rBtnRecognizeImageWithLightType -> startRecognizeImageWithLight()
                 R.id.rBtnRecognizeImage -> createImageBrowsingRequest()
                 else -> prepareSimpleDialog(
@@ -571,6 +592,31 @@ open class MainActivity : AppCompatActivity(), LivenessDialog.DialogListener,
             ResultsAuthActivity.results = results
             val intent = Intent(this, ResultsAuthActivity::class.java)
             startActivity(intent)
+        }
+    }
+
+    override fun setContentView(view: View?) {
+        super.setContentView(view)
+
+        applyEdgeToEdgeInsets()
+    }
+
+    private fun applyEdgeToEdgeInsets() {
+        val rootView = window.decorView.findViewWithTag<View>("content")
+        if (rootView != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
+                val systemBars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars()
+                            or WindowInsetsCompat.Type.displayCutout()
+                )
+                view.setPadding(
+                    systemBars.left,
+                    systemBars.top,
+                    systemBars.right,
+                    systemBars.bottom
+                )
+                insets
+            }
         }
     }
 

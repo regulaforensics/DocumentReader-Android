@@ -5,15 +5,21 @@ plugins {
 
 android {
 
-    compileSdk 34
+    compileSdk 36
     defaultConfig {
         applicationId "com.regula.documentreader"
         minSdk 23
-        targetSdk 34
+        targetSdk 36
         versionCode 1
         versionName "1.0"
     }
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
     buildTypes {
         release {
             minifyEnabled true
@@ -44,9 +50,9 @@ dependencies {
 
     implementation 'com.regula.btdevice:api:7.6.+@aar'
     //noinspection GradleDynamicVersion
-    implementation 'com.regula.documentreader.core:fullrfid:8.1.+@aar'
+    implementation 'com.regula.documentreader.core:fullrfid:8.2.+@aar'
     //noinspection GradleDynamicVersion
-    implementation('com.regula.documentreader:api:8.1.+@aar') {
+    implementation('com.regula.documentreader:api:8.2.+@aar') {
         transitive = true
     }
 

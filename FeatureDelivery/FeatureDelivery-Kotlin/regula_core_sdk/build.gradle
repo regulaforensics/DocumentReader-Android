@@ -2,14 +2,16 @@ plugins {
     id 'com.android.dynamic-feature'
 }
 android {
-    compileSdk 32
+    compileSdk 35
 
     defaultConfig {
         minSdk 21
     }
+    namespace 'com.regula.feature.core'
 }
 
 dependencies {
+    implementation 'com.google.android.material:material:1.7.0'
     implementation project(":app")
-    implementation 'com.regula.documentreader.core:fullrfid:8.1.+@aar'
+    implementation 'com.regula.documentreader.core:fullrfid:8.2.+@aar'
 }

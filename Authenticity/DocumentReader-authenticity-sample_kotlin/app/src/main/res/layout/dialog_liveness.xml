@@ -471,7 +471,7 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
         <Button
-            android:id="@+id/btn_reset"
+            android:id="@+id/btnReset"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:background="@drawable/shape_card_info"
@@ -482,7 +482,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/btn_save"
+            android:id="@+id/btnSave"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_marginStart="8dp"
@@ -491,7 +491,7 @@
             android:text="save"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/btn_reset"
+            app:layout_constraintStart_toEndOf="@+id/btnReset"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 

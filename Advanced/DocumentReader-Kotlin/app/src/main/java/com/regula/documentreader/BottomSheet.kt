@@ -179,7 +179,7 @@ class VH(
                 context.resources, R.drawable.rounded_bottom, context.theme
             )!!
         else
-            binding.button.setBackgroundColor(context.themeColor(R.attr.colorSecondary))
+            binding.button.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSecondary))
     }
 }
 

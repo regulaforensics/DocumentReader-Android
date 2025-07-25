@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:tag="content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topInfoLayout"
@@ -164,6 +165,7 @@
         app:layout_constraintTop_toBottomOf="@+id/layoutAlreadyCropped" />
 
     <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
@@ -182,20 +184,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/shape_authenticity_check"
-                android:paddingVertical="8dp"
-                android:paddingHorizontal="12dp">
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp">
 
                 <ImageView
                     android:id="@+id/ivLivenessInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:scaleY="1.2"
                     android:scaleX="1.2"
+                    android:scaleY="1.2"
                     android:src="@drawable/baseline_info_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/additionalItems"  />
+                    app:tint="@color/additionalItems" />
 
                 <TextView
                     android:id="@+id/tvLivenessName"
@@ -213,12 +215,12 @@
                     android:id="@+id/ivLiveness"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/outline_article_shortcut_24"
                     android:backgroundTint="@color/transparent"
                     android:scaleType="fitEnd"
+                    android:src="@drawable/outline_article_shortcut_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"/>
+                    app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -231,13 +233,13 @@
                     android:id="@+id/ivImagePatternsInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:scaleY="1.2"
                     android:scaleX="1.2"
+                    android:scaleY="1.2"
                     android:src="@drawable/baseline_info_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/additionalItems"  />
+                    app:tint="@color/additionalItems" />
 
                 <TextView
                     android:id="@+id/tvImagePatternsName"
@@ -254,9 +256,9 @@
                 <TextView
                     android:id="@+id/tvImagePatternsValue"
                     android:layout_width="150dp"
-                    android:textAlignment="textEnd"
                     android:layout_height="wrap_content"
                     android:text="default"
+                    android:textAlignment="textEnd"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -273,13 +275,13 @@
                     android:id="@+id/ivPhotoEmbeddingInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:scaleY="1.2"
                     android:scaleX="1.2"
+                    android:scaleY="1.2"
                     android:src="@drawable/baseline_info_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/additionalItems"  />
+                    app:tint="@color/additionalItems" />
 
                 <TextView
                     android:id="@+id/tvPhotoEmbeddingName"
@@ -295,10 +297,10 @@
 
                 <TextView
                     android:id="@+id/tvPhotoEmbeddingValue"
-                    android:textAlignment="textEnd"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:text="default"
+                    android:textAlignment="textEnd"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -315,13 +317,13 @@
                     android:id="@+id/ivBarcodeFormatInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:scaleY="1.2"
                     android:scaleX="1.2"
+                    android:scaleY="1.2"
                     android:src="@drawable/baseline_info_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/additionalItems"  />
+                    app:tint="@color/additionalItems" />
 
                 <TextView
                     android:id="@+id/tvBarcodeFormatName"
@@ -337,10 +339,10 @@
 
                 <TextView
                     android:id="@+id/tvBarcodeFormatValue"
-                    android:textAlignment="textEnd"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:text="default"
+                    android:textAlignment="textEnd"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -383,9 +385,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="12dp"
                     android:text="default"
-                    android:visibility="gone"
                     android:textAlignment="textEnd"
                     android:textSize="16sp"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="@+id/tvPortraitComparisonName"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/tvPortraitComparisonName" />
@@ -394,8 +396,8 @@
                     android:id="@+id/textView3"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
                     android:layout_marginStart="32dp"
+                    android:layout_marginTop="4dp"
                     android:layout_marginEnd="8dp"
                     android:text="enable RFID reading as a source for obtaining photos for comparison"
                     app:layout_constraintBottom_toBottomOf="@+id/tvUseRfid"
@@ -408,18 +410,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="use rfid\nreading"
-                    android:textSize="14sp"
                     android:textColor="@color/textColor"
+                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@+id/rBtnUseRfid"
                     app:layout_constraintEnd_toStartOf="@+id/rBtnUseRfid"
                     app:layout_constraintTop_toTopOf="@+id/rBtnUseRfid" />
 
                 <CheckBox
                     android:id="@+id/rBtnUseRfid"
-                    android:layout_marginBottom="12dp"
-                    android:layout_marginEnd="4dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginBottom="12dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent" />
 
@@ -447,13 +449,13 @@
                     android:id="@+id/ivUVLuminescenceInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:scaleY="1.2"
                     android:scaleX="1.2"
+                    android:scaleY="1.2"
                     android:src="@drawable/baseline_info_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/additionalItems"  />
+                    app:tint="@color/additionalItems" />
 
                 <TextView
                     android:id="@+id/tvUVLuminescenceName"
@@ -469,10 +471,10 @@
 
                 <TextView
                     android:id="@+id/tvUVLuminescenceValue"
-                    android:textAlignment="textEnd"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:text="default"
+                    android:textAlignment="textEnd"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -489,13 +491,13 @@
                     android:id="@+id/ivUVFibersInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:scaleY="1.2"
                     android:scaleX="1.2"
+                    android:scaleY="1.2"
                     android:src="@drawable/baseline_info_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/additionalItems"  />
+                    app:tint="@color/additionalItems" />
 
                 <TextView
                     android:id="@+id/tvUVFibersName"
@@ -511,10 +513,10 @@
 
                 <TextView
                     android:id="@+id/tvUVFibersValue"
-                    android:textAlignment="textEnd"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:text="default"
+                    android:textAlignment="textEnd"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -531,13 +533,13 @@
                     android:id="@+id/ivExtendedMRZInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:scaleY="1.2"
                     android:scaleX="1.2"
+                    android:scaleY="1.2"
                     android:src="@drawable/baseline_info_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/additionalItems"  />
+                    app:tint="@color/additionalItems" />
 
                 <TextView
                     android:id="@+id/tvExtendedMRZName"
@@ -553,10 +555,10 @@
 
                 <TextView
                     android:id="@+id/tvExtendedMRZValue"
-                    android:textAlignment="textEnd"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:text="default"
+                    android:textAlignment="textEnd"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -573,13 +575,13 @@
                     android:id="@+id/ivExtendedOCRInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:scaleY="1.2"
                     android:scaleX="1.2"
+                    android:scaleY="1.2"
                     android:src="@drawable/baseline_info_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/additionalItems"  />
+                    app:tint="@color/additionalItems" />
 
                 <TextView
                     android:id="@+id/tvExtendedOCRName"
@@ -595,10 +597,10 @@
 
                 <TextView
                     android:id="@+id/tvExtendedOCRValue"
-                    android:textAlignment="textEnd"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:text="default"
+                    android:textAlignment="textEnd"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -615,13 +617,13 @@
                     android:id="@+id/ivIRB900Info"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:scaleY="1.2"
                     android:scaleX="1.2"
+                    android:scaleY="1.2"
                     android:src="@drawable/baseline_info_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/additionalItems"  />
+                    app:tint="@color/additionalItems" />
 
                 <TextView
                     android:id="@+id/tvIRB900Name"
@@ -637,10 +639,10 @@
 
                 <TextView
                     android:id="@+id/tvIRB900Value"
-                    android:textAlignment="textEnd"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:text="default"
+                    android:textAlignment="textEnd"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -657,13 +659,13 @@
                     android:id="@+id/ivIRVisibilityInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:scaleY="1.2"
                     android:scaleX="1.2"
+                    android:scaleY="1.2"
                     android:src="@drawable/baseline_info_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/additionalItems"  />
+                    app:tint="@color/additionalItems" />
 
                 <TextView
                     android:id="@+id/tvIRVisibilityName"
@@ -679,10 +681,10 @@
 
                 <TextView
                     android:id="@+id/tvIRVisibilityValue"
-                    android:textAlignment="textEnd"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:text="default"
+                    android:textAlignment="textEnd"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -699,13 +701,13 @@
                     android:id="@+id/ivIPIInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:scaleY="1.2"
                     android:scaleX="1.2"
+                    android:scaleY="1.2"
                     android:src="@drawable/baseline_info_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/additionalItems"  />
+                    app:tint="@color/additionalItems" />
 
                 <TextView
                     android:id="@+id/tvIPIName"
@@ -721,10 +723,10 @@
 
                 <TextView
                     android:id="@+id/tvIPIValue"
-                    android:textAlignment="textEnd"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:text="default"
+                    android:textAlignment="textEnd"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -735,7 +737,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/shape_authenticity_check"
-                android:padding="12dp">
+                android:padding="12dp"
+                android:layout_marginBottom="40dp">
 
                 <ImageView
                     android:id="@+id/ivSecurityTextInfo"
@@ -774,6 +777,20 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
     </ScrollView>
+
+    <Button
+        android:id="@+id/btnResetAll"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginHorizontal="64dp"
+        android:layout_marginVertical="6dp"
+        android:backgroundTint="@color/btnReset"
+        android:shadowRadius="5"
+        android:text="reset all auth params"
+        android:background="@drawable/button_shape"
+        app:layout_constraintBottom_toBottomOf="@+id/scrollView2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutBottom"

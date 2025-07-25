@@ -3,7 +3,10 @@ package com.regula.documentreader
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.regula.documentreader.Helpers.Companion.getStatusImage
 import com.regula.documentreader.api.results.DocumentReaderResults
@@ -89,6 +92,31 @@ class ResultsAuthActivity : AppCompatActivity() {
 
         binding.rvItems.layoutManager = LinearLayoutManager(this)
         binding.rvItems.adapter = AuthItemsAdapter(this, check.elements)
+    }
+
+    override fun setContentView(view: View?) {
+        super.setContentView(view)
+
+        applyEdgeToEdgeInsets()
+    }
+
+    private fun applyEdgeToEdgeInsets() {
+        val rootView = window.decorView.findViewWithTag<View>("content")
+        if (rootView != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
+                val systemBars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars()
+                            or WindowInsetsCompat.Type.displayCutout()
+                )
+                view.setPadding(
+                    systemBars.left,
+                    systemBars.top,
+                    systemBars.right,
+                    systemBars.bottom
+                )
+                insets
+            }
+        }
     }
 
     companion object {

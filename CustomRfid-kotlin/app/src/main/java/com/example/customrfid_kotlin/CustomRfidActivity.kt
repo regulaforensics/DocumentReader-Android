@@ -17,6 +17,8 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.example.customrfid_kotlin.databinding.ActivityCustomRfidBinding
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
@@ -28,6 +30,7 @@ import com.regula.documentreader.api.errors.DocumentReaderException
 import com.regula.documentreader.api.nfc.IsoDepTag
 import com.regula.documentreader.api.results.DocumentReaderNotification
 import com.regula.documentreader.api.results.DocumentReaderResults
+import com.regula.documentreader.api.results.rfid.RFIDSessionData
 
 class CustomRfidActivity : AppCompatActivity() {
     private var HANDLER = Handler(Looper.getMainLooper())
@@ -195,10 +198,10 @@ class CustomRfidActivity : AppCompatActivity() {
                             HANDLER.postDelayed(
                                 {
                                     documentReaderResults?.let {
-                                        if (isRestartRfidErrorCode(it.rfidResult)) {
+                                        if (isRestartRfidErrorCode(it.rfidSessionData, it.rfidResult)) {
                                             retry()
                                         } else {
-                                            Log.e(TAG, "Error result: ${eRFID_ErrorCodes.getTranslation(this@CustomRfidActivity, documentReaderResults?.rfidResult ?: 0)}")
+                                            Log.e(TAG, "Error result: ${eRFID_ErrorCodes.getTranslation(this@CustomRfidActivity, documentReaderResults.rfidResult ?: 0)}")
                                             setResult(RESULT_CANCELED)
                                             finish()
                                         }
@@ -256,11 +259,53 @@ class CustomRfidActivity : AppCompatActivity() {
         finish()
     }
 
-    fun isRestartRfidErrorCode(@eRFID_ErrorCodes.ErrorCodes errorCode: Int): Boolean {
-        return errorCode != 0x00000001 && errorCode != -0x7a000000
-                && errorCode != -0x7ffdfffc
-                && (errorCode == -0x7ffe0000 || errorCode == -0x7fff0000 || errorCode == -0x7ffe0000
-                        || errorCode == -0x7a000000 || errorCode == -0x7cf90000 || errorCode == -0x80000000)
+    fun isRestartRfidErrorCode(rfidSessionData: RFIDSessionData?, @eRFID_ErrorCodes.ErrorCodes errorCode: Int): Boolean {
+        if (isContainsErrorInErrorCode(errorCode)) {
+            return true
+        }
+
+        if (rfidSessionData != null) {
+            for (application in rfidSessionData.applications) {
+                val status: Int = application.status
+                if (isContainsErrorInErrorCode(status)) {
+                    return true
+                }
+            }
+        }
+
+        return false
+    }
+
+    private fun isContainsErrorInErrorCode(errorCode: Int): Boolean {
+        return (errorCode != eRFID_ErrorCodes.RFID_ERROR_NO_ERROR)
+                && (errorCode != eRFID_ErrorCodes.RFID_ERROR_LAYER6_SECURITY_MANAGER)
+                && (errorCode != eRFID_ErrorCodes.RFID_ERROR_PCSC_OPERATION_CANCELLED)
+                && ((errorCode and -0x10000) == -0x7fff0000 || (errorCode and -0x10000) == -0x7ffe0000 || (errorCode and -0x10000) == -0x7a000000 || (errorCode and -0x10000) == -0x7cf90000 || (errorCode and -0x10000) == -0x80000000)
+    }
+
+    override fun setContentView(view: View?) {
+        super.setContentView(view)
+
+        applyEdgeToEdgeInsets()
+    }
+
+    private fun applyEdgeToEdgeInsets() {
+        val rootView = window.decorView.findViewWithTag<View>("content")
+        if (rootView != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
+                val systemBars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars()
+                            or WindowInsetsCompat.Type.displayCutout()
+                )
+                view.setPadding(
+                    systemBars.left,
+                    systemBars.top,
+                    systemBars.right,
+                    systemBars.bottom
+                )
+                insets
+            }
+        }
     }
 
     companion object {

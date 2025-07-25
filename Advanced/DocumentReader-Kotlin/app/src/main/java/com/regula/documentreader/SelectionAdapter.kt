@@ -1,8 +1,10 @@
 package com.regula.documentreader
 
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import com.regula.documentreader.Helpers.Companion.getTranslation
 import com.regula.documentreader.Helpers.Companion.themeColor
@@ -30,8 +32,8 @@ class SelectionAdapter(private val items: List<Direct>, var selectedId: String) 
 
             binding.root.setOnClickListener {
                 if (!enabled) return@setOnClickListener
-                selectedView!!.root.setBackgroundColor(context.themeColor(R.attr.colorOnPrimary))
-                binding.root.setBackgroundColor(context.themeColor(R.attr.colorSecondaryVariant))
+                selectedView!!.root.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorOnPrimary))
+                binding.root.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSecondaryVariant))
                 selectedView = binding
                 selectedId = direct.title
 
@@ -53,9 +55,9 @@ class SelectionAdapter(private val items: List<Direct>, var selectedId: String) 
             if (selectedId == direct.title && selectedView == null)
                 selectedView = binding
             if (selectedId == direct.title)
-                binding.root.setBackgroundColor(context.themeColor(R.attr.colorSecondaryVariant))
+                binding.root.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorSecondaryVariant))
             else
-                binding.root.setBackgroundColor(context.themeColor(R.attr.colorOnPrimary))
+                binding.root.setBackgroundColor(context.themeColor(com.google.android.material.R.attr.colorOnPrimary))
         }
     }
 }

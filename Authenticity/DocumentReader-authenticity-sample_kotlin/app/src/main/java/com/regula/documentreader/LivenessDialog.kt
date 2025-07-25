@@ -243,6 +243,7 @@ class LivenessDialog(
         listener.onValueSubmit("default", checkId = R.string.check_ovi)
         listener.onValueSubmit("default", checkId = R.string.check_dynaprint)
         listener.onValueSubmit("default", checkId = R.string.check_black_and_white_copy)
+        listener.onValueSubmit("default", checkId = R.string.check_geometry)
     }
 
     private fun saveStates() {

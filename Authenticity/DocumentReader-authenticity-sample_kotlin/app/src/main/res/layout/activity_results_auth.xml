@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
-    tools:context=".ResultsAuthActivity">
+    tools:context=".ResultsAuthActivity"
+    android:tag="content">
 
     <TextView
         android:id="@+id/tvAuthenticityScreenLabel"

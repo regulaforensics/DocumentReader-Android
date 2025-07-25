@@ -74,10 +74,12 @@ class MainViewModel(val documentReader: DocumentReader): ViewModel()  {
         //set the default settings you want
     }
 
-    fun showScanner(context: Context, rfidReading: Boolean) {
-        if (!documentReader.isReady) return
-
+    fun updateRfidReading(rfidReading: Boolean){
         this.rfidReading = rfidReading
+    }
+
+    fun showScanner(context: Context) {
+        if (!documentReader.isReady) return
 
         val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_AUTH).build()
         documentReader.startScanner(context, scannerConfig, completion)
@@ -202,9 +204,9 @@ class MainViewModel(val documentReader: DocumentReader): ViewModel()  {
         IDocumentReaderCompletion { action, results, error ->
             //processing is finished, all results are ready
             if (action == DocReaderAction.COMPLETE || action == DocReaderAction.TIMEOUT) {
-                if (rfidReading && results?.chipPage != 0 && DocumentReader.Instance().isRFIDAvailableForUse)
+                if (rfidReading && results?.chipPage != 0 && DocumentReader.Instance().isRFIDAvailableForUse) {
 
-                    documentReader.startRFIDReader(context!!, object: IRfidReaderCompletion() {
+                    documentReader.startRFIDReader(context!!, object : IRfidReaderCompletion() {
                         override fun onChipDetected() {
                             Log.d("Rfid", "Chip detected")
                         }
@@ -224,14 +226,14 @@ class MainViewModel(val documentReader: DocumentReader): ViewModel()  {
                         ) {
                             if (rfidAction == DocReaderAction.COMPLETE
                                 || rfidAction == DocReaderAction.ERROR
-                                || rfidAction == DocReaderAction.CANCEL) {
+                                || rfidAction == DocReaderAction.CANCEL
+                            ) {
                                 showScannerSuccessCompletion.value = results_RFIDReader!!
                                 return
                             }
                         }
                     })
-
-                showScannerSuccessCompletion.value = results
+                } else showScannerSuccessCompletion.value = results
             } else {
                 //something happened before all results were ready
                 if (action == DocReaderAction.CANCEL) {

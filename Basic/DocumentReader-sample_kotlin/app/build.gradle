@@ -4,13 +4,20 @@ plugins {
 }
 
 android {
-    compileSdk 34
+    compileSdk 36
     defaultConfig {
         applicationId "com.regula.documentreader"
-        minSdkVersion 21
-        targetSdk 34
+        minSdk 21
+        targetSdk 36
         versionCode 1
         versionName "1.0"
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
     }
     buildTypes {
         release {
@@ -29,9 +36,10 @@ dependencies {
     //noinspection GradleCompatible
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.google.android.material:material:1.6.1'
 
-    implementation 'com.regula.documentreader.core:fullrfid:8.1.+@aar'
-    implementation('com.regula.documentreader:api:8.1.+@aar') {
+    implementation 'com.regula.documentreader.core:fullauthrfid:8.2.+@aar'
+    implementation('com.regula.documentreader:api:8.2.+@aar') {
         transitive = true;
     }
 }

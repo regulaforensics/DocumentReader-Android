@@ -3,7 +3,7 @@
     <domain-config>
         <domain includeSubdomains="true">regulaforensics.com</domain>
         <pin-set>
-            <pin digest="SHA-256">/5RKFaPkCjAzvsEZHOlYqncYADaLIG5VfTmhsBbkaBk=</pin>
+            <pin digest="SHA-256">66A/u2IP5zXywsUEbkCeZ1YiaO4yVqX0XNWDN0c1ffI=</pin>
         </pin-set>
     </domain-config>
 </network-security-config>
