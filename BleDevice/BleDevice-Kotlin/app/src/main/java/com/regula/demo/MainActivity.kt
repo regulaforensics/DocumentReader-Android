@@ -111,6 +111,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         val bleIntent = Intent(this, RegulaBleService::class.java)
+        bleIntent.putExtra(
+            RegulaBleService.DEVICE_NAME,
+            DocumentReader.Instance().functionality().btDeviceName
+        )
         bindService(bleIntent, mBleConnection, 0)
     }
 

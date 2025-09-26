@@ -83,9 +83,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun startBluetoothService() {
         if (!bluetoothUtil.isBluetoothSettingsReady(this) || isBleServiceConnected) {
+            if(isBleServiceConnected)
+                bleManager?.connect(DocumentReader.Instance().functionality().btDeviceName)
             return
         }
         val bleIntent = Intent(this, RegulaBleService::class.java)
+
+        bleIntent.putExtra(
+            RegulaBleService.DEVICE_NAME,
+            DocumentReader.Instance().functionality().btDeviceName
+        )
         startService(bleIntent)
         bindService(bleIntent, mBleConnection, 0)
     }
@@ -97,7 +104,7 @@ class MainActivity : AppCompatActivity() {
             bleManager = bleService.bleManager
 
             if (bleManager?.isConnected == true) {
-                startActivity(Intent(this@MainActivity, SuccessfulInitActivity::class.java))
+                successfulInit()
                 return
             }
 
@@ -120,10 +127,24 @@ class MainActivity : AppCompatActivity() {
 
     private val bleManagerCallbacks: BleManagerCallback = object : BleWrapperCallback() {
         override fun onDeviceReady() {
-            handler.removeMessages(0)
             bleManager!!.removeCallback(this)
-            startActivity(Intent(this@MainActivity, SuccessfulInitActivity::class.java))
             dismissDialog()
+            successfulInit()
+        }
+    }
+
+
+    private fun successfulInit() {
+        handler.removeMessages(0)
+        val intent = Intent(this@MainActivity, SuccessfulInitActivity::class.java)
+        startActivity(intent)
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        if (DocumentReader.Instance().isReady) {
+            successfulInit()
         }
     }
 

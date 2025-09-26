@@ -557,7 +557,7 @@ class MainActivity : FragmentActivity(), Serializable {
         val search = FaceApiParams.Search()
         search.limit = 100
         search.threshold = 0.9f
-        search.groupIds = intArrayOf(1, 2, 3)
+        search.groupIds = arrayOf("1", "2", "3")
 
         faceApiParams.search = search
 

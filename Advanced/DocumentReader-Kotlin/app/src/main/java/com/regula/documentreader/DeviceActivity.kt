@@ -57,8 +57,12 @@ class DeviceActivity : AppCompatActivity() {
             return
         }
         val bleIntent = Intent(this, RegulaBleService::class.java)
+        bleIntent.putExtra(
+            RegulaBleService.DEVICE_NAME,
+            DocumentReader.Instance().functionality().btDeviceName
+        )
         startService(bleIntent)
-        bindService(bleIntent, mBleConnection, 0)
+        bindService(bleIntent, mBleConnection, BIND_AUTO_CREATE)
     }
 
     private val mBleConnection: ServiceConnection = object : ServiceConnection {
@@ -87,6 +91,12 @@ class DeviceActivity : AppCompatActivity() {
     private val handler = Handler { msg: Message? ->
         Toast.makeText(this, "Failed to connect to the torch device", Toast.LENGTH_SHORT).show()
         dismissDialog()
+        val bleIntent = Intent(this, RegulaBleService::class.java)
+        stopService(bleIntent)
+        if (isBleServiceConnected) {
+            unbindService(mBleConnection)
+            isBleServiceConnected = false
+        }
         false
     }
     private val bleManagerCallbacks: BleManagerCallback = object : BleWrapperCallback() {

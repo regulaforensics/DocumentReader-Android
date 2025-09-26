@@ -52,7 +52,6 @@ class ConnectDeviceActivity : AppCompatActivity() {
             val deviceName = binding.edDevice.text.toString()
             prefs.edit().putString("device_name", deviceName).apply()
             showDialog("Searching devices")
-            handler.sendEmptyMessageDelayed(0, 7000)
             DocumentReader.Instance().functionality().edit().setBtDeviceName(deviceName).apply()
             startBluetoothService()
         }
@@ -117,8 +116,12 @@ class ConnectDeviceActivity : AppCompatActivity() {
             return
         }
         val bleIntent = Intent(this, RegulaBleService::class.java)
+        bleIntent.putExtra(
+            RegulaBleService.DEVICE_NAME,
+            DocumentReader.Instance().functionality().btDeviceName
+        )
         startService(bleIntent)
-        bindService(bleIntent, mBleConnection, 0)
+        bindService(bleIntent, mBleConnection, BIND_AUTO_CREATE)
     }
 
     private val mBleConnection: ServiceConnection = object : ServiceConnection {
@@ -127,10 +130,8 @@ class ConnectDeviceActivity : AppCompatActivity() {
             val bleService = (service as RegulaBleService.LocalBinder).service
             bleManager = bleService.bleManager
             bleManager.let {
-                handler.removeMessages(0)
                 if (DocumentReader.Instance().isReady) {
-                    dismissDialog()
-                    startActivity(Intent(this@ConnectDeviceActivity, MainActivity::class.java))
+                    startActivity()
                     return
                 }
                 if (it?.isConnected == true) {
@@ -138,6 +139,7 @@ class ConnectDeviceActivity : AppCompatActivity() {
                     initializeReader()
                     return
                 }
+                handler.sendEmptyMessageDelayed(0, 7000)
                 it?.addCallback(bleManagerCallbacks)
             }
         }
@@ -146,9 +148,16 @@ class ConnectDeviceActivity : AppCompatActivity() {
             isBleServiceConnected = false
         }
     }
+
     private val handler = Handler { msg: Message? ->
         Toast.makeText(this, "Failed to connect to the torch device", Toast.LENGTH_SHORT).show()
         dismissDialog()
+        val bleIntent = Intent(this, RegulaBleService::class.java)
+        stopService(bleIntent)
+        if (isBleServiceConnected) {
+            unbindService(mBleConnection)
+            isBleServiceConnected = false
+        }
         false
     }
 
@@ -157,6 +166,13 @@ class ConnectDeviceActivity : AppCompatActivity() {
             handler.removeMessages(0)
             bleManager?.removeCallback(this)
             initializeReader()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (DocumentReader.Instance().isReady) {
+            startActivity()
         }
     }
 

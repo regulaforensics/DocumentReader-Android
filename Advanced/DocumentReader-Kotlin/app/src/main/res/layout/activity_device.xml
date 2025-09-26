@@ -21,7 +21,7 @@
             android:hint="Regula 0123" />
 
     <Button
-        android:textColor="@color/bs_light"
+        android:textColor="@color/dark_blue"
         android:id="@+id/btn_connect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

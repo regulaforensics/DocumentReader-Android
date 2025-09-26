@@ -215,6 +215,7 @@ open class MainActivity : AppCompatActivity() {
             val adapter = ScenarioAdapter(this@MainActivity, android.R.layout.simple_list_item_1, scenarios)
             adapter.setSelectedPosition(0)
             binding.scenariosList.adapter = adapter
+            scenarioLv(scenarios[0])
         }
     }
 
