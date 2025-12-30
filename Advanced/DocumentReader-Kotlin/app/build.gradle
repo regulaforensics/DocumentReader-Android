@@ -48,11 +48,11 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.4.0'
     implementation "androidx.recyclerview:recyclerview:1.2.1"
 
-    implementation 'com.regula.btdevice:api:7.6.+@aar'
+    implementation 'com.regula.btdevice:api:9.1.+@aar'
     //noinspection GradleDynamicVersion
-    implementation 'com.regula.documentreader.core:fullrfid:8.4.+@aar'
+    implementation 'com.regula.documentreader.core:fullrfid:9.1.+@aar'
     //noinspection GradleDynamicVersion
-    implementation('com.regula.documentreader:api:8.4.+@aar') {
+    implementation('com.regula.documentreader:api:9.1.+@aar') {
         transitive = true
     }
 

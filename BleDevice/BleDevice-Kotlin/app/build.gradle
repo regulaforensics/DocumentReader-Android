@@ -43,9 +43,9 @@ dependencies {
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
-    implementation 'com.regula.btdevice:api:7.6.+@aar'
-    implementation 'com.regula.documentreader.core:fullauthrfid:8.4.+@aar'
-    implementation('com.regula.documentreader:api:8.4.+@aar') {
+    implementation 'com.regula.btdevice:api:9.1.+@aar'
+    implementation 'com.regula.documentreader.core:fullauthrfid:9.1.+@aar'
+    implementation('com.regula.documentreader:api:9.1.+@aar') {
         transitive = true;
     }
     implementation ('com.regula.face:api:7.2.+@aar'){
