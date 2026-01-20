@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">ReadMDL</string>
+    <string name="strSurnameAndGivenNames">Surname and given names</string>
+    <string name="strPortrait">Portrait</string>
+    <string name="portraitIv">portrait image</string>
+    <string name="docImageLabel">Document image:</string>
+    <string name="documentImageIv">document image</string>
+    <string name="recognizeImageLink">Use recognizeImage() method</string>
+    <string name="showScannerLink">Use showScanner() method</string>
+    <string name="doRfidCb">Perform NFC chip reading</string>
+</resources>

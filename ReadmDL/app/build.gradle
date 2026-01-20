@@ -1,0 +1,46 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
+android {
+    compileSdk 36
+    defaultConfig {
+        applicationId "com.regula.documentreader"
+        minSdk 21
+        targetSdk 36
+        versionCode 1
+        versionName "1.0"
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+    namespace 'com.regula.documentreader'
+}
+
+dependencies {
+    //noinspection GradleCompatible
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.google.android.material:material:1.6.1'
+
+    implementation 'com.regula.documentreader.core:fullauthrfid:9.1.+@aar'
+    implementation 'com.regula.btdevice:api:9.1.+@aar'
+    implementation('com.regula.documentreader:api:9.1.+@aar') {
+        transitive = true;
+    }
+}
