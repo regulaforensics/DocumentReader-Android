@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">DocumentReaderKotlin</string>
+    <string name="strSurnameAndGivenNames">Surname and given names</string>
+    <string name="strPortrait">Portrait</string>
+    <string name="portraitIv">portrait image</string>
+    <string name="docImageLabel">Document image:</string>
+    <string name="documentImageIv">document image</string>
+    <string name="recognizeImageLink">Use recognizeImage() method</string>
+    <string name="showScannerLink">Use showScanner() method</string>
+    <string name="doRfidCb">Perform NFC chip reading</string>
+    <string name="mrz">MRZ</string>
+    <string name="can">CAN</string>
+    <string name="pin">PIN</string>
+    <string name="puk">PUK</string>
+    <string name="sai">SAI</string>
+    <string name="value">Value\n</string>
+    <string name="data_access_key">Data access key</string>
+</resources>
