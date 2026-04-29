@@ -63,41 +63,58 @@
             android:layout_height="wrap_content"
             android:text="Data acces key" />
 
-        <RadioGroup
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/mrzRb"
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <RadioGroup
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="MRZ" />
+                android:paddingVertical="8dp"
+                android:orientation="horizontal">
 
-            <RadioButton
-                android:id="@+id/canRb"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="CAN" />
+                <RadioButton
+                    android:id="@+id/mrzRb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="MRZ" />
 
-            <RadioButton
-                android:id="@+id/pinRb"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="PIN" />
+                <RadioButton
+                    android:id="@+id/canRb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CAN" />
 
-            <RadioButton
-                android:id="@+id/pukRb"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="PUK" />
+                <RadioButton
+                    android:id="@+id/pinRb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PIN" />
 
-            <RadioButton
-                android:id="@+id/saiRb"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="SAI" />
-        </RadioGroup>
+                <RadioButton
+                    android:id="@+id/pukRb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PUK" />
+
+                <RadioButton
+                    android:id="@+id/saiRb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SAI" />
+
+                <RadioButton
+                    android:id="@+id/esignRb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PIN_ESIGN" />
+
+                <RadioButton
+                    android:id="@+id/hashRb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="MRZ_HASH" />
+            </RadioGroup>
+        </HorizontalScrollView>
 
         <TextView
             android:layout_width="wrap_content"

@@ -102,6 +102,14 @@ open class MainActivity : AppCompatActivity() {
                 binding.saiRb.setChecked(true)
                 binding.passwordEt.setText(DocumentReader.Instance().rfidScenario().getPassword())
             }
+            eRFID_Password_Type.PPT_PIN_ESIGN -> {
+                binding.esignRb.setChecked(true)
+                binding.passwordEt.setText(DocumentReader.Instance().rfidScenario().getPassword())
+            }
+            eRFID_Password_Type.PPT_MRZ_HASH -> {
+                binding.hashRb.setChecked(true)
+                binding.passwordEt.setText(DocumentReader.Instance().rfidScenario().getPassword())
+            }
         }
 
         binding.canRb.setOnCheckedChangeListener { _: CompoundButton?, b: Boolean ->
@@ -139,6 +147,20 @@ open class MainActivity : AppCompatActivity() {
                 binding.passwordEt.setText(DocumentReader.Instance().rfidScenario().getPassword())
             }
         }
+        binding.esignRb.setOnCheckedChangeListener { _: CompoundButton?, b: Boolean ->
+            if (b) {
+                DocumentReader.Instance().rfidScenario()
+                    .setPacePasswordType(eRFID_Password_Type.PPT_PIN_ESIGN)
+                binding.passwordEt.setText(DocumentReader.Instance().rfidScenario().getPassword())
+            }
+        }
+        binding.hashRb.setOnCheckedChangeListener { _: CompoundButton?, b: Boolean ->
+            if (b) {
+                DocumentReader.Instance().rfidScenario()
+                    .setPacePasswordType(eRFID_Password_Type.PPT_MRZ_HASH)
+                binding.passwordEt.setText(DocumentReader.Instance().rfidScenario().getPassword())
+            }
+        }
 
         binding.passwordEt.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(charSequence: CharSequence?, i: Int, i1: Int, i2: Int) {
@@ -149,6 +171,10 @@ open class MainActivity : AppCompatActivity() {
                         .getPacePasswordType() == eRFID_Password_Type.PPT_MRZ
                 ) {
                     DocumentReader.Instance().rfidScenario().setMrz(charSequence.toString())
+                } else if (DocumentReader.Instance().rfidScenario()
+                        .getPacePasswordType() == eRFID_Password_Type.PPT_MRZ_HASH
+                ) {
+                    DocumentReader.Instance().rfidScenario().setMrzHash(charSequence.toString())
                 } else {
                     DocumentReader.Instance().rfidScenario().setPassword(charSequence.toString())
                 }
