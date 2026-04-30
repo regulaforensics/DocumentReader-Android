@@ -38,8 +38,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.google.android.material:material:1.6.1'
 
-    implementation 'com.regula.documentreader.core:fullauthrfid:9.3.+@aar'
-    implementation('com.regula.documentreader:api:9.3.+@aar') {
+    implementation 'com.regula.documentreader.core:fullauthrfid:9.4.+@aar'
+    implementation('com.regula.documentreader:api:9.4.+@aar') {
         transitive = true;
     }
 }
