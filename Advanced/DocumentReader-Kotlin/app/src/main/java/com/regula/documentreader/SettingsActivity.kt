@@ -313,12 +313,6 @@ class APISettingsFragment : Fragment() {
         )
         sectionsData.add(
             Switch(
-                "Force read Mrz before Locate",
-                { Instance().processParams().forceReadMrzBeforeLocate },
-                { Instance().processParams().forceReadMrzBeforeLocate = it })
-        )
-        sectionsData.add(
-            Switch(
                 "Multiple documents from one image",
                 { Instance().processParams().multiDocOnImage },
                 { Instance().processParams().multiDocOnImage = it })
