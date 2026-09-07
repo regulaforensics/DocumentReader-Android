@@ -48,8 +48,8 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.google.android.material:material:1.11.0")
 
-    implementation("com.regula.documentreader.core:fullrfid:9.7.+@aar")
-    implementation("com.regula.documentreader:api:9.7.+@aar") {
+    implementation("com.regula.documentreader.core:fullrfid:9.8.+@aar")
+    implementation("com.regula.documentreader:api:9.8.+@aar") {
         isTransitive = true
     }
 }
