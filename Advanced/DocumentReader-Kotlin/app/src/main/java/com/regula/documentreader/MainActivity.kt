@@ -51,7 +51,6 @@ import com.regula.documentreader.api.enums.eRFID_DataFile_Type
 import com.regula.documentreader.api.enums.eRFID_NotificationCodes
 import com.regula.documentreader.api.errors.DocReaderRfidException
 import com.regula.documentreader.api.errors.DocumentReaderException
-import com.regula.documentreader.api.internal.parser.DocReaderResultsJsonParser
 import com.regula.documentreader.api.params.DocReaderConfig
 import com.regula.documentreader.api.params.FaceApiParams
 import com.regula.documentreader.api.results.DocumentReaderNotification
@@ -324,10 +323,7 @@ class MainActivity : FragmentActivity(), Serializable {
                 hideDialog()
                 when (result) {
                     is Result.Success -> {
-                        val map = result.component1()
-                            ?.let { DocReaderResultsJsonParser.parseCoreResults(it) }
-                        val results = map?.get("docReaderResults") as DocumentReaderResults
-                        ResultsActivity.results = results
+                        ResultsActivity.results = DocumentReaderResults.fromRawResults(result.value)
                         startActivity(Intent(this, ResultsActivity::class.java))
                     }
                     is Result.Failure -> {
