@@ -1,0 +1,36 @@
+name: Build debug APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_id:
+        description: "applicationId the Regula license is bound to"
+        required: true
+        default: "com.incode.regulareader"
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      REGULA_LICENSE_B64: ${{ secrets.REGULA_LICENSE_B64 }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.11.1"
+      # Optional: bundle the license from a repo secret (base64 of regula.license)
+      - name: Add license from secret (optional)
+        if: ${{ env.REGULA_LICENSE_B64 != '' }}
+        run: echo "$REGULA_LICENSE_B64" | base64 -d > app/src/main/res/raw/regula.license
+      - name: Build
+        run: gradle assembleDebug -PREGULA_APP_ID=${{ github.event.inputs.app_id || 'com.incode.regulareader' }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: regula-docreader-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
