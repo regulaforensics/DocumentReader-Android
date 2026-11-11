@@ -46,8 +46,9 @@ import com.regula.documentreader.api.enums.diDocType.dtTravelDocument
 import com.regula.documentreader.api.enums.diDocType.dtVisaID2
 import com.regula.documentreader.api.enums.diDocType.dtVisaID3
 import com.regula.documentreader.api.enums.eImageQualityCheckType
-import com.regula.documentreader.api.params.Functionality
+import com.regula.documentreader.api.params.AuthenticityParams
 import com.regula.documentreader.api.params.ImageQA
+import com.regula.documentreader.api.params.LivenessParams
 import com.regula.documentreader.databinding.ActivitySettingsBinding
 import com.regula.documentreader.databinding.FragmentRvBinding
 import org.json.JSONObject
@@ -895,11 +896,88 @@ class APISettingsFragment : Fragment() {
                 addMinusOne = false
             )
         )
+        sectionsData.add(Section("Liveness params"))
+        sectionsData.add(
+            Switch(
+                "OVI check",
+                { getLivenessParams()?.checkOVI },
+                { ensureLivenessParams().checkOVI = it }
+            )
+        )
+        sectionsData.add(
+            Switch(
+                "MLI check",
+                { getLivenessParams()?.checkMLI },
+                { ensureLivenessParams().checkMLI = it }
+            )
+        )
+        sectionsData.add(
+            Switch(
+                "Hologram detection check",
+                { getLivenessParams()?.checkHolo },
+                { ensureLivenessParams().checkHolo = it }
+            )
+        )
+        sectionsData.add(
+            Switch(
+                "ED check",
+                { getLivenessParams()?.checkED },
+                { ensureLivenessParams().checkED = it }
+            )
+        )
+        sectionsData.add(
+            Switch(
+                "Black and white copy check",
+                { getLivenessParams()?.checkBlackAndWhiteCopy },
+                { ensureLivenessParams().checkBlackAndWhiteCopy = it }
+            )
+        )
+        sectionsData.add(
+            Switch(
+                "Dynaprint detection check",
+                { getLivenessParams()?.checkDynaprint },
+                { ensureLivenessParams().checkDynaprint = it }
+            )
+        )
+        sectionsData.add(
+            Switch(
+                "Geometry check",
+                { getLivenessParams()?.checkGeometry },
+                { ensureLivenessParams().checkGeometry = it }
+            )
+        )
+        sectionsData.add(
+            Switch(
+                "Barcode background check",
+                { getLivenessParams()?.checkBarcodeBackground },
+                { ensureLivenessParams().checkBarcodeBackground = it }
+            )
+        )
 
         sectionsData.add(Scan("", ACTION_TYPE_CUSTOM))
 
         return binding.root
     }
+
+    private fun ensureAuthenticityParams() =
+        Instance().processParams().authenticityParams ?: AuthenticityParams.defaultParams()
+            .also {
+                Instance().processParams().run {
+                    useAuthenticityCheck = true
+                    authenticityParams = it
+                }
+            }
+
+    private fun getLivenessParams() = Instance().processParams().authenticityParams?.livenessParams
+
+    private fun ensureLivenessParams() =
+        ensureAuthenticityParams().livenessParams ?: LivenessParams.defaultParams()
+            .also {
+                ensureAuthenticityParams().run {
+                    useLivenessCheck = true
+                    livenessParams = it
+                }
+            }
 
     override fun onDestroyView() {
         super.onDestroyView()

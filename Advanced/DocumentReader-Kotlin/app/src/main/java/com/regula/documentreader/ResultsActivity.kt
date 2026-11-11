@@ -25,9 +25,14 @@ import com.regula.documentreader.Status.Companion.FAIL
 import com.regula.documentreader.Status.Companion.SUCCESS
 import com.regula.documentreader.Status.Companion.UNDEFINED
 import com.regula.documentreader.api.enums.LCID
-import com.regula.documentreader.api.enums.eCheckResult.*
+import com.regula.documentreader.api.enums.eCheckResult.CH_CHECK_ERROR
+import com.regula.documentreader.api.enums.eCheckResult.CH_CHECK_OK
+import com.regula.documentreader.api.enums.eCheckResult.CH_CHECK_WAS_NOT_DONE
 import com.regula.documentreader.api.enums.eRFID_DataFile_Type
-import com.regula.documentreader.api.enums.eRFID_ErrorCodes.*
+import com.regula.documentreader.api.enums.eRFID_ErrorCodes.RFID_ERROR_FAILED
+import com.regula.documentreader.api.enums.eRFID_ErrorCodes.RFID_ERROR_NOT_AVAILABLE
+import com.regula.documentreader.api.enums.eRFID_ErrorCodes.RFID_ERROR_NO_ERROR
+import com.regula.documentreader.api.enums.eRPRM_ResultType
 import com.regula.documentreader.api.results.DocumentReaderComparison
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.results.DocumentReaderValidity
@@ -35,7 +40,7 @@ import com.regula.documentreader.databinding.ActivityResultsBinding
 import com.regula.documentreader.databinding.FragmentResultsBinding
 import com.regula.documentreader.databinding.FragmentRvBinding
 import java.io.Serializable
-import java.util.*
+import java.util.Locale
 
 class ResultsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityResultsBinding
@@ -162,6 +167,19 @@ class ResultsActivity : AppCompatActivity() {
             val image = it.bitmap
             val item = Attribute(name, "", source = it.sourceType, image = image)
             attributes.add(item)
+        }
+
+        results.authenticityResult?.checks?.forEach { check ->
+            for (element in check.elements) {
+                val item = Attribute(
+                    name = element.getElementTypeName(this),
+                    parentName = check.getTypeName(this),
+                    parentDepth = 1,
+                    checkResult = element.status,
+                    source = eRPRM_ResultType.RPRM_RESULT_TYPE_AUTHENTICITY,
+                )
+                attributes.add(item)
+            }
         }
 
         val types = attributes.map { it.source }.toSet()
@@ -446,7 +464,14 @@ class GroupFragment : Fragment() {
             tag = 40
         sectionsData.add(Section(groupedAttributes.type, tag))
 
+        var previousParentName: String? = null
         for (attribute in groupedAttributes.items) {
+            if (attribute.parentName != previousParentName) {
+                previousParentName = attribute.parentName
+                previousParentName?.let {
+                    sectionsData.add(Section(it, depth = attribute.parentDepth))
+                }
+            }
             when {
                 attribute.image != null -> sectionsData.add(
                     Image(

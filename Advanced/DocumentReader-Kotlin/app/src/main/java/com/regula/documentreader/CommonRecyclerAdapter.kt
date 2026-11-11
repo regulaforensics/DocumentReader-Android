@@ -80,6 +80,7 @@ class CommonRecyclerAdapter(private val items: List<Base>) :
             override fun bind(base: Base) {
                 val section = base as Section
                 binding.title.text = section.title
+                binding.title.alpha = (1 - section.depth * 0.3f).coerceIn(0.1f, 1f)
                 if (section.helpTag == 0)
                     binding.help.visibility = INVISIBLE
                 binding.help.setOnClickListener {

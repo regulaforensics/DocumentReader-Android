@@ -994,6 +994,7 @@ class Helpers {
             eRPRM_ResultType.RFID_RESULT_TYPE_RFID_ORIGINAL_GRAPHICS -> "RFID Original Graphics"
             eRPRM_ResultType.RPRM_RESULT_TYPE_BARCODE_POSITION -> "Barcode Position"
             eRPRM_ResultType.RPRM_RESULT_TYPE_MRZ_POSITION -> "Mrz Position"
+            eRPRM_ResultType.RPRM_RESULT_TYPE_AUTHENTICITY -> "Authenticity"
             else -> "Undefined"
         }
 

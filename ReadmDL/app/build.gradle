@@ -7,7 +7,7 @@ android {
     compileSdk 36
     defaultConfig {
         applicationId "com.regula.documentreader"
-        minSdk 21
+        minSdk 23
         targetSdk 36
         versionCode 1
         versionName "1.0"
@@ -38,9 +38,9 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.google.android.material:material:1.6.1'
 
-    implementation 'com.regula.documentreader.core:barcodemrzrfid:9.9.+@aar'
-    implementation 'com.regula.btdevice:api:9.9.+@aar'
-    implementation('com.regula.documentreader:api:9.9.+@aar') {
+    implementation 'com.regula.documentreader.core:barcodemrzrfid:9.10.+@aar'
+    implementation 'com.regula.btdevice:api:9.10.+@aar'
+    implementation('com.regula.documentreader:api:9.10.+@aar') {
         transitive = true;
     }
 }
