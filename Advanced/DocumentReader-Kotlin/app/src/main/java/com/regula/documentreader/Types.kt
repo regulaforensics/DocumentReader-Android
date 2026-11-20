@@ -35,8 +35,7 @@ abstract class Base(
 
 open class Section(
     title: String,
-    val helpTag: Int = 0,
-    val depth: Int = 0
+    val helpTag: Int = 0
 ) : Base(title)
 
 class AuthSection(
@@ -181,8 +180,6 @@ class Attribute(
     var equality: Boolean = true,
     var rfidStatus: Int? = null,
     var checkResult: Int? = null,
-    var parentName: String? = null,
-    var parentDepth: Int = 0
 ) : Serializable {
     override fun equals(other: Any?) = (other is Attribute) && name == other.name
     override fun hashCode() = name.hashCode()
